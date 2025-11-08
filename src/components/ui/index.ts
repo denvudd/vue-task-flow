@@ -10,6 +10,9 @@ export { default as FieldPasswordInput } from './FieldPasswordInput.vue'
 export { default as FieldTextarea } from './FieldTextarea.vue'
 export { default as FieldSelect } from './FieldSelect.vue'
 export { default as ProgressLinear } from './ProgressLinear.vue'
+export { default as AvatarUpload } from './AvatarUpload.vue'
+export { default as Dialog } from './Dialog.vue'
+export { default as Toast } from './Toast.vue'
 
 // Export types
 export type { SelectItem } from './FieldSelect.vue'

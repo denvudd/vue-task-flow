@@ -78,4 +78,73 @@ export async function getProfilesByRole(role: string) {
   return await supabase.from('profiles').select('*').eq('role', role)
 }
 
+/**
+ * Upload avatar to Supabase storage
+ */
+export async function uploadAvatar(userId: string, file: File) {
+  // Check if user is authenticated
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    throw new Error('User must be authenticated to upload avatar')
+  }
+
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${Date.now()}.${fileExt}`
+  // Use user-specific folder structure for better RLS support
+  const filePath = `${userId}/${fileName}`
+
+  // Delete old avatar if exists (before uploading new one)
+  // This helps with storage quotas and cleanup
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  
+  if (user) {
+    // Try to list and delete old files in user's folder
+    const { data: oldFiles } = await supabase.storage
+      .from('avatars')
+      .list(userId, {
+        limit: 10,
+        sortBy: { column: 'created_at', order: 'desc' },
+      })
+
+    if (oldFiles && oldFiles.length > 0) {
+      // Delete old avatar files (keep only the newest)
+      const filesToDelete = oldFiles.slice(1).map((f) => `${userId}/${f.name}`)
+      if (filesToDelete.length > 0) {
+        await supabase.storage.from('avatars').remove(filesToDelete)
+      }
+    }
+  }
+
+  // Upload file to avatars bucket
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true, // Allow overwriting if file exists
+    })
+
+  if (uploadError) {
+    throw uploadError
+  }
+
+  // Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('avatars').getPublicUrl(filePath)
+
+  return { path: filePath, url: publicUrl }
+}
+
+/**
+ * Delete avatar from Supabase storage
+ */
+export async function deleteAvatar(filePath: string) {
+  return await supabase.storage.from('avatars').remove([filePath])
+}
+
 

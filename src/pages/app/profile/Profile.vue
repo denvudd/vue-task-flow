@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useUpdateProfile } from '@/composables/useProfile'
 import { Button, Card, Field, FieldInput } from '@/components/ui'
@@ -9,16 +9,22 @@ import { useRouter } from 'vue-router'
 import { editProfileSchema } from '@/validation/profile'
 import { ROUTES } from '@/lib/routing'
 import { ArrowLeft } from 'lucide-vue-next'
+import { useToast } from '@/composables/useToast'
+import ProfileChangeEmailDialog from '@/pages/app/profile/ProfileChangeEmailDialog.vue'
+import ProfileChangeAvatar from '@/pages/app/profile/ProfileChangeAvatar.vue'
 
 const router = useRouter()
-const { user, profile, loading: authLoading } = useAuth()
-
+const { user, profile, loading: authLoading, loadProfile } = useAuth()
 const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateProfile()
+const { createToast } = useToast()
 
 const error = ref<string | null>(null)
-const success = ref(false)
+const avatarPath = ref<string | null>(null)
+const avatarError = ref<string | null>(null)
 
-const { handleSubmit, errors, defineField, setValues, isFieldTouched, isFieldValid } = useForm({
+const isSubmitting = computed(() => isUpdating.value)
+
+const { handleSubmit, errors, defineField, setValues } = useForm({
   validationSchema: toTypedSchema(editProfileSchema),
   validateOnMount: false,
 })
@@ -30,20 +36,30 @@ const [fullName, fullNameAttrs] = defineField('full_name', {
   validateOnModelUpdate: true,
 })
 
-const usernameValid = computed(() => isFieldValid('username') && isFieldTouched('username'))
-const fullNameValid = computed(() => isFieldValid('full_name') && isFieldTouched('full_name'))
+watch(
+  profile,
+  (newProfile) => {
+    if (newProfile) {
+      setValues({
+        username: newProfile.username || '',
+        full_name: newProfile.full_name || '',
+      })
+    }
+  },
+  { immediate: true },
+)
 
-// Set initial values when profile is loaded
-if (profile.value) {
-  setValues({
-    username: profile.value.username || '',
-    full_name: profile.value.full_name || '',
-  })
+const handleAvatarUploaded = (path: string) => {
+  avatarPath.value = path
+  avatarError.value = null
+}
+
+const handleAvatarError = (message: string) => {
+  avatarError.value = message
 }
 
 const onSubmit = handleSubmit(async (formValues) => {
   error.value = null
-  success.value = false
 
   if (!user.value?.id) {
     error.value = 'You must be logged in to update profile'
@@ -53,11 +69,16 @@ const onSubmit = handleSubmit(async (formValues) => {
   try {
     const updates: any = {}
 
+    if (avatarPath.value) {
+      updates.avatar_url = avatarPath.value
+      avatarPath.value = null
+    }
+
     if (formValues.username && formValues.username !== profile.value?.username) {
       updates.username = formValues.username
     }
 
-    if (formValues.full_name !== undefined && formValues.full_name !== profile.value?.full_name) {
+    if (formValues.full_name !== profile.value?.full_name) {
       updates.full_name = formValues.full_name || null
     }
 
@@ -71,11 +92,13 @@ const onSubmit = handleSubmit(async (formValues) => {
       updates,
     })
 
-    success.value = true
+    await loadProfile(user.value.id)
 
-    setTimeout(() => {
-      success.value = false
-    }, 3000)
+    createToast({
+      title: 'Profile updated',
+      description: 'Your profile has been successfully updated.',
+      type: 'success',
+    })
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
   }
@@ -107,23 +130,17 @@ const handleBack = () => {
         </p>
 
         <form @submit.prevent="onSubmit" class="space-y-6">
-          <div v-if="success" class="p-4 rounded-lg bg-success-50 border border-success-200">
-            <p class="text-sm text-success-700 font-medium">✓ Profile updated successfully!</p>
-          </div>
-
           <div v-if="error" class="p-4 rounded-lg bg-error-50 border border-error-200">
             <p class="text-sm text-error-600">{{ error }}</p>
           </div>
 
-          <div>
-            <p class="text-sm font-medium text-neutral-700 mb-1 block">Email</p>
-            <p
-              class="w-full px-3 py-2 border text-sm border-neutral-300 rounded-lg bg-neutral-100 text-neutral-500 cursor-not-allowed"
-            >
-              {{ user?.email }}
-            </p>
-            <p class="text-xs text-neutral-500 mt-1">Email cannot be changed</p>
-          </div>
+          <ProfileChangeAvatar
+            :disabled="isSubmitting"
+            @uploaded="handleAvatarUploaded"
+            @error="handleAvatarError"
+          />
+
+          <ProfileChangeEmailDialog />
 
           <Field
             label="Username"
@@ -137,9 +154,8 @@ const handleBack = () => {
               v-model="username"
               type="text"
               placeholder="john_doe"
-              :disabled="isUpdating || success"
+              :disabled="isSubmitting"
               :invalid="!!errors.username"
-              :valid="usernameValid"
               @blur="usernameAttrs.onBlur"
             />
           </Field>
@@ -154,24 +170,18 @@ const handleBack = () => {
               v-model="fullName"
               type="text"
               placeholder="John Doe"
-              :disabled="isUpdating || success"
+              :disabled="isSubmitting"
               :invalid="!!errors.full_name"
-              :valid="!!fullName && fullNameValid"
               @blur="fullNameAttrs.onBlur"
             />
           </Field>
 
           <div class="flex justify-between items-center gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              :disabled="isUpdating || success"
-              @click="handleBack"
-            >
+            <Button type="button" variant="outline" :disabled="isSubmitting" @click="handleBack">
               Cancel
             </Button>
-            <Button type="submit" :disabled="isUpdating || success">
-              {{ isUpdating ? 'Saving...' : 'Save Changes' }}
+            <Button type="submit" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
             </Button>
           </div>
         </form>

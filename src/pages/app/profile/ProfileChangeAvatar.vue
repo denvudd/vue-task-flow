@@ -1,0 +1,125 @@
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+import { Field, AvatarUpload } from '@/components/ui'
+import { uploadAvatar, deleteAvatar } from '@/api/profiles'
+import { supabase } from '@/lib/supabase'
+
+interface Props {
+  disabled?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+})
+
+const emit = defineEmits<{
+  uploaded: [path: string]
+  error: [message: string]
+}>()
+
+const { profile } = useAuth()
+const avatarFile = ref<File | null>(null)
+const avatarError = ref<string | null>(null)
+const uploadingAvatar = ref(false)
+const uploadedAvatarPath = ref<string | null>(null)
+
+const currentAvatarUrl = computed(() => {
+  // If we just uploaded a new avatar, use it for preview
+  if (uploadedAvatarPath.value) {
+    return supabase.storage.from('avatars').getPublicUrl(uploadedAvatarPath.value).data.publicUrl
+  }
+
+  const url = profile.value?.avatar_url
+  if (!url) return null
+  if (url.startsWith('http')) return url
+  return supabase.storage.from('avatars').getPublicUrl(url).data.publicUrl
+})
+
+const handleError = (message: string) => {
+  avatarError.value = message
+  emit('error', message)
+}
+
+const handleAvatarChange = async () => {
+  if (!avatarFile.value) return
+
+  const userId = profile.value?.id
+  if (!userId) {
+    handleError('User not found')
+    return
+  }
+
+  uploadingAvatar.value = true
+  avatarError.value = null
+
+  try {
+    // Delete old avatar if exists
+    if (profile.value?.avatar_url) {
+      const oldPath = profile.value.avatar_url.includes('/storage/v1/object/public/avatars/')
+        ? profile.value.avatar_url.split('/avatars/')[1]
+        : profile.value.avatar_url
+
+      if (oldPath) {
+        await deleteAvatar(oldPath).catch(() => {})
+      }
+    }
+
+    // Upload new avatar
+    const { path } = await uploadAvatar(userId, avatarFile.value)
+
+    if (!path) {
+      handleError('Failed to upload avatar')
+      return
+    }
+
+    // Store the uploaded path for preview (this will update currentAvatarUrl)
+    uploadedAvatarPath.value = path
+    avatarFile.value = null
+    avatarError.value = null
+    emit('uploaded', path)
+  } catch (err: any) {
+    handleError(err.message || 'Failed to upload avatar')
+  } finally {
+    uploadingAvatar.value = false
+  }
+}
+
+// Watch for avatar file changes and auto-upload
+watch(avatarFile, (newFile) => {
+  if (newFile) {
+    handleAvatarChange()
+  }
+})
+
+// Reset uploaded path when profile is updated (after save)
+watch(
+  () => profile.value?.avatar_url,
+  (newUrl) => {
+    if (newUrl && uploadedAvatarPath.value) {
+      // Profile was updated, clear the temporary preview
+      uploadedAvatarPath.value = null
+    }
+  },
+)
+</script>
+
+<template>
+  <Field
+    label="Avatar"
+    :helper-text="
+      avatarError ||
+      'Upload your profile picture. You can drag and drop an image or click to select.'
+    "
+    :error-text="avatarError || undefined"
+    :invalid="!!avatarError"
+  >
+    <AvatarUpload
+      v-model="avatarFile"
+      :current-avatar-url="currentAvatarUrl"
+      :disabled="disabled || uploadingAvatar"
+      :invalid="!!avatarError"
+      @error="handleError"
+    />
+  </Field>
+</template>

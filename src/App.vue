@@ -1,9 +1,11 @@
 <script setup lang="ts">
-// App.vue is now a router outlet
+import { Toast } from '@/components/ui'
+import { toaster } from '@/composables/useToast'
 </script>
 
 <template>
   <router-view />
+  <Toast :toaster="toaster" />
 </template>
 
 <style scoped></style>
