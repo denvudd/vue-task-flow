@@ -1,0 +1,32 @@
+{
+  "welcome": "Welcome",
+  "hello": "Hello",
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Enter your credentials to access your account",
+      "submit": "Sign In",
+      "loading": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "continueWithGoogle": "Continue with Google",
+      "orDivider": "OR"
+    },
+    "signUp": {
+      "title": "Create Account",
+      "subtitle": "Sign up to get started",
+      "submit": "Sign Up",
+      "loading": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in",
+      "success": "Account created successfully! Redirecting to login...",
+      "continueWithGoogle": "Continue with Google",
+      "orDivider": "OR",
+      "errors": {
+        "required": "All fields are required",
+        "passwordMismatch": "Passwords do not match",
+        "passwordLength": "Password must be at least 6 characters"
+      }
+    }
+  }
+}
