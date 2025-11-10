@@ -1,6 +1,6 @@
 import { ROUTES } from '@/lib/routing'
 import { supabase } from '@/lib/supabase'
-import type { AuthError, AuthResponse, User } from '@supabase/supabase-js'
+import type { AuthError, AuthResponse, User, Session } from '@supabase/supabase-js'
 
 export interface SignUpData {
   email: string
@@ -65,10 +65,6 @@ export async function getCurrentUser() {
  * Update user password
  */
 export async function updatePassword(newPassword: string) {
-  console.log('[API] Calling supabase.auth.updateUser...')
-
-  // Call updateUser but don't await - the promise may hang due to auth state listeners
-  // The HTTP request completes successfully (returns 200)
   supabase.auth
     .updateUser({
       password: newPassword,
@@ -101,9 +97,14 @@ export async function sendPasswordResetEmail(email: string, redirectUrl?: string
  * Update user email
  */
 export async function updateEmail(newEmail: string) {
-  return await supabase.auth.updateUser({
-    email: newEmail,
-  })
+  return await supabase.auth.updateUser(
+    {
+      email: newEmail,
+    },
+    {
+      emailRedirectTo: `${window.location.origin}${ROUTES.AuthCallback}`,
+    },
+  )
 }
 
 /**
@@ -126,8 +127,30 @@ export async function signInWithGoogle(redirectTo?: string) {
 }
 
 /**
+ * Unlink an OAuth provider from the current user
+ */
+export async function unlinkIdentity(identity: {
+  id: string
+  provider: string
+  user_id: string
+  identity_id?: string
+}) {
+  // Use identity_id if available, otherwise use id
+  const identityToUnlink = {
+    identity_id: identity.identity_id || identity.id,
+    id: identity.id,
+    user_id: identity.user_id,
+    provider: identity.provider,
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return await supabase.auth.unlinkIdentity(identityToUnlink as any)
+}
+
+/**
  * Subscribe to auth state changes
  */
-export function onAuthStateChange(callback: (event: string, session: any) => void | Promise<void>) {
+export function onAuthStateChange(
+  callback: (event: string, session: Session | null) => void | Promise<void>,
+) {
   return supabase.auth.onAuthStateChange(callback)
 }

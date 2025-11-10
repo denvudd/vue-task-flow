@@ -51,14 +51,26 @@ const router = createRouter({
       name: 'ResetPassword',
       component: () => import('@/pages/auth/ResetPassword.vue'),
     },
+    {
+      path: ROUTES.AuthCallback,
+      name: 'AuthCallback',
+      component: () => import('@/pages/auth/AuthCallback.vue'),
+      // ВАЖЛИВО: не чекаємо на auth для callback
+      meta: { skipAuthCheck: true },
+    },
   ],
 })
 
 // Navigation guard for protected routes
 router.beforeEach(async (to, from, next) => {
+  // Пропускаємо auth callback без перевірок
+  if (to.meta.skipAuthCheck) {
+    next()
+    return
+  }
+
   const authStore = useAuthStore()
 
-  // Initialize auth if not already initialized
   if (!authStore.initialized) {
     await authStore.initialize()
   }
@@ -66,15 +78,13 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresGuest = to.matched.some((record) => record.meta.requiresGuest)
 
-  // If route requires authentication
   if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
     return
   }
 
-  // If route requires guest (not authenticated)
   if (requiresGuest && authStore.isAuthenticated) {
-    next({ name: 'Home' })
+    next({ name: 'Dashboard' })
     return
   }
 

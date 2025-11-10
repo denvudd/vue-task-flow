@@ -12,6 +12,8 @@ import { ArrowLeft } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
 import ProfileChangeEmailDialog from '@/pages/app/profile/ProfileChangeEmailDialog.vue'
 import ProfileChangeAvatar from '@/pages/app/profile/ProfileChangeAvatar.vue'
+import ProfileOAuthProviders from '@/pages/app/profile/ProfileOAuthProviders.vue'
+import ProfileSessions from '@/pages/app/profile/ProfileSessions.vue'
 
 const router = useRouter()
 const { user, profile, loading: authLoading, loadProfile } = useAuth()
@@ -114,7 +116,7 @@ const handleBack = () => {
     <div class="text-neutral-600">Loading...</div>
   </div>
 
-  <div v-else class="min-h-screen bg-neutral-50 p-4 md:p-8">
+  <div v-else class="min-h-screen bg-neutral-50 p-4 md:p-8 pt-0 md:pt-0">
     <div class="max-w-3xl mx-auto space-y-4">
       <div>
         <Button variant="ghost" size="sm" @click="handleBack">
@@ -175,6 +177,10 @@ const handleBack = () => {
               @blur="fullNameAttrs.onBlur"
             />
           </Field>
+
+          <ProfileOAuthProviders />
+
+          <ProfileSessions />
 
           <div class="flex justify-between items-center gap-3 pt-4">
             <Button type="button" variant="outline" :disabled="isSubmitting" @click="handleBack">

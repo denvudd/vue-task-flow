@@ -19,6 +19,13 @@ app.use(VueQueryPlugin, vueQueryOptions)
 // Initialize auth state before mounting
 import { useAuthStore } from './stores/auth'
 const authStore = useAuthStore()
-authStore.initialize().finally(() => {
+
+// For callback routes, delay auth initialization to let component handle hash first
+const isCallbackRoute = window.location.pathname === '/auth/callback'
+if (isCallbackRoute) {
   app.mount('#app')
-})
+} else {
+  authStore.initialize().finally(() => {
+    app.mount('#app')
+  })
+}

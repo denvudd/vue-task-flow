@@ -94,15 +94,21 @@ const onChangeEmail = handleChangeEmailSubmit(async (formValues) => {
   <div>
     <p class="text-sm font-medium text-neutral-700 mb-1 block">Email</p>
     <p
-      class="w-full px-3 py-2 border text-sm border-neutral-300 rounded-lg bg-neutral-100 text-neutral-500 cursor-not-allowed"
+      class="w-full relative px-3 py-2 border text-sm border-neutral-300 rounded-lg bg-neutral-100 text-neutral-500 cursor-not-allowed"
     >
       {{ user?.email }}
-    </p>
-    <div class="mt-2 w-full flex justify-end">
-      <Button type="button" variant="ghost" size="sm" :disabled="disabled" @click="openDialog">
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        :disabled="disabled"
+        @click="openDialog"
+        class="absolute top-1/2 -translate-y-1/2 right-3"
+      >
         Change email
       </Button>
-    </div>
+    </p>
   </div>
   <Dialog v-model:open="isOpen" size="md">
     <template #title>Change Email</template>

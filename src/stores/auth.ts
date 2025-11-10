@@ -19,12 +19,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Initialize auth state
   async function initialize() {
-    if (initialized.value) return
-
     try {
       loading.value = true
 
-      // Get current session
       const {
         data: { session: currentSession },
       } = await authApi.getCurrentSession()
@@ -35,33 +32,31 @@ export const useAuthStore = defineStore('auth', () => {
         await loadProfile(currentSession.user.id)
       }
 
-      // Listen for auth changes
-      authApi.onAuthStateChange(async (_event, newSession) => {
-        session.value = newSession
-        user.value = newSession?.user ?? null
+      if (!initialized.value) {
+        authApi.onAuthStateChange(async (_event, newSession) => {
+          session.value = newSession
+          user.value = newSession?.user ?? null
 
-        if (newSession?.user) {
-          await loadProfile(newSession.user.id)
-        } else {
-          profile.value = null
-        }
-      })
-
-      initialized.value = true
+          if (newSession?.user) {
+            await loadProfile(newSession.user.id)
+          } else {
+            profile.value = null
+          }
+        })
+        initialized.value = true
+      }
     } catch (error) {
-      console.error('Error initializing auth:', error)
+      console.error('[AuthStore] Error initializing:', error)
     } finally {
       loading.value = false
     }
   }
 
-  // Load user profile
   async function loadProfile(userId: string) {
     try {
       const { data, error } = await profilesApi.getProfile(userId)
 
       if (error) {
-        // If profile doesn't exist (e.g., OAuth user), create one
         if (error.code === 'PGRST116' || error.message.includes('No rows')) {
           console.log('Profile not found, creating new profile for OAuth user')
           const currentUser = user.value
@@ -203,9 +198,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Update password
   async function updatePassword(newPassword: string) {
     try {
-      console.log('[Store] Calling authApi.updatePassword...')
       const result = await authApi.updatePassword(newPassword)
-      console.log('[Store] authApi.updatePassword result:', result)
 
       if (result.error) throw result.error
       return { error: null }

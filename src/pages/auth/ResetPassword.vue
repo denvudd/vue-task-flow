@@ -48,31 +48,23 @@ onMounted(() => {
 })
 
 const onSubmit = handleSubmit(async (formValues) => {
-  console.log('Submit started')
   error.value = null
   success.value = false
   loading.value = true
 
   try {
-    console.log('Calling updatePassword...')
     const result = await updatePassword(formValues.password)
-    console.log('updatePassword result:', result)
 
     if (result.error) {
-      console.log('Got error:', result.error)
       error.value = result.error.message
       loading.value = false
       return
     }
 
-    console.log('Password updated successfully')
     success.value = true
     loading.value = false
 
-    // Redirect after showing success message
-    console.log('Setting timeout for redirect...')
     setTimeout(() => {
-      console.log('Redirecting to home...')
       router.push(ROUTES.Dashboard)
     }, 1500)
   } catch (err) {
