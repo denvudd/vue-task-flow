@@ -13,6 +13,11 @@ export { default as ProgressLinear } from './ProgressLinear.vue'
 export { default as AvatarUpload } from './AvatarUpload.vue'
 export { default as Dialog } from './Dialog.vue'
 export { default as Toast } from './Toast.vue'
+export { default as Tabs } from './Tabs.vue'
+export { default as TabsList } from './TabsList.vue'
+export { default as TabsTrigger } from './TabsTrigger.vue'
+export { default as TabsContent } from './TabsContent.vue'
+export { default as TabsIndicator } from './TabsIndicator.vue'
 
 // Export types
 export type { SelectItem } from './FieldSelect.vue'
