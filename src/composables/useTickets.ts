@@ -7,8 +7,6 @@ import {
   createTicket,
   updateTicket,
   deleteTicket,
-  updateTicketStatus,
-  reorderTickets,
   type TicketInsert,
   type TicketUpdate,
 } from '@/api/tickets'
@@ -94,7 +92,7 @@ export function useUpdateTicket() {
       return data
     },
     onSuccess: (data) => {
-      // Invalidate specific ticket and list
+      // Invalidate specific ticket and project tickets list
       if (data?.id) {
         queryClient.invalidateQueries({ queryKey: ['tickets', 'detail', data.id] })
       }
@@ -115,57 +113,11 @@ export function useDeleteTicket() {
     mutationFn: async ({ ticketId, projectId }: { ticketId: string; projectId: string }) => {
       const { error } = await deleteTicket(ticketId)
       if (error) throw error
-      return { projectId }
     },
-    onSuccess: (data) => {
+    onSuccess: (_, variables) => {
       // Invalidate tickets list for the project
-      queryClient.invalidateQueries({ queryKey: ['tickets', 'project', data.projectId] })
+      queryClient.invalidateQueries({ queryKey: ['tickets', 'project', variables.projectId] })
     },
   })
 }
 
-/**
- * Hook to update ticket status
- */
-export function useUpdateTicketStatus() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ ticketId, status }: { ticketId: string; status: string }) => {
-      const { data, error } = await updateTicketStatus(ticketId, status)
-      if (error) throw error
-      return data
-    },
-    onSuccess: (data) => {
-      // Invalidate specific ticket and list
-      if (data?.id) {
-        queryClient.invalidateQueries({ queryKey: ['tickets', 'detail', data.id] })
-      }
-      if (data?.project_id) {
-        queryClient.invalidateQueries({ queryKey: ['tickets', 'project', data.project_id] })
-      }
-    },
-  })
-}
-
-/**
- * Hook to reorder tickets
- */
-export function useReorderTickets() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (ticketUpdates: Array<{ id: string; order_index: number }>) => {
-      const results = await reorderTickets(ticketUpdates)
-      const errors = results.filter((r) => r.error)
-      if (errors.length > 0 && errors[0]?.error) {
-        throw errors[0].error
-      }
-      return ticketUpdates
-    },
-    onSuccess: () => {
-      // Invalidate all ticket lists to refresh order
-      queryClient.invalidateQueries({ queryKey: ['tickets', 'project'] })
-    },
-  })
-}

@@ -18,6 +18,7 @@ export { default as TabsList } from './TabsList.vue'
 export { default as TabsTrigger } from './TabsTrigger.vue'
 export { default as TabsContent } from './TabsContent.vue'
 export { default as TabsIndicator } from './TabsIndicator.vue'
+export { default as Editable } from './Editable.vue'
 
 // Export types
 export type { SelectItem } from './FieldSelect.vue'

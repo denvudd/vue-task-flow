@@ -2,6 +2,7 @@
 import { Field as ArkField } from '@ark-ui/vue/field'
 import { Select as SelectComponent, createListCollection } from '@ark-ui/vue/select'
 import { ChevronDownIcon, CheckIcon, CheckCircle2Icon } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 export interface SelectItem {
   label: string
@@ -27,6 +28,13 @@ interface Props {
 
 const props = defineProps<Props>()
 const collection = createListCollection({ items: props.items })
+
+const displayValue = computed(() => {
+  if (!props.value || props.value.length === 0) return ''
+  const selectedValue = props.value[0]
+  const selectedItem = props.items.find((item) => item.value === selectedValue)
+  return selectedItem?.label || selectedValue || ''
+})
 </script>
 
 <template>
@@ -61,7 +69,10 @@ const collection = createListCollection({ items: props.items })
             ]"
             :disabled="disabled"
           >
-            <SelectComponent.ValueText :placeholder="placeholder" />
+            <SelectComponent.ValueText :placeholder="placeholder">
+              <span v-if="displayValue">{{ displayValue }}</span>
+              <span v-else class="text-neutral-400">{{ placeholder || 'Select...' }}</span>
+            </SelectComponent.ValueText>
             <div class="flex items-center gap-1">
               <Transition
                 enter-active-class="transition-all duration-300 ease-out"
