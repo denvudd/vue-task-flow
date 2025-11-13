@@ -10,10 +10,10 @@ import { editProfileSchema } from '@/validation/profile'
 import { ROUTES } from '@/lib/routing'
 import { ArrowLeft } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
-import ProfileChangeEmailDialog from '@/pages/app/profile/ProfileChangeEmailDialog.vue'
-import ProfileChangeAvatar from '@/pages/app/profile/ProfileChangeAvatar.vue'
-import ProfileOAuthProviders from '@/pages/app/profile/ProfileOAuthProviders.vue'
-import ProfileSessions from '@/pages/app/profile/ProfileSessions.vue'
+import ProfileChangeEmailDialog from '@/components/pages/profile/ProfileChangeEmailDialog.vue'
+import ProfileChangeAvatar from '@/components/pages/profile/ProfileChangeAvatar.vue'
+import ProfileOAuthProviders from '@/components/pages/profile/ProfileOAuthProviders.vue'
+import ProfileSessions from '@/components/pages/profile/ProfileSessions.vue'
 
 const router = useRouter()
 const { user, profile, loading: authLoading, loadProfile } = useAuth()

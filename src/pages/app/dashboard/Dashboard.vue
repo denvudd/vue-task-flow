@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth'
-import DashboardProjects from './DashboardProjects.vue'
-import ProfileDetails from '../profile/ProfileDetails.vue'
+import DashboardProjects from '../../../components/pages/dashboard/DashboardProjects.vue'
+import ProfileDetails from '../../../components/pages/profile/ProfileDetails.vue'
 
 const { profile, loading } = useAuth()
 </script>

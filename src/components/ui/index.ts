@@ -19,6 +19,12 @@ export { default as TabsTrigger } from './TabsTrigger.vue'
 export { default as TabsContent } from './TabsContent.vue'
 export { default as TabsIndicator } from './TabsIndicator.vue'
 export { default as Editable } from './Editable.vue'
+export { default as Table } from './Table.vue'
+export { default as TableHeader } from './TableHeader.vue'
+export { default as TableBody } from './TableBody.vue'
+export { default as TableRow } from './TableRow.vue'
+export { default as TableHeadCell } from './TableHeadCell.vue'
+export { default as TableCell } from './TableCell.vue'
 
 // Export types
 export type { SelectItem } from './FieldSelect.vue'
