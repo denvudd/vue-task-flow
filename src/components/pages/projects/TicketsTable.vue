@@ -4,6 +4,7 @@ import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell } from '@/components/ui'
 import TicketDetailsDialog from '@/components/pages/projects/TicketDetailsDialog.vue'
 import TicketRow from '@/components/pages/projects/TicketRow.vue'
+import { useDeleteTicket } from '@/composables/useTickets'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
 
@@ -22,6 +23,12 @@ const emit = defineEmits<{
   (e: 'reorder', payload: { tickets: Tables<'tickets'>[] }): void
 }>()
 
+const { mutate: deleteTicket } = useDeleteTicket()
+
+const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
+  deleteTicket(payload.ticket.id)
+}
+
 const hasTickets = computed(() => (props.tickets?.length ?? 0) > 0)
 
 // Local copy of tickets for drag & drop operations
@@ -37,7 +44,7 @@ watch(
       localTickets.value = []
     }
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 )
 
 // Droppable area for table body - elementRef will be set via template ref
@@ -105,6 +112,7 @@ const { elementRef: tableBodyRef } = useDroppable({
             @update:status="(payload) => emit('update:status', payload)"
             @update:priority="(payload) => emit('update:priority', payload)"
             @update:type="(payload) => emit('update:type', payload)"
+            @delete="handleDelete"
           />
         </TransitionGroup>
       </tbody>

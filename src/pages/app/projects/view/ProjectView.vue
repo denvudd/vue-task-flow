@@ -26,11 +26,7 @@ const projectId = computed(() => route.params.id as string)
 const activeTab = ref('table')
 
 const { data: project, isLoading, isError, error } = useProject(projectId)
-const {
-  data: tickets,
-  isLoading: isLoadingTickets,
-  refetch: refetchTickets,
-} = useProjectTickets(projectId)
+const { data: tickets, isLoading: isLoadingTickets } = useProjectTickets(projectId)
 
 const { mutateAsync: updateTicket } = useUpdateTicket()
 
@@ -51,7 +47,7 @@ const handleTitleUpdate = async (ticket: Tables<'tickets'>, newValue: string) =>
       ticketId: ticket.id,
       updates: { title: newValue },
     })
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket title:', err)
   }
@@ -69,7 +65,7 @@ const handleStatusChange = async (payload: {
       ticketId: ticket.id,
       updates: { status: newStatus },
     })
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket status:', err)
   }
@@ -87,7 +83,7 @@ const handlePriorityChange = async (payload: {
       ticketId: ticket.id,
       updates: { priority: newPriority },
     })
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket priority:', err)
   }
@@ -105,7 +101,7 @@ const handleTypeChange = async (payload: {
       ticketId: ticket.id,
       updates: { type: newType },
     })
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket type:', err)
   }
@@ -133,9 +129,9 @@ const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
       id: ticket.id,
       order_index: index,
     }))
-    
+
     await reorderTickets(ticketUpdates)
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error reordering tickets:', err)
   }

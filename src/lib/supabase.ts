@@ -28,4 +28,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     // Detect session from URL on initialization
     detectSessionInUrl: true,
   },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
 })

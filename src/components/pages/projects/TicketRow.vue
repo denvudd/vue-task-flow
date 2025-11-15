@@ -12,7 +12,7 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, Edit2, GripVertical } from 'lucide-vue-next'
+import { Calendar, Edit2, GripVertical, Trash } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -33,6 +33,7 @@ const emit = defineEmits<{
   (e: 'update:status', payload: { ticket: Tables<'tickets'>; value: TicketStatus | null }): void
   (e: 'update:priority', payload: { ticket: Tables<'tickets'>; value: TicketPriority | null }): void
   (e: 'update:type', payload: { ticket: Tables<'tickets'>; value: TicketType | null }): void
+  (e: 'delete', payload: { ticket: Tables<'tickets'> }): void
 }>()
 
 // Drag & drop functionality
@@ -109,10 +110,13 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
       </div>
 
       <div
-        class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-2"
+        class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-2"
       >
-        <Button variant="ghost" size="sm" class="h-8" @click="openEditDialog(ticket)">
+        <Button variant="ghost" size="icon" class="h-8" @click="openEditDialog(ticket)">
           <Edit2 class="size-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" class="h-8" @click="emit('delete', { ticket })">
+          <Trash class="size-3.5" />
         </Button>
       </div>
     </TableCell>

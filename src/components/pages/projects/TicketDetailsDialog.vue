@@ -51,9 +51,6 @@ const { data: fetchedTicket, isLoading: isLoadingTicket } = useTicket(
 
 const currentTicket = computed(() => props.ticket || fetchedTicket.value)
 
-const projectId = computed(() => currentTicket.value?.project_id)
-const { refetch: refetchTickets } = useProjectTickets(projectId)
-
 const isOpen = ref(props.openOnMount || !!ticketIdFromUrl.value)
 
 watch(
@@ -118,7 +115,7 @@ const updateTicketField = async (updates: Partial<Tables<'tickets'>>) => {
         ...updates,
       },
     })
-    await refetchTickets()
+    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket:', err)
   }
