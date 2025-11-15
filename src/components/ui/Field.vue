@@ -8,6 +8,7 @@ interface Props {
   required?: boolean
   disabled?: boolean
   invalid?: boolean
+  rootClass?: string
 }
 
 const props = defineProps<Props>()
@@ -15,7 +16,7 @@ const props = defineProps<Props>()
 
 <template>
   <ArkField.Root :required="required" :disabled="disabled" :invalid="invalid">
-    <div class="space-y-2">
+    <div :class="['space-y-2', rootClass]">
       <!-- Label -->
       <ArkField.Label v-if="label" class="block text-sm font-medium text-neutral-700">
         <slot name="label">{{ label }}</slot>

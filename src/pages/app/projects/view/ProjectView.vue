@@ -3,27 +3,16 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProject } from '@/composables/useProjects'
 import { useProjectTickets, useUpdateTicket } from '@/composables/useTickets'
-import {
-  Button,
-  Card,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  type SelectItem,
-} from '@/components/ui'
+import { reorderTickets } from '@/api/tickets'
+import { Button, Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui'
 import TicketsTable from '@/components/pages/projects/TicketsTable.vue'
 import TicketCreateDialog from '@/components/pages/projects/TicketCreateDialog.vue'
-import TicketEditDialog from '@/components/pages/projects/TicketEditDialog.vue'
 import { ROUTES } from '@/lib/routing'
-import { ArrowLeft, Plus } from 'lucide-vue-next'
+import { ArrowLeft } from 'lucide-vue-next'
 import {
   TICKET_STATUS_OPTIONS,
   TICKET_PRIORITY_OPTIONS,
   TICKET_TYPE_OPTIONS,
-  TICKET_STATUSES,
-  TICKET_PRIORITIES,
-  TICKET_TYPES,
   type TicketStatus,
   type TicketPriority,
   type TicketType,
@@ -45,9 +34,6 @@ const {
 
 const { mutateAsync: updateTicket } = useUpdateTicket()
 
-const createDialogRef = ref<InstanceType<typeof TicketCreateDialog> | null>(null)
-const editDialogRef = ref<InstanceType<typeof TicketEditDialog> | null>(null)
-
 const errorMessage = computed(() => {
   if (!error.value) return null
   return error.value instanceof Error ? error.value.message : 'Failed to load project'
@@ -55,14 +41,6 @@ const errorMessage = computed(() => {
 
 const handleBack = () => {
   router.push(ROUTES.Dashboard)
-}
-
-const openCreateDialog = () => {
-  createDialogRef.value?.open()
-}
-
-const openEditDialog = (ticket: Tables<'tickets'>) => {
-  editDialogRef.value?.open(ticket)
 }
 
 const handleTitleUpdate = async (ticket: Tables<'tickets'>, newValue: string) => {
@@ -79,11 +57,11 @@ const handleTitleUpdate = async (ticket: Tables<'tickets'>, newValue: string) =>
   }
 }
 
-const handleStatusChange = async (
-  ticket: Tables<'tickets'>,
-  details: { items: SelectItem[]; value: string[] },
-) => {
-  const newStatus = details.value[0] as TicketStatus | undefined
+const handleStatusChange = async (payload: {
+  ticket: Tables<'tickets'>
+  value: TicketStatus | null
+}) => {
+  const { ticket, value: newStatus } = payload
   if (!newStatus || newStatus === ticket.status) return
 
   try {
@@ -97,11 +75,11 @@ const handleStatusChange = async (
   }
 }
 
-const handlePriorityChange = async (
-  ticket: Tables<'tickets'>,
-  details: { items: SelectItem[]; value: string[] },
-) => {
-  const newPriority = details.value[0] as TicketPriority | undefined
+const handlePriorityChange = async (payload: {
+  ticket: Tables<'tickets'>
+  value: TicketPriority | null
+}) => {
+  const { ticket, value: newPriority } = payload
   if (!newPriority || newPriority === ticket.priority) return
 
   try {
@@ -115,8 +93,11 @@ const handlePriorityChange = async (
   }
 }
 
-const handleTypeChange = async (ticket: Tables<'tickets'>, details: { items: SelectItem[]; value: string[] }) => {
-  const newType = details.value[0] as TicketType | undefined
+const handleTypeChange = async (payload: {
+  ticket: Tables<'tickets'>
+  value: TicketType | null
+}) => {
+  const { ticket, value: newType } = payload
   if (!newType || newType === ticket.type) return
 
   try {
@@ -133,29 +114,32 @@ const handleTypeChange = async (ticket: Tables<'tickets'>, details: { items: Sel
 const handleTableTitleUpdate = ({ ticket, value }: { ticket: Tables<'tickets'>; value: string }) =>
   handleTitleUpdate(ticket, value)
 
-const handleTableStatusUpdate = ({
-  ticket,
-  details,
-}: {
+const handleTableStatusUpdate = (payload: {
   ticket: Tables<'tickets'>
-  details: { items: SelectItem[]; value: string[] }
-}) => handleStatusChange(ticket, details)
+  value: TicketStatus | null
+}) => handleStatusChange(payload)
 
-const handleTablePriorityUpdate = ({
-  ticket,
-  details,
-}: {
+const handleTablePriorityUpdate = (payload: {
   ticket: Tables<'tickets'>
-  details: { items: SelectItem[]; value: string[] }
-}) => handlePriorityChange(ticket, details)
+  value: TicketPriority | null
+}) => handlePriorityChange(payload)
 
-const handleTableTypeUpdate = ({
-  ticket,
-  details,
-}: {
-  ticket: Tables<'tickets'>
-  details: { items: SelectItem[]; value: string[] }
-}) => handleTypeChange(ticket, details)
+const handleTableTypeUpdate = (payload: { ticket: Tables<'tickets'>; value: TicketType | null }) =>
+  handleTypeChange(payload)
+
+const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
+  try {
+    const ticketUpdates = payload.tickets.map((ticket, index) => ({
+      id: ticket.id,
+      order_index: index,
+    }))
+    
+    await reorderTickets(ticketUpdates)
+    await refetchTickets()
+  } catch (err) {
+    console.error('Error reordering tickets:', err)
+  }
+}
 
 const getStatusLabel = (status: string | null) => {
   return TICKET_STATUS_OPTIONS.find((opt) => opt.value === status)?.label || status || 'N/A'
@@ -167,16 +151,6 @@ const getPriorityLabel = (priority: string | null) => {
 
 const getTypeLabel = (type: string | null) => {
   return TICKET_TYPE_OPTIONS.find((opt) => opt.value === type)?.label || type || 'N/A'
-}
-
-const handleCreateSuccess = () => {
-  // Dialog handles everything itself, just refetch tickets
-  refetchTickets()
-}
-
-const handleEditSuccess = () => {
-  // Dialog handles everything itself, just refetch tickets
-  refetchTickets()
 }
 </script>
 
@@ -228,10 +202,7 @@ const handleEditSuccess = () => {
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <h2 class="text-xl font-semibold text-neutral-900">Tickets</h2>
-              <Button @click="openCreateDialog">
-                <Plus class="w-4 h-4 mr-2" />
-                Create Ticket
-              </Button>
+              <TicketCreateDialog v-if="project" :project-id="project.id" />
             </div>
 
             <Tabs v-model:value="activeTab" default-value="table">
@@ -244,14 +215,11 @@ const handleEditSuccess = () => {
                 <TicketsTable
                   :tickets="tickets"
                   :is-loading="isLoadingTickets"
-                  :status-options="TICKET_STATUS_OPTIONS"
-                  :priority-options="TICKET_PRIORITY_OPTIONS"
-                  :type-options="TICKET_TYPE_OPTIONS"
                   @update:title="handleTableTitleUpdate"
                   @update:status="handleTableStatusUpdate"
                   @update:priority="handleTablePriorityUpdate"
                   @update:type="handleTableTypeUpdate"
-                  @edit="openEditDialog"
+                  @reorder="handleReorder"
                 />
               </TabsContent>
 
@@ -265,17 +233,5 @@ const handleEditSuccess = () => {
         </Card>
       </div>
     </div>
-
-    <TicketCreateDialog
-      v-if="project"
-      ref="createDialogRef"
-      :project-id="project.id"
-      @success="handleCreateSuccess"
-    />
-
-    <TicketEditDialog
-      ref="editDialogRef"
-      @success="handleEditSuccess"
-    />
   </div>
 </template>

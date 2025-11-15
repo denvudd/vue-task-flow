@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { useAttrs } from 'vue'
+import { ref, useAttrs } from 'vue'
 
 defineOptions({ inheritAttrs: false })
 
 const attrs = useAttrs()
+const tbodyRef = ref<HTMLTableSectionElement>()
+
+defineExpose({
+  $el: tbodyRef,
+})
 </script>
 
 <template>
-  <tbody v-bind="{ ...attrs, class: undefined }" :class="['divide-y divide-neutral-100', attrs.class]">
+  <tbody ref="tbodyRef" v-bind="{ ...attrs, class: undefined }" :class="['divide-y divide-neutral-100', attrs.class]">
     <slot />
   </tbody>
 </template>

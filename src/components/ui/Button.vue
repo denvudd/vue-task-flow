@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'icon'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -19,6 +19,7 @@ const buttonClass = computed(() => {
     sm: 'px-3 py-1.5 text-xs',
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
+    icon: 'p-2',
   }
 
   const variantClasses = {

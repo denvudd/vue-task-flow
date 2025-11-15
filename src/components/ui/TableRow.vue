@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 
 interface Props {
   hover?: boolean
@@ -12,6 +12,11 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const attrs = useAttrs()
+const trRef = ref<HTMLTableRowElement>()
+
+defineExpose({
+  $el: trRef,
+})
 
 const rowClass = computed(() =>
   [
@@ -24,7 +29,7 @@ const rowClass = computed(() =>
 </script>
 
 <template>
-  <tr v-bind="{ ...attrs, class: undefined }" :class="[rowClass, attrs.class]">
+  <tr ref="trRef" v-bind="{ ...attrs, class: undefined }" :class="[rowClass, attrs.class]">
     <slot />
   </tr>
 </template>

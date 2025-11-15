@@ -143,3 +143,107 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-neutral-400;
 }
+
+/* TipTap Rich Text Editor Styles */
+.rich-text-editor-wrapper {
+  @apply bg-white;
+}
+
+.rich-text-editor-wrapper .tiptap {
+  @apply text-sm text-neutral-900;
+  line-height: 1.6;
+}
+
+.rich-text-editor-wrapper .tiptap:focus {
+  @apply outline-none;
+}
+
+.rich-text-editor-wrapper .tiptap p.is-editor-empty:first-child::before {
+  @apply text-neutral-400;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.rich-text-editor-wrapper .tiptap p {
+  margin: 0.5em 0;
+}
+
+.rich-text-editor-wrapper .tiptap p:first-child {
+  margin-top: 0;
+}
+
+.rich-text-editor-wrapper .tiptap p:last-child {
+  margin-bottom: 0;
+}
+
+.rich-text-editor-wrapper .tiptap strong {
+  @apply font-semibold;
+}
+
+.rich-text-editor-wrapper .tiptap em {
+  @apply italic;
+}
+
+.rich-text-editor-wrapper .tiptap ul,
+.rich-text-editor-wrapper .tiptap ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.rich-text-editor-wrapper .tiptap ul {
+  list-style-type: disc;
+}
+
+.rich-text-editor-wrapper .tiptap ol {
+  list-style-type: decimal;
+}
+
+.rich-text-editor-wrapper .tiptap li {
+  margin: 0.25em 0;
+}
+
+.rich-text-editor-wrapper .tiptap h1 {
+  @apply text-2xl font-semibold;
+  margin: 0.75em 0 0.5em 0;
+}
+
+.rich-text-editor-wrapper .tiptap h2 {
+  @apply text-xl font-semibold;
+  margin: 0.75em 0 0.5em 0;
+}
+
+.rich-text-editor-wrapper .tiptap h3 {
+  @apply text-lg font-semibold;
+  margin: 0.75em 0 0.5em 0;
+}
+
+.rich-text-editor-wrapper .tiptap blockquote {
+  @apply border-l-4 border-neutral-300 pl-4 my-2 text-neutral-600 italic;
+}
+
+.rich-text-editor-wrapper .tiptap code {
+  @apply bg-neutral-100 px-1.5 py-0.5 rounded text-xs;
+  font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+}
+
+.rich-text-editor-wrapper .tiptap pre {
+  @apply bg-neutral-100 p-4 rounded-lg my-2 overflow-x-auto;
+}
+
+.rich-text-editor-wrapper .tiptap pre code {
+  @apply bg-transparent p-0;
+}
+
+.rich-text-editor-wrapper .tiptap hr {
+  @apply border-0 border-t border-neutral-200 my-4;
+}
+
+.rich-text-editor-wrapper .tiptap a {
+  @apply text-primary-600 underline cursor-pointer;
+}
+
+.rich-text-editor-wrapper .tiptap a:hover {
+  @apply text-primary-700;
+}

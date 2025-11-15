@@ -1,12 +1,28 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
-import { Button } from '@/components/ui'
+import { Avatar, Menu } from '@/components/ui'
+import { Menu as ArkMenu } from '@ark-ui/vue/menu'
 import logo from '/images/logo.png'
 import { ROUTES } from '@/lib/routing'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const { profile, signOut } = useAuth()
+
+const menuOpen = ref(false)
+
+const avatarUrl = computed(() => {
+  const url = profile.value?.avatar_url
+  if (!url) return null
+  if (url.startsWith('http')) return url
+  return supabase.storage.from('avatars').getPublicUrl(url).data.publicUrl
+})
+
+const displayName = computed(() => {
+  return profile.value?.full_name || profile.value?.username || 'User'
+})
 
 const handleSignOut = async () => {
   await signOut()
@@ -37,7 +53,7 @@ const navigateToHome = () => {
 
         <div class="flex items-center gap-4">
           <div v-if="profile" class="text-sm text-neutral-600">
-            <span class="font-medium">{{ profile.username }}</span>
+            <span class="font-medium">{{ profile.full_name || profile.username }}</span>
             <span
               v-if="profile.role === 'admin'"
               class="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded"
@@ -46,9 +62,26 @@ const navigateToHome = () => {
             </span>
           </div>
 
-          <Button variant="outline" size="sm" @click="navigateToProfile"> Edit Profile </Button>
+          <Menu v-model:open="menuOpen">
+            <template #trigger>
+              <ArkMenu.Trigger as-child>
+                <button
+                  type="button"
+                  class="cursor-pointer hover:opacity-80 transition-opacity focus:outline-none rounded-full"
+                >
+                  <Avatar :src="avatarUrl" :name="displayName" size="md" />
+                </button>
+              </ArkMenu.Trigger>
+            </template>
 
-          <Button variant="outline" size="sm" @click="handleSignOut"> Sign Out </Button>
+            <ArkMenu.Item value="profile" as-child>
+              <button @click="navigateToProfile" class="w-full text-left">Edit Profile</button>
+            </ArkMenu.Item>
+
+            <ArkMenu.Item value="logout" as-child>
+              <button @click="handleSignOut" class="w-full text-left">Logout</button>
+            </ArkMenu.Item>
+          </Menu>
         </div>
       </div>
     </div>

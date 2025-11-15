@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Editable as ArkEditable } from '@ark-ui/vue/editable'
 import { ref, watch } from 'vue'
+import { Button } from '@/components/ui'
+import { CheckIcon, XIcon } from 'lucide-vue-next'
 
 interface Props {
   value?: string
@@ -9,9 +11,14 @@ interface Props {
   onValueChange?: (details: { value: string }) => void
   onValueCommit?: (details: { value: string }) => void
   onValueCancel?: () => void
+  previewClass?: string
+  inputClass?: string
+  withControls?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  withControls: true,
+})
 
 const emit = defineEmits<{
   'update:value': [value: string]
@@ -48,19 +55,43 @@ const handleValueCancel = () => {
     v-model="editableValue"
     :placeholder="placeholder"
     :disabled="disabled"
-    activationMode="dblclick"
+    :select-on-focus="false"
+    activationMode="click"
     @value-change="handleValueChange"
     @value-commit="handleValueCommit"
     @value-cancel="handleValueCancel"
   >
-    <ArkEditable.Area
-      class="px-2 py-1 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 min-w-[100px]"
-    >
-      <ArkEditable.Input class="w-full bg-transparent focus:outline-none" />
+    <ArkEditable.Area class="text-sm focus:outline-none min-w-[100px]">
+      <ArkEditable.Input
+        :class="[
+          inputClass,
+          'w-full bg-transparent focus:outline-none focus:ring-2 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
+        ]"
+      />
       <ArkEditable.Preview
-        class="cursor-pointer hover:bg-neutral-100 rounded px-2 py-1 -mx-2 -my-1 transition-colors min-h-6"
+        :class="[
+          'cursor-pointer hover:bg-neutral-100 rounded px-2 py-1 -mx-2 -my-1 transition-colors min-h-6 w-full',
+          previewClass,
+        ]"
       />
     </ArkEditable.Area>
+    <ArkEditable.Context v-slot="{ editing }">
+      <ArkEditable.Control
+        v-if="editing && withControls"
+        class="flex items-center gap-1 w-full justify-end mt-1"
+      >
+        <ArkEditable.SubmitTrigger>
+          <Button variant="secondary" size="icon">
+            <CheckIcon class="size-4" />
+          </Button>
+        </ArkEditable.SubmitTrigger>
+        <ArkEditable.CancelTrigger>
+          <Button variant="secondary" size="icon">
+            <XIcon class="size-4" />
+          </Button>
+        </ArkEditable.CancelTrigger>
+      </ArkEditable.Control>
+    </ArkEditable.Context>
   </ArkEditable.Root>
 </template>
 

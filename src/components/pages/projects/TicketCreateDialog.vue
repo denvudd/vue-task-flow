@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref, computed, type Ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import {
@@ -7,17 +8,13 @@ import {
   Field,
   FieldInput,
   FieldTextarea,
-  FieldSelect,
+  TicketStatusSelect,
+  TicketPrioritySelect,
+  TicketTypeSelect,
   Button,
-  type SelectItem,
 } from '@/components/ui'
+import { createTicketSchema } from '@/validation/projects'
 import {
-  createTicketSchema,
-} from '@/validation/projects'
-import {
-  TICKET_STATUS_OPTIONS,
-  TICKET_PRIORITY_OPTIONS,
-  TICKET_TYPE_OPTIONS,
   TICKET_STATUSES,
   TICKET_PRIORITIES,
   TICKET_TYPES,
@@ -25,30 +22,28 @@ import {
   type TicketPriority,
   type TicketType,
 } from '@/constants/tickets'
-import { useCreateTicket } from '@/composables/useTickets'
+import { useCreateTicket, useProjectTickets } from '@/composables/useTickets'
 import { useAuth } from '@/composables/useAuth'
+import { Plus } from 'lucide-vue-next'
 
 interface Props {
-  projectId: string
+  projectId?: string
 }
 
 const props = defineProps<Props>()
+const route = useRoute()
 
-const emit = defineEmits<{
-  (e: 'success'): void
-}>()
+const projectId = computed(() => {
+  return props.projectId || (route.params.id as string)
+})
 
 const { user } = useAuth()
 const { mutateAsync: createTicket, isPending: isSubmitting } = useCreateTicket()
+const { refetch: refetchTickets } = useProjectTickets(projectId)
 
 const isOpen = ref(false)
 
-const {
-  handleSubmit,
-  errors,
-  defineField,
-  resetForm,
-} = useForm({
+const { handleSubmit, errors, defineField, resetForm } = useForm({
   validationSchema: toTypedSchema(createTicketSchema),
   validateOnMount: false,
 })
@@ -77,9 +72,10 @@ const handleSubmitForm = handleSubmit(async (values) => {
       priority: values.priority || TICKET_PRIORITIES.MEDIUM,
       type: values.type || TICKET_TYPES.TASK,
       due_date: values.due_date ? new Date(values.due_date).toISOString() : null,
-      project_id: props.projectId,
+      project_id: projectId.value,
       creator_id: user.value.id,
     })
+    await refetchTickets()
     handleSuccess()
   } catch (err) {
     console.error('Error creating ticket:', err)
@@ -94,104 +90,96 @@ const handleCancel = () => {
 const handleSuccess = () => {
   isOpen.value = false
   resetForm()
-  emit('success')
 }
 
 const open = () => {
   isOpen.value = true
 }
-
-defineExpose({
-  open,
-})
 </script>
 
 <template>
-  <Dialog v-model:open="isOpen" size="lg">
-    <template #title>Create New Ticket</template>
-    <template #description>Fill in the details to create a new ticket</template>
+  <div>
+    <slot name="trigger" :open="open">
+      <Button @click="open">
+        <Plus class="w-4 h-4 mr-2" />
+        Create Ticket
+      </Button>
+    </slot>
 
-    <form @submit.prevent="handleSubmitForm" class="space-y-4">
-      <Field label="Title" required :invalid="!!errors.title">
-        <FieldInput
-          v-model="createTitle"
-          v-bind="createTitleAttrs"
-          placeholder="Enter ticket title"
-          :invalid="!!errors.title"
-        />
-        <template #errorText>{{ errors.title }}</template>
-      </Field>
+    <Dialog v-model:open="isOpen" size="lg">
+      <template #title>Create New Ticket</template>
+      <template #description>Fill in the details to create a new ticket</template>
 
-      <Field label="Description" :invalid="!!errors.description">
-        <FieldTextarea
-          v-model="createDescription"
-          v-bind="createDescriptionAttrs"
-          placeholder="Enter ticket description"
-          :invalid="!!errors.description"
-          autoresize
-        />
-        <template #errorText>{{ errors.description }}</template>
-      </Field>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Field label="Status" :invalid="!!errors.status">
-          <FieldSelect
-            :items="TICKET_STATUS_OPTIONS"
-            :value="createStatus ? [createStatus] : []"
-            @on-value-change="
-              (details: { items: SelectItem[]; value: string[] }) =>
-                (createStatus = (details.value[0] as TicketStatus) || '')
-            "
-            placeholder="Select status"
+      <form @submit.prevent="handleSubmitForm" class="space-y-4">
+        <Field label="Title" required :invalid="!!errors.title">
+          <FieldInput
+            v-model="createTitle"
+            v-bind="createTitleAttrs"
+            placeholder="Enter ticket title"
+            :invalid="!!errors.title"
           />
-          <template #errorText>{{ errors.status }}</template>
+          <template #errorText>{{ errors.title }}</template>
         </Field>
 
-        <Field label="Priority" :invalid="!!errors.priority">
-          <FieldSelect
-            :items="TICKET_PRIORITY_OPTIONS"
-            :value="createPriority ? [createPriority] : []"
-            @on-value-change="
-              (details: { items: SelectItem[]; value: string[] }) =>
-                (createPriority = (details.value[0] as TicketPriority) || '')
-            "
-            placeholder="Select priority"
+        <Field label="Description" :invalid="!!errors.description">
+          <FieldTextarea
+            v-model="createDescription"
+            v-bind="createDescriptionAttrs"
+            placeholder="Enter ticket description"
+            :invalid="!!errors.description"
+            autoresize
           />
-          <template #errorText>{{ errors.priority }}</template>
+          <template #errorText>{{ errors.description }}</template>
         </Field>
 
-        <Field label="Type" :invalid="!!errors.type">
-          <FieldSelect
-            :items="TICKET_TYPE_OPTIONS"
-            :value="createType ? [createType] : []"
-            @on-value-change="
-              (details: { items: SelectItem[]; value: string[] }) =>
-                (createType = (details.value[0] as TicketType) || '')
-            "
-            placeholder="Select type"
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Field label="Status" :invalid="!!errors.status">
+            <TicketStatusSelect
+              :value="createStatus"
+              :invalid="!!errors.status"
+              @update:value="(val) => (createStatus = val || undefined)"
+            />
+            <template #errorText>{{ errors.status }}</template>
+          </Field>
+
+          <Field label="Priority" :invalid="!!errors.priority">
+            <TicketPrioritySelect
+              :value="createPriority"
+              :invalid="!!errors.priority"
+              @update:value="(val) => (createPriority = val || undefined)"
+            />
+            <template #errorText>{{ errors.priority }}</template>
+          </Field>
+
+          <Field label="Type" :invalid="!!errors.type">
+            <TicketTypeSelect
+              :value="createType"
+              :invalid="!!errors.type"
+              @update:value="(val) => (createType = val || undefined)"
+            />
+            <template #errorText>{{ errors.type }}</template>
+          </Field>
+        </div>
+
+        <Field label="Due Date" :invalid="!!errors.due_date">
+          <FieldInput
+            v-model="createDueDate"
+            v-bind="createDueDateAttrs"
+            type="date"
+            :invalid="!!errors.due_date"
           />
-          <template #errorText>{{ errors.type }}</template>
+          <template #errorText>{{ errors.due_date }}</template>
         </Field>
-      </div>
+      </form>
 
-      <Field label="Due Date" :invalid="!!errors.due_date">
-        <FieldInput
-          v-model="createDueDate"
-          v-bind="createDueDateAttrs"
-          type="date"
-          :invalid="!!errors.due_date"
-        />
-        <template #errorText>{{ errors.due_date }}</template>
-      </Field>
-    </form>
-
-    <template #footer>
-      <div class="flex justify-end gap-3">
-        <Button variant="outline" @click="handleCancel"> Cancel </Button>
-        <Button type="submit" @click="handleSubmitForm" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
-        </Button>
-      </div>
-    </template>
-  </Dialog>
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button variant="outline" @click="handleCancel"> Cancel </Button>
+          <Button type="submit" @click="handleSubmitForm" :disabled="isSubmitting">
+            {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
+          </Button>
+        </div>
+      </template>
+    </Dialog>
+  </div>
 </template>

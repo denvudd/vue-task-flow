@@ -23,6 +23,7 @@ interface Props {
   multiple?: boolean
   clearable?: boolean
   onValueChange?: (details: { items: SelectItem[]; value: string[] }) => void
+  rootClass?: string
 }
 
 const props = defineProps<Props>()
@@ -49,7 +50,7 @@ const handleValueChange = (details: { value: string[] }) => {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div :class="['space-y-2', rootClass]">
     <label v-if="label" class="block text-sm font-medium text-neutral-700">
       <slot name="label">{{ label }}</slot>
       <span v-if="required" class="text-error-500 ml-1">*</span>
@@ -138,11 +139,11 @@ const handleValueChange = (details: { value: string[] }) => {
 <style>
 /* Animations for Select content open/close */
 [data-scope='select'][data-part='content'][data-state='open'] {
-  animation: select-fade-in 0.25s ease-out;
+  animation: select-fade-in 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-scope='select'][data-part='content'][data-state='closed'] {
-  animation: select-fade-out 0.2s ease-in;
+  animation: select-fade-out 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Positioner stretches to trigger width */

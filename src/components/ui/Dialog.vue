@@ -9,7 +9,20 @@ interface Props {
   onOpenChange?: (details: { open: boolean }) => void
   lazyMount?: boolean
   unmountOnExit?: boolean
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  size?:
+    | 'sm'
+    | 'md'
+    | 'lg'
+    | 'xl'
+    | '2xl'
+    | '3xl'
+    | '4xl'
+    | '5xl'
+    | '6xl'
+    | '7xl'
+    | '8xl'
+    | '9xl'
+    | '10xl'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,6 +37,14 @@ const sizeClasses = {
   lg: 'max-w-lg',
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
+  '6xl': 'max-w-6xl',
+  '7xl': 'max-w-7xl',
+  '8xl': 'max-w-8xl',
+  '9xl': 'max-w-9xl',
+  '10xl': 'max-w-10xl',
 }
 
 const emit = defineEmits<{
@@ -63,14 +84,14 @@ const isOpen = computed({
                 <slot name="header">
                   <ArkDialog.Title
                     v-if="$slots.title"
-                    class="text-lg font-semibold text-neutral-900"
+                    class="text-2xl font-semibold text-neutral-900"
                   >
                     <slot name="title" />
                   </ArkDialog.Title>
                 </slot>
               </div>
               <ArkDialog.CloseTrigger as-child>
-                <Button variant="ghost" size="sm" class="ml-4">
+                <Button variant="ghost" size="icon" class="ml-4">
                   <X class="w-4 h-4" />
                 </Button>
               </ArkDialog.CloseTrigger>
