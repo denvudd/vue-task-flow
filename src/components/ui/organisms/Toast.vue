@@ -2,7 +2,7 @@
 import { Toast as ArkToast, Toaster as ArkToaster } from '@ark-ui/vue/toast'
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-vue-next'
 import { createToaster } from '@ark-ui/vue/toast'
-import Button from './Button.vue'
+import Button from '../atoms/Button.vue'
 
 interface Props {
   toaster: ReturnType<typeof createToaster>

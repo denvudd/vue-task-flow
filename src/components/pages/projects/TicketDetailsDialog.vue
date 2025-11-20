@@ -115,7 +115,6 @@ const updateTicketField = async (updates: Partial<Tables<'tickets'>>) => {
         ...updates,
       },
     })
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket:', err)
   }

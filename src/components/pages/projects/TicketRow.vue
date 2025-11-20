@@ -12,7 +12,7 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, Edit2, GripVertical, Trash } from 'lucide-vue-next'
+import { Calendar, Edit2, GripVertical, PanelsTopLeft, Trash } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,7 +36,6 @@ const emit = defineEmits<{
   (e: 'delete', payload: { ticket: Tables<'tickets'> }): void
 }>()
 
-// Drag & drop functionality
 const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
   groups: props.bodyGroups,
   data: computed(() => ({
@@ -77,10 +76,24 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
       <Editable
         :value="ticket.title"
         :placeholder="`Enter title (current: ${ticket.title || 'empty'})`"
+        :with-controls="false"
         @value-commit="(e) => emit('update:title', { ticket, value: e.value })"
         preview-class="inline min-w-[200px] w-full"
-        :with-controls="false"
+        input-class="relative z-20"
       />
+      <div
+        class="opacity-0 z-10 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-2"
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          class="flex gap-1 items-center uppercase"
+          @click="openEditDialog(ticket)"
+        >
+          <PanelsTopLeft class="size-3" />
+          Open
+        </Button>
+      </div>
     </TableCell>
     <TableCell>
       <TicketStatusSelect
@@ -107,17 +120,6 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
       <div class="flex items-center gap-1">
         <Calendar class="w-4 h-4" />
         {{ formatDate(ticket.due_date) }}
-      </div>
-
-      <div
-        class="opacity-0 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-2"
-      >
-        <Button variant="ghost" size="icon" class="h-8" @click="openEditDialog(ticket)">
-          <Edit2 class="size-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" class="h-8" @click="emit('delete', { ticket })">
-          <Trash class="size-3.5" />
-        </Button>
       </div>
     </TableCell>
   </tr>

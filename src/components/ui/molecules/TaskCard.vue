@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Card from './Card.vue'
-import Badge from './Badge.vue'
+import Card from '../atoms/Card.vue'
+import Badge from '../atoms/Badge.vue'
 
 interface Task {
   id: string

@@ -31,10 +31,8 @@ const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
 
 const hasTickets = computed(() => (props.tickets?.length ?? 0) > 0)
 
-// Local copy of tickets for drag & drop operations
 const localTickets = ref<Tables<'tickets'>[]>([])
 
-// Sync local tickets with props
 watch(
   () => props.tickets,
   (newTickets) => {
@@ -47,7 +45,6 @@ watch(
   { immediate: true, deep: true },
 )
 
-// Droppable area for table body - elementRef will be set via template ref
 const { elementRef: tableBodyRef } = useDroppable({
   groups: ['tickets-table-body'],
   data: computed(() => ({
@@ -65,10 +62,8 @@ const { elementRef: tableBodyRef } = useDroppable({
           order_index: index,
         }))
 
-        // Update local tickets with new order_index values
         localTickets.value = updatedTickets
 
-        // Emit the reorder event to parent
         emit('reorder', { tickets: updatedTickets })
       }
     },

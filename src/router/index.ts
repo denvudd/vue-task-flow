@@ -60,15 +60,12 @@ const router = createRouter({
       path: ROUTES.AuthCallback,
       name: 'AuthCallback',
       component: () => import('@/pages/auth/AuthCallback.vue'),
-      // ВАЖЛИВО: не чекаємо на auth для callback
       meta: { skipAuthCheck: true },
     },
   ],
 })
 
-// Navigation guard for protected routes
 router.beforeEach(async (to, from, next) => {
-  // Пропускаємо auth callback без перевірок
   if (to.meta.skipAuthCheck) {
     next()
     return

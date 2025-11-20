@@ -22,22 +22,20 @@ const progressColor = computed(() => {
 
 const progressPercent = computed(() => {
   const range = props.max - props.min
-  if (range === 0) return 25 // Minimum 25% for visual feedback
+  if (range === 0) return 25
 
   const percent = ((props.value - props.min) / range) * 100
 
-  // Ensure minimum 25% for weak (value 0), scale others appropriately
   if (props.value === props.min) {
-    return 25 // Weak password shows 25%
+    return 25
   }
 
-  // Scale medium and strong proportionally within remaining 75%
   if (props.value === props.min + 1) {
-    return 60 // Medium password shows 60%
+    return 60
   }
 
   if (props.value === props.max) {
-    return 100 // Strong password shows 100%
+    return 100
   }
 
   return Math.max(25, Math.min(100, percent))

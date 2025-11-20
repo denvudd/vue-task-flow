@@ -60,7 +60,6 @@ const editor = useEditor({
   },
 })
 
-// Watch for modelValue changes from outside
 watch(
   () => props.modelValue,
   (value) => {
@@ -70,7 +69,6 @@ watch(
   },
 )
 
-// Watch for disabled changes
 watch(
   () => props.disabled,
   (disabled) => {
@@ -80,7 +78,6 @@ watch(
   },
 )
 
-// Watch for placeholder changes
 watch(
   () => props.placeholder,
   (placeholder) => {
@@ -104,7 +101,6 @@ onBeforeUnmount(() => {
   editor.value?.destroy()
 })
 
-// Toolbar button states
 const isBold = computed(() => editor.value?.isActive('bold') ?? false)
 const isItalic = computed(() => editor.value?.isActive('italic') ?? false)
 const isStrike = computed(() => editor.value?.isActive('strike') ?? false)
@@ -117,7 +113,6 @@ const isBlockquote = computed(() => editor.value?.isActive('blockquote') ?? fals
 const isCode = computed(() => editor.value?.isActive('code') ?? false)
 const isCodeBlock = computed(() => editor.value?.isActive('codeBlock') ?? false)
 
-// Toolbar actions
 const toggleBold = () => editor.value?.chain().focus().toggleBold().run()
 const toggleItalic = () => editor.value?.chain().focus().toggleItalic().run()
 const toggleStrike = () => editor.value?.chain().focus().toggleStrike().run()

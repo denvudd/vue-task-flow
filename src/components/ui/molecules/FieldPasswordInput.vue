@@ -4,7 +4,7 @@ import { Field as ArkField } from '@ark-ui/vue/field'
 import { PasswordInput } from '@ark-ui/vue/password-input'
 import { EyeIcon, EyeOffIcon, CheckIcon, XIcon, CheckCircle2Icon } from 'lucide-vue-next'
 import { passwordStrength, type Options } from 'check-password-strength'
-import ProgressLinear from './ProgressLinear.vue'
+import ProgressLinear from '../atoms/ProgressLinear.vue'
 
 interface PasswordCriterion {
   id: string
@@ -47,7 +47,6 @@ const strengthMap = new Map([
   ['strong', { id: 2, label: 'strong' }],
 ])
 
-// Show strength indicator for new passwords by default
 const shouldShowStrength = computed(() => {
   return props.showStrength
 })
@@ -97,7 +96,6 @@ const criteriaStatus = computed(() => {
 const strength = computed(() => {
   if (!shouldShowStrength.value) return null
 
-  // If password is empty, return weak strength (id: 0)
   if (!props.modelValue || props.modelValue.length === 0) {
     return { value: 'weak', id: 0, label: 'weak' }
   }

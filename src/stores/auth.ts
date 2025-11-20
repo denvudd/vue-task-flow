@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { User, Session } from '@supabase/supabase-js'
@@ -17,7 +18,6 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value && !!session.value)
   const isAdmin = computed(() => profile.value?.role === 'admin')
 
-  // Initialize auth state
   async function initialize() {
     try {
       loading.value = true
@@ -78,14 +78,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Sign up with email and password
   async function signUp(email: string, password: string, userData?: Partial<Profile>) {
     try {
       const { data, error } = await authApi.signUpWithEmail({ email, password })
 
       if (error) throw error
 
-      // Create profile if user was created
       if (data.user) {
         await createProfile(data.user.id, email, userData)
       }
@@ -97,10 +95,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Create user profile
   async function createProfile(userId: string, email: string, userData?: Partial<Profile>) {
     try {
-      // Extract username from email (part before @)
       const defaultUsername = email.split('@')[0]
 
       const { error } = await profilesApi.createProfile({
@@ -108,12 +104,11 @@ export const useAuthStore = defineStore('auth', () => {
         username: userData?.username || defaultUsername,
         full_name: userData?.full_name || null,
         avatar_url: userData?.avatar_url || null,
-        role: 'user', // Default role
+        role: 'user',
       })
 
       if (error) throw error
 
-      // Reload profile
       await loadProfile(userId)
     } catch (error) {
       console.error('Error creating profile:', error)
@@ -121,15 +116,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Sign in with email and password
   async function signIn(email: string, password: string) {
     try {
       const { data, error } = await authApi.signInWithEmail({ email, password })
 
       if (error) throw error
 
-      // Session and user are automatically set via onAuthStateChange
-      // But we can set them here immediately for faster UI updates
       session.value = data.session
       user.value = data.user
 
@@ -144,7 +136,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Sign in with Google OAuth
   async function signInWithGoogle(redirectTo?: string) {
     try {
       const { data, error } = await authApi.signInWithGoogle(redirectTo)
@@ -158,13 +149,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Sign out
   async function signOut() {
     try {
       const { error } = await authApi.signOut()
       if (error) throw error
 
-      // Clear local state
       user.value = null
       profile.value = null
       session.value = null
@@ -176,7 +165,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Update profile
   async function updateProfile(updates: Partial<Profile>) {
     if (!user.value) throw new Error('No user logged in')
 
@@ -185,7 +173,6 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (error) throw error
 
-      // Reload profile
       await loadProfile(user.value.id)
 
       return { error: null }
@@ -195,7 +182,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Update password
   async function updatePassword(newPassword: string) {
     try {
       const result = await authApi.updatePassword(newPassword)
@@ -208,7 +194,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Request password reset
   async function resetPassword(email: string) {
     try {
       const { error } = await authApi.sendPasswordResetEmail(email)
@@ -222,18 +207,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   return {
-    // State
     user,
     profile,
     session,
     loading,
     initialized,
 
-    // Computed
     isAuthenticated,
     isAdmin,
 
-    // Actions
     initialize,
     loadProfile,
     signUp,

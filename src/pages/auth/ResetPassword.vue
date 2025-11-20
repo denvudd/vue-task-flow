@@ -40,7 +40,6 @@ const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
 })
 
 onMounted(() => {
-  // Check if user came from password reset email
   const hash = window.location.hash
   if (!hash || !hash.includes('type=recovery')) {
     error.value = 'Invalid password reset link'

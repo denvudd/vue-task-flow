@@ -21,7 +21,7 @@ import {
 } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
-const { user, loadProfile, initialize } = useAuth()
+const { user, initialize } = useAuth()
 const { createToast } = useToast()
 
 interface OAuthProvider {
@@ -119,7 +119,6 @@ const handleUnlink = async () => {
       throw error
     }
 
-    // Refresh user data to get updated identities
     // Re-initialize auth to get updated user with identities
     await initialize()
 

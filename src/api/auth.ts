@@ -135,7 +135,6 @@ export async function unlinkIdentity(identity: {
   user_id: string
   identity_id?: string
 }) {
-  // Use identity_id if available, otherwise use id
   const identityToUnlink = {
     identity_id: identity.identity_id || identity.id,
     id: identity.id,

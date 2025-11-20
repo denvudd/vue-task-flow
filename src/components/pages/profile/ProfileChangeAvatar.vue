@@ -25,7 +25,6 @@ const uploadingAvatar = ref(false)
 const uploadedAvatarPath = ref<string | null>(null)
 
 const currentAvatarUrl = computed(() => {
-  // If we just uploaded a new avatar, use it for preview
   if (uploadedAvatarPath.value) {
     return supabase.storage.from('avatars').getPublicUrl(uploadedAvatarPath.value).data.publicUrl
   }
@@ -54,7 +53,6 @@ const handleAvatarChange = async () => {
   avatarError.value = null
 
   try {
-    // Delete old avatar if exists
     if (profile.value?.avatar_url) {
       const oldPath = profile.value.avatar_url.includes('/storage/v1/object/public/avatars/')
         ? profile.value.avatar_url.split('/avatars/')[1]
@@ -65,7 +63,6 @@ const handleAvatarChange = async () => {
       }
     }
 
-    // Upload new avatar
     const { path } = await uploadAvatar(userId, avatarFile.value)
 
     if (!path) {
@@ -73,7 +70,6 @@ const handleAvatarChange = async () => {
       return
     }
 
-    // Store the uploaded path for preview (this will update currentAvatarUrl)
     uploadedAvatarPath.value = path
     avatarFile.value = null
     avatarError.value = null
@@ -85,19 +81,16 @@ const handleAvatarChange = async () => {
   }
 }
 
-// Watch for avatar file changes and auto-upload
 watch(avatarFile, (newFile) => {
   if (newFile) {
     handleAvatarChange()
   }
 })
 
-// Reset uploaded path when profile is updated (after save)
 watch(
   () => profile.value?.avatar_url,
   (newUrl) => {
     if (newUrl && uploadedAvatarPath.value) {
-      // Profile was updated, clear the temporary preview
       uploadedAvatarPath.value = null
     }
   },

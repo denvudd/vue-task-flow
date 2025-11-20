@@ -71,7 +71,6 @@ export function useCreateProject() {
       return data
     },
     onSuccess: () => {
-      // Invalidate projects list to refetch
       queryClient.invalidateQueries({ queryKey: ['projects', 'user'] })
     },
   })
@@ -90,7 +89,6 @@ export function useUpdateProject() {
       return data
     },
     onSuccess: (data) => {
-      // Invalidate specific project and list
       queryClient.invalidateQueries({ queryKey: ['projects', 'detail', data?.id] })
       queryClient.invalidateQueries({ queryKey: ['projects', 'user'] })
     },
@@ -109,7 +107,6 @@ export function useDeleteProject() {
       if (error) throw error
     },
     onSuccess: () => {
-      // Invalidate projects list
       queryClient.invalidateQueries({ queryKey: ['projects', 'user'] })
     },
   })

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import FieldSelect from './FieldSelect.vue'
-import { TICKET_PRIORITY_OPTIONS, type TicketPriority } from '@/constants/tickets'
-import type { SelectItem } from './FieldSelect.vue'
+import FieldSelect from '../atoms/FieldSelect.vue'
+import { TICKET_TYPE_OPTIONS, type TicketType } from '@/constants/tickets'
+import type { SelectItem } from '../atoms/FieldSelect.vue'
 
 interface Props {
-  value?: TicketPriority | string | null
+  value?: TicketType | string | null
   placeholder?: string
   disabled?: boolean
   invalid?: boolean
@@ -14,12 +14,12 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'Select priority',
+  placeholder: 'Select type',
 })
 
 const emit = defineEmits<{
-  (e: 'update:value', value: TicketPriority | null): void
-  (e: 'change', value: TicketPriority | null): void
+  (e: 'update:value', value: TicketType | null): void
+  (e: 'change', value: TicketType | null): void
 }>()
 
 const selectValue = computed(() => {
@@ -27,7 +27,7 @@ const selectValue = computed(() => {
 })
 
 const handleValueChange = (details: { items: SelectItem[]; value: string[] }) => {
-  const newValue = (details.value[0] as TicketPriority) || null
+  const newValue = (details.value[0] as TicketType) || null
   emit('update:value', newValue)
   emit('change', newValue)
 }
@@ -35,7 +35,7 @@ const handleValueChange = (details: { items: SelectItem[]; value: string[] }) =>
 
 <template>
   <FieldSelect
-    :items="TICKET_PRIORITY_OPTIONS"
+    :items="TICKET_TYPE_OPTIONS"
     :value="selectValue"
     :placeholder="placeholder"
     :disabled="disabled"

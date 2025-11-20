@@ -14,7 +14,6 @@ export function useUpdateProfile() {
       return data
     },
     onSuccess: () => {
-      // Invalidate auth queries to refresh profile data
       queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] })
     },
   })

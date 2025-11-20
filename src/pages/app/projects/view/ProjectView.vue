@@ -47,7 +47,6 @@ const handleTitleUpdate = async (ticket: Tables<'tickets'>, newValue: string) =>
       ticketId: ticket.id,
       updates: { title: newValue },
     })
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket title:', err)
   }
@@ -65,7 +64,6 @@ const handleStatusChange = async (payload: {
       ticketId: ticket.id,
       updates: { status: newStatus },
     })
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket status:', err)
   }
@@ -83,7 +81,6 @@ const handlePriorityChange = async (payload: {
       ticketId: ticket.id,
       updates: { priority: newPriority },
     })
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket priority:', err)
   }
@@ -101,7 +98,6 @@ const handleTypeChange = async (payload: {
       ticketId: ticket.id,
       updates: { type: newType },
     })
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error updating ticket type:', err)
   }
@@ -131,22 +127,9 @@ const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
     }))
 
     await reorderTickets(ticketUpdates)
-    // Realtime will automatically update the tickets list
   } catch (err) {
     console.error('Error reordering tickets:', err)
   }
-}
-
-const getStatusLabel = (status: string | null) => {
-  return TICKET_STATUS_OPTIONS.find((opt) => opt.value === status)?.label || status || 'N/A'
-}
-
-const getPriorityLabel = (priority: string | null) => {
-  return TICKET_PRIORITY_OPTIONS.find((opt) => opt.value === priority)?.label || priority || 'N/A'
-}
-
-const getTypeLabel = (type: string | null) => {
-  return TICKET_TYPE_OPTIONS.find((opt) => opt.value === type)?.label || type || 'N/A'
 }
 </script>
 

@@ -41,7 +41,6 @@ const keyValid = computed(() => isFieldValid('key') && isFieldTouched('key'))
 
 const isKeyManuallyEdited = ref(false)
 
-// Auto-generate key from name if not manually edited
 watch(name, (newName) => {
   if (!isKeyManuallyEdited.value && newName) {
     key.value = newName.substring(0, 3).toUpperCase()
@@ -52,7 +51,6 @@ const handleKeyInput = () => {
   if (key.value) {
     isKeyManuallyEdited.value = true
   } else {
-    // If user clears the field, allow auto-generation again
     isKeyManuallyEdited.value = false
   }
 }

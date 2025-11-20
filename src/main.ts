@@ -21,11 +21,8 @@ app.use(VueQueryPlugin, vueQueryOptions)
 app.use(VueDnDKitPlugin)
 app.use(VueDnDKitDevtools)
 
-// Initialize auth state before mounting
-
 const authStore = useAuthStore()
 
-// For callback routes, delay auth initialization to let component handle hash first
 const isCallbackRoute = window.location.pathname === '/auth/callback'
 if (isCallbackRoute) {
   app.mount('#app')

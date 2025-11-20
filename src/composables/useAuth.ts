@@ -8,11 +8,9 @@ import { useAuthStore } from '@/stores/auth'
 export function useAuth() {
   const authStore = useAuthStore()
 
-  // Get reactive refs from store
   const { user, profile, session, loading, initialized, isAuthenticated, isAdmin } =
     storeToRefs(authStore)
 
-  // Get actions from store
   const {
     initialize,
     loadProfile,
@@ -26,18 +24,15 @@ export function useAuth() {
   } = authStore
 
   return {
-    // State
     user,
     profile,
     session,
     loading,
     initialized,
 
-    // Computed
     isAuthenticated,
     isAdmin,
 
-    // Actions
     initialize,
     loadProfile,
     signUp,

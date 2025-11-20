@@ -33,7 +33,6 @@ const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
   validateOnModelUpdate: true,
 })
 
-// Computed properties for validation state
 const emailValid = computed(() => isFieldValid('email') && isFieldTouched('email'))
 const passwordValid = computed(() => isFieldValid('password') && isFieldTouched('password'))
 const confirmPasswordValid = computed(
@@ -55,8 +54,6 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     if (data) {
       success.value = true
-      // Redirect to home page after successful sign up
-      // Profile is automatically created in the store
       setTimeout(() => {
         router.push(ROUTES.Dashboard)
       }, 1500)
@@ -82,8 +79,6 @@ const handleGoogleSignIn = async () => {
     if (authError) {
       error.value = authError.message
     }
-    // User will be redirected to Google OAuth page
-    // After successful authentication, they will be redirected back
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
     googleLoading.value = false

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Editable as ArkEditable } from '@ark-ui/vue/editable'
 import { ref, watch } from 'vue'
-import { Button } from '@/components/ui'
+import Button from './Button.vue'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 
 interface Props {
@@ -65,7 +65,7 @@ const handleValueCancel = () => {
       <ArkEditable.Input
         :class="[
           inputClass,
-          'w-full bg-transparent focus:outline-none focus:ring-2 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
+          'w-full bg-neutral-50 focus:outline-none focus:ring-2 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
         ]"
       />
       <ArkEditable.Preview
@@ -96,14 +96,12 @@ const handleValueCancel = () => {
 </template>
 
 <style>
-/* Editable animations */
 [data-scope='editable'][data-part='area'][data-editing] {
   background: white;
   border: 1px solid rgb(59 130 246); /* primary-500 */
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-/* Ensure Preview content is visible */
 [data-scope='editable'][data-part='preview'] {
   display: inline-block !important;
   min-height: 1.5rem;

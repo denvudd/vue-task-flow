@@ -53,7 +53,6 @@ export async function isUsernameAvailable(username: string, excludeUserId?: stri
   const { data, error } = await query.single()
 
   if (error && error.code === 'PGRST116') {
-    // No rows returned, username is available
     return true
   }
 
@@ -82,7 +81,6 @@ export async function getProfilesByRole(role: string) {
  * Upload avatar to Supabase storage
  */
 export async function uploadAvatar(userId: string, file: File) {
-  // Check if user is authenticated
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -93,46 +91,36 @@ export async function uploadAvatar(userId: string, file: File) {
 
   const fileExt = file.name.split('.').pop()
   const fileName = `${Date.now()}.${fileExt}`
-  // Use user-specific folder structure for better RLS support
   const filePath = `${userId}/${fileName}`
 
-  // Delete old avatar if exists (before uploading new one)
-  // This helps with storage quotas and cleanup
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  
+
   if (user) {
-    // Try to list and delete old files in user's folder
-    const { data: oldFiles } = await supabase.storage
-      .from('avatars')
-      .list(userId, {
-        limit: 10,
-        sortBy: { column: 'created_at', order: 'desc' },
-      })
+    const { data: oldFiles } = await supabase.storage.from('avatars').list(userId, {
+      limit: 10,
+      sortBy: { column: 'created_at', order: 'desc' },
+    })
 
     if (oldFiles && oldFiles.length > 0) {
-      // Delete old avatar files (keep only the newest)
       const filesToDelete = oldFiles.slice(1).map((f) => `${userId}/${f.name}`)
+
       if (filesToDelete.length > 0) {
         await supabase.storage.from('avatars').remove(filesToDelete)
       }
     }
   }
 
-  // Upload file to avatars bucket
-  const { data: uploadData, error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true, // Allow overwriting if file exists
-    })
+  const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+    cacheControl: '3600',
+    upsert: true,
+  })
 
   if (uploadError) {
     throw uploadError
   }
 
-  // Get public URL
   const {
     data: { publicUrl },
   } = supabase.storage.from('avatars').getPublicUrl(filePath)
@@ -146,5 +134,3 @@ export async function uploadAvatar(userId: string, file: File) {
 export async function deleteAvatar(filePath: string) {
   return await supabase.storage.from('avatars').remove([filePath])
 }
-
-

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Badge from './Badge.vue'
+import Badge from './Badge.vue';
 
 interface Props {
   status: 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'blocked'
