@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import FieldSelect from '../atoms/FieldSelect.vue'
+import Combobox from '../atoms/Combobox.vue'
 import { TICKET_TYPE_OPTIONS, type TicketType } from '@/constants/tickets'
-import type { SelectItem } from '../atoms/FieldSelect.vue'
+import type { ComboboxItem } from '../atoms/Combobox.vue'
 
 interface Props {
   value?: TicketType | string | null
@@ -26,7 +26,7 @@ const selectValue = computed(() => {
   return props.value ? [props.value] : []
 })
 
-const handleValueChange = (details: { items: SelectItem[]; value: string[] }) => {
+const handleValueChange = (details: { items: ComboboxItem[]; value: string[] }) => {
   const newValue = (details.value[0] as TicketType) || null
   emit('update:value', newValue)
   emit('change', newValue)
@@ -34,7 +34,7 @@ const handleValueChange = (details: { items: SelectItem[]; value: string[] }) =>
 </script>
 
 <template>
-  <FieldSelect
+  <Combobox
     :items="TICKET_TYPE_OPTIONS"
     :value="selectValue"
     :placeholder="placeholder"
@@ -45,4 +45,3 @@ const handleValueChange = (details: { items: SelectItem[]; value: string[] }) =>
     @on-value-change="handleValueChange"
   />
 </template>
-

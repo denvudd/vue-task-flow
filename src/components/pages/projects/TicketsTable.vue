@@ -2,11 +2,12 @@
 import { computed, ref, watch } from 'vue'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell } from '@/components/ui'
-import TicketDetailsDialog from '@/components/pages/projects/TicketDetailsDialog.vue'
 import TicketRow from '@/components/pages/projects/TicketRow.vue'
 import { useDeleteTicket } from '@/composables/useTickets'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
+import { useAuth } from '@/composables/useAuth'
+import { Calendar, CaseSensitive, CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
 
 interface Props {
   tickets: Tables<'tickets'>[] | null | undefined
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const { mutate: deleteTicket } = useDeleteTicket()
+const { isAuthenticated } = useAuth()
 
 const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
   deleteTicket(payload.ticket.id)
@@ -73,8 +75,6 @@ const { elementRef: tableBodyRef } = useDroppable({
 
 <template>
   <div>
-    <TicketDetailsDialog />
-
     <div v-if="isLoading" class="flex justify-center items-center py-16">
       <div class="text-neutral-600">Loading tickets...</div>
     </div>
@@ -86,12 +86,37 @@ const { elementRef: tableBodyRef } = useDroppable({
     <Table v-show="!isLoading && hasTickets" density="comfortable">
       <TableHeader>
         <TableRow :hover="false">
-          <TableHeadCell></TableHeadCell>
-          <TableHeadCell>Title</TableHeadCell>
-          <TableHeadCell>Status</TableHeadCell>
-          <TableHeadCell>Priority</TableHeadCell>
-          <TableHeadCell>Type</TableHeadCell>
-          <TableHeadCell>Due Date</TableHeadCell>
+          <TableHeadCell v-if="isAuthenticated"></TableHeadCell>
+          <TableHeadCell>
+            <div class="flex items-center gap-1.5">
+              <CaseSensitive class="size-3.5" />
+              Title
+            </div>
+          </TableHeadCell>
+          <TableHeadCell>
+            <div class="flex items-center gap-1.5">
+              <Loader class="size-3.5" />
+              Status
+            </div>
+          </TableHeadCell>
+          <TableHeadCell>
+            <div class="flex items-center gap-1.5">
+              <CircleChevronDown class="size-3.5" />
+              Priority
+            </div>
+          </TableHeadCell>
+          <TableHeadCell>
+            <div class="flex items-center gap-1.5">
+              <Flag class="size-3.5" />
+              Type
+            </div>
+          </TableHeadCell>
+          <TableHeadCell>
+            <div class="flex items-center gap-1.5">
+              <Calendar class="size-3.5" />
+              Due Date
+            </div>
+          </TableHeadCell>
         </TableRow>
       </TableHeader>
 

@@ -8,4 +8,5 @@ export const ROUTES = {
   AuthCallback: '/auth/callback',
   CreateProject: '/projects/create',
   Project: (projectId: string) => `/projects/${projectId}`,
+  Ticket: (projectId: string, ticketId: string) => `/projects/${projectId}/tickets/${ticketId}`,
 }

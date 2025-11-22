@@ -9,26 +9,29 @@ const router = createRouter({
     {
       path: '/',
       component: AppLayout,
-      meta: { requiresAuth: true },
       children: [
         {
           path: ROUTES.Dashboard,
           name: 'Dashboard',
+          meta: { requiresAuth: true },
           component: () => import('@/pages/app/dashboard/Dashboard.vue'),
         },
         {
           path: ROUTES.Profile,
           name: 'Profile',
+          meta: { requiresAuth: true },
           component: () => import('@/pages/app/profile/Profile.vue'),
         },
         {
           path: ROUTES.CreateProject,
           name: 'CreateProject',
+          meta: { requiresAuth: true },
           component: () => import('@/pages/app/projects/create/ProjectsCreate.vue'),
         },
         {
           path: '/projects/:id',
           name: 'Project',
+          meta: { requiresAuth: false, fullWidth: true },
           component: () => import('@/pages/app/projects/view/ProjectView.vue'),
         },
       ],

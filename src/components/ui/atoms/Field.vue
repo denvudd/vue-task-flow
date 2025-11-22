@@ -18,8 +18,14 @@ const props = defineProps<Props>()
   <ArkField.Root :required="required" :disabled="disabled" :invalid="invalid">
     <div :class="['space-y-2', rootClass]">
       <!-- Label -->
-      <ArkField.Label v-if="label" class="block text-sm font-medium text-neutral-700">
-        <slot name="label">{{ label }}</slot>
+      <ArkField.Label v-if="$slots.label" class="block text-sm font-medium text-neutral-700">
+        <slot name="label">
+          <slot name="label">{{ label }}</slot>
+        </slot>
+        <span v-if="required" class="text-error-500 ml-1">*</span>
+      </ArkField.Label>
+      <ArkField.Label v-else-if="label" class="block text-sm font-medium text-neutral-700">
+        {{ label }}
         <span v-if="required" class="text-error-500 ml-1">*</span>
       </ArkField.Label>
 

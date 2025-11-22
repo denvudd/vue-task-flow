@@ -12,10 +12,14 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, Edit2, GripVertical, PanelsTopLeft, Trash } from 'lucide-vue-next'
+import { Calendar, GripVertical, PanelsTopLeft } from 'lucide-vue-next'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
+const { isAuthenticated } = useAuth()
+const { createToast } = useToast()
 
 interface Props {
   ticket: Tables<'tickets'>
@@ -48,6 +52,17 @@ const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
   },
 })
 
+const showUnauthorizedMessage = () => {
+  if (isAuthenticated.value) {
+    return
+  }
+
+  createToast({
+    title: 'You must be logged in to update a ticket',
+    type: 'warning',
+  })
+}
+
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'N/A'
   return new Date(dateString).toLocaleDateString()
@@ -68,8 +83,9 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
       'opacity-50': isDragging,
       'border-primary-500': isOvered,
     }"
+    @click="showUnauthorizedMessage"
   >
-    <TableCell class="w-10">
+    <TableCell v-if="isAuthenticated" class="w-10">
       <GripVertical class="size-4 cursor-move" @pointerdown="handleDragStart" />
     </TableCell>
     <TableCell class="relative">
@@ -77,12 +93,14 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         :value="ticket.title"
         :placeholder="`Enter title (current: ${ticket.title || 'empty'})`"
         :with-controls="false"
+        :disabled="!isAuthenticated"
         @value-commit="(e) => emit('update:title', { ticket, value: e.value })"
         preview-class="inline min-w-[200px] w-full"
         input-class="relative z-20"
       />
       <div
-        class="opacity-0 z-10 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-2"
+        v-if="isAuthenticated"
+        class="opacity-100 lg:opacity-0 z-10 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2"
       >
         <Button
           variant="ghost"
@@ -100,6 +118,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         :value="ticket.status"
         @change="(val) => emit('update:status', { ticket, value: val })"
         root-class="min-w-[120px]"
+        :disabled="!isAuthenticated"
       />
     </TableCell>
     <TableCell>
@@ -107,6 +126,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         :value="ticket.priority"
         @change="(val) => emit('update:priority', { ticket, value: val })"
         root-class="min-w-[120px]"
+        :disabled="!isAuthenticated"
       />
     </TableCell>
     <TableCell>
@@ -114,6 +134,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         :value="ticket.type"
         @change="(val) => emit('update:type', { ticket, value: val })"
         root-class="min-w-[120px]"
+        :disabled="!isAuthenticated"
       />
     </TableCell>
     <TableCell class="relative">

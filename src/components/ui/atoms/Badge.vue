@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  variant?: 'primary' | 'success' | 'warning' | 'error' | 'info'
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
   size?: 'sm' | 'md'
 }
 
@@ -20,7 +20,9 @@ const badgeClass = computed(() => {
   }
 
   const variantClasses = {
+    default: 'bg-neutral-100 text-neutral-700',
     primary: 'bg-primary-100 text-primary-700',
+    secondary: 'bg-neutral-100 text-neutral-700',
     success: 'bg-success-100 text-success-700',
     warning: 'bg-warning-100 text-warning-700',
     error: 'bg-error-100 text-error-700',

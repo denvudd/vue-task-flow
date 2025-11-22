@@ -89,6 +89,41 @@ export type Database = {
         }
         Relationships: []
       }
+      project_invite_links: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          project_id: string
+          role: string
+          token: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          project_id: string
+          role: string
+          token: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          project_id?: string
+          role?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_invite_links_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_members: {
         Row: {
           joined_at: string | null
@@ -136,6 +171,7 @@ export type Database = {
           priority: string | null
           status: string | null
           updated_at: string | null
+          visibility: string | null
         }
         Insert: {
           created_at?: string | null
@@ -147,6 +183,7 @@ export type Database = {
           priority?: string | null
           status?: string | null
           updated_at?: string | null
+          visibility?: string | null
         }
         Update: {
           created_at?: string | null
@@ -158,6 +195,7 @@ export type Database = {
           priority?: string | null
           status?: string | null
           updated_at?: string | null
+          visibility?: string | null
         }
         Relationships: [
           {

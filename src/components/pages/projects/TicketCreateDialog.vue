@@ -58,6 +58,8 @@ const [createDueDate, createDueDateAttrs] = defineField('due_date') as [
   any,
 ]
 
+const DEFAULT_PROJECT_DESCRIPTION = `<h2>Task description</h2><p>Provide an overview of the task and related details.</p><h2>Sub-tasks</h2><ul data-type="taskList"><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Task 1</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Task 2</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Task 3</p></div></li></ul><p></p><p></p>`
+
 const handleSubmitForm = handleSubmit(async (values) => {
   if (!user.value) {
     console.error('User not authenticated')
@@ -67,7 +69,7 @@ const handleSubmitForm = handleSubmit(async (values) => {
   try {
     await createTicket({
       title: values.title,
-      description: values.description || null,
+      description: values.description || DEFAULT_PROJECT_DESCRIPTION,
       status: values.status || TICKET_STATUSES.TODO,
       priority: values.priority || TICKET_PRIORITIES.MEDIUM,
       type: values.type || TICKET_TYPES.TASK,
@@ -100,9 +102,9 @@ const open = () => {
 <template>
   <div>
     <slot name="trigger" :open="open">
-      <Button @click="open">
-        <Plus class="w-4 h-4 mr-2" />
-        Create Ticket
+      <Button size="sm" @click="open">
+        <Plus class="w-4 h-4 mr-1" />
+        New
       </Button>
     </slot>
 

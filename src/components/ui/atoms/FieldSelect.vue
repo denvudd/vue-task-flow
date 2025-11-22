@@ -66,15 +66,10 @@ const handleValueChange = (details: { value: string[] }) => {
       >
         <Select.Trigger
           :class="[
-            'w-full rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none',
-            'border focus:ring-2',
+            'w-full text-sm transition-colors focus:outline-none',
             'disabled:bg-neutral-100 disabled:cursor-not-allowed',
             'flex items-center justify-between gap-2',
-            invalid
-              ? 'border-error-500 focus:border-error-500 focus:ring-error-500'
-              : valid
-                ? 'border-success-500 focus:border-success-500 focus:ring-success-500'
-                : 'border-neutral-300 focus:border-primary-500 focus:ring-primary-500',
+            invalid ? 'border-error-500 focus:border-error-500 focus:ring-error-500' : '',
           ]"
           :disabled="disabled"
         >
@@ -104,9 +99,8 @@ const handleValueChange = (details: { value: string[] }) => {
             <Select.Content
               :class="[
                 'z-50 rounded-lg border border-neutral-300 bg-white shadow-lg',
-                'overflow-hidden',
+                'overflow-hidden min-w-fit',
               ]"
-              style="min-width: var(--reference-width); width: var(--reference-width)"
             >
               <Select.ItemGroup>
                 <Select.Item v-for="item in items" :key="item.value" :item="item">

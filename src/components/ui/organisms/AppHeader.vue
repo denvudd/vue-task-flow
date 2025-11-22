@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
-import { Avatar, Menu } from '@/components/ui'
+import { Avatar, Button, Menu } from '@/components/ui'
 import { Menu as ArkMenu } from '@ark-ui/vue/menu'
 import logo from '/images/logo.png'
 import { ROUTES } from '@/lib/routing'
@@ -36,6 +36,14 @@ const navigateToProfile = () => {
 const navigateToHome = () => {
   router.push(ROUTES.Dashboard)
 }
+
+const navigateToLogin = () => {
+  router.push(ROUTES.Login)
+}
+
+const navigateToSignUp = () => {
+  router.push(ROUTES.SignUp)
+}
 </script>
 
 <template>
@@ -51,8 +59,8 @@ const navigateToHome = () => {
           </button>
         </div>
 
-        <div class="flex items-center gap-4">
-          <div v-if="profile" class="text-sm text-neutral-600">
+        <div v-if="profile" class="flex items-center gap-4">
+          <div class="text-sm text-neutral-600">
             <span class="font-medium">{{ profile.full_name || profile.username }}</span>
             <span
               v-if="profile.role === 'admin'"
@@ -82,6 +90,11 @@ const navigateToHome = () => {
               <button @click="handleSignOut" class="w-full text-left">Logout</button>
             </ArkMenu.Item>
           </Menu>
+        </div>
+
+        <div v-else class="flex items-center gap-4">
+          <Button variant="outline" @click="navigateToSignUp">Sign Up</Button>
+          <Button variant="primary" @click="navigateToLogin">Login</Button>
         </div>
       </div>
     </div>

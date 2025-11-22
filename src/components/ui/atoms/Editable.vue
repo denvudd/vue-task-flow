@@ -11,6 +11,7 @@ interface Props {
   onValueChange?: (details: { value: string }) => void
   onValueCommit?: (details: { value: string }) => void
   onValueCancel?: () => void
+  rootClass?: string
   previewClass?: string
   inputClass?: string
   withControls?: boolean
@@ -57,6 +58,7 @@ const handleValueCancel = () => {
     :disabled="disabled"
     :select-on-focus="false"
     activationMode="click"
+    :class="[rootClass]"
     @value-change="handleValueChange"
     @value-commit="handleValueCommit"
     @value-cancel="handleValueCancel"
@@ -72,6 +74,9 @@ const handleValueCancel = () => {
         :class="[
           'cursor-pointer hover:bg-neutral-100 rounded px-2 py-1 -mx-2 -my-1 transition-colors min-h-6 w-full',
           previewClass,
+          {
+            'cursor-not-allowed! hover:bg-transparent': disabled,
+          },
         ]"
       />
     </ArkEditable.Area>

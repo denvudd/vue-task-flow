@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import { unref, ref, onUnmounted, watch, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
@@ -244,11 +244,16 @@ export function useCreateTicket() {
  * Note: Realtime will automatically update the tickets list, so no need to invalidate queries
  */
 export function useUpdateTicket() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async ({ ticketId, updates }: { ticketId: string; updates: TicketUpdate }) => {
       const { data, error } = await updateTicket(ticketId, updates)
       if (error) throw error
       return data
+    },
+    onSuccess: ({ id }) => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) })
     },
   })
 }

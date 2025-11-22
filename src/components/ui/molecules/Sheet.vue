@@ -9,43 +9,34 @@ interface Props {
   onOpenChange?: (details: { open: boolean }) => void
   lazyMount?: boolean
   unmountOnExit?: boolean
-  size?:
-    | 'sm'
-    | 'md'
-    | 'lg'
-    | 'xl'
-    | '2xl'
-    | '3xl'
-    | '4xl'
-    | '5xl'
-    | '6xl'
-    | '7xl'
-    | '8xl'
-    | '9xl'
-    | '10xl'
+  side?: 'left' | 'right'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  width?: string
+  showOverlay?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   lazyMount: false,
   unmountOnExit: false,
-  size: 'md',
+  side: 'right',
+  size: 'lg',
+  showOverlay: true,
 })
 
 const sizeClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  '2xl': 'max-w-2xl',
-  '3xl': 'max-w-3xl',
-  '4xl': 'max-w-4xl',
-  '5xl': 'max-w-5xl',
-  '6xl': 'max-w-6xl',
-  '7xl': 'max-w-7xl',
-  '8xl': 'max-w-8xl',
-  '9xl': 'max-w-9xl',
-  '10xl': 'max-w-10xl',
+  sm: 'w-80',
+  md: 'w-96',
+  lg: 'w-[32rem]',
+  xl: 'w-[48rem]',
+  full: 'w-full',
 }
+
+const widthStyle = computed(() => {
+  if (props.width) {
+    return { width: props.width }
+  }
+  return {}
+})
 
 const emit = defineEmits<{
   'update:open': [open: boolean]
@@ -64,23 +55,28 @@ const isOpen = computed({
   <ArkDialog.Root v-model:open="isOpen" :lazy-mount="lazyMount" :unmount-on-exit="unmountOnExit">
     <Teleport to="body">
       <ArkDialog.Backdrop
+        v-if="showOverlay"
         class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity"
       />
-      <ArkDialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <ArkDialog.Positioner
+        :class="['fixed inset-y-0 z-50 flex items-stretch', side === 'left' ? 'left-0' : 'right-0']"
+      >
         <ArkDialog.Content
           :class="[
-            'relative z-50 w-full rounded-xl bg-white border border-neutral-200 shadow-lg transition-all dialog-content',
-            sizeClasses[size],
+            'relative z-50 h-full bg-gray-100 border shadow-lg transition-all sheet-content',
+            side === 'left' ? 'border-r border-neutral-200' : 'border-l border-neutral-200',
+            width ? '' : sizeClasses[size],
           ]"
-          style="box-shadow: var(--shadow-soft-lg)"
+          :style="{ ...widthStyle, boxShadow: 'var(--shadow-soft-lg)' }"
+          :data-side="side"
         >
-          <div class="flex flex-col max-h-[90vh]">
+          <div class="flex flex-col h-full">
             <!-- Header -->
             <div
               v-if="$slots.title || $slots.header"
-              class="flex items-center justify-between px-6 py-4 border-b border-neutral-200"
+              class="flex items-center justify-between px-6 py-4 border-b z-10 border-neutral-200 shrink-0"
             >
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <slot name="header">
                   <ArkDialog.Title
                     v-if="$slots.title"
@@ -91,7 +87,7 @@ const isOpen = computed({
                 </slot>
               </div>
               <ArkDialog.CloseTrigger as-child>
-                <Button variant="ghost" size="icon" class="ml-4">
+                <Button variant="ghost" size="icon" class="ml-4 shrink-0">
                   <X class="w-4 h-4" />
                 </Button>
               </ArkDialog.CloseTrigger>
@@ -100,7 +96,7 @@ const isOpen = computed({
             <!-- Description -->
             <ArkDialog.Description
               v-if="$slots.description"
-              class="px-6 pt-4 text-sm text-neutral-600"
+              class="px-6 pt-4 text-sm text-neutral-600 shrink-0"
             >
               <slot name="description" />
             </ArkDialog.Description>
@@ -113,7 +109,7 @@ const isOpen = computed({
             <!-- Footer -->
             <div
               v-if="$slots.footer"
-              class="flex items-center justify-end gap-3 px-6 py-4 border-t border-neutral-200"
+              class="flex items-center justify-end gap-3 px-6 py-4 border-t border-neutral-200 shrink-0"
             >
               <slot name="footer" />
             </div>
@@ -125,28 +121,43 @@ const isOpen = computed({
 </template>
 
 <style>
-/* Dialog animations */
-.dialog-content[data-state='open'] {
+/* Sheet animations - slide from right */
+.sheet-content[data-side='right'][data-state='open'] {
   animation:
-    dialog-fade-in 0.2s ease-out,
-    dialog-zoom-in 0.2s ease-out;
+    sheet-fade-in 0.2s ease-out,
+    sheet-slide-in-right 0.2s ease-out;
 }
 
-.dialog-content[data-state='closed'] {
+.sheet-content[data-side='right'][data-state='closed'] {
   animation:
-    dialog-fade-out 0.15s ease-in,
-    dialog-zoom-out 0.15s ease-in;
+    sheet-fade-out 0.15s ease-in,
+    sheet-slide-out-right 0.15s ease-in;
 }
 
+/* Sheet animations - slide from left */
+.sheet-content[data-side='left'][data-state='open'] {
+  animation:
+    sheet-fade-in 0.2s ease-out,
+    sheet-slide-in-left 0.2s ease-out;
+}
+
+.sheet-content[data-side='left'][data-state='closed'] {
+  animation:
+    sheet-fade-out 0.15s ease-in,
+    sheet-slide-out-left 0.15s ease-in;
+}
+
+/* Backdrop animations for sheet */
 [data-scope='dialog'][data-part='backdrop'][data-state='open'] {
-  animation: dialog-fade-in 0.2s ease-out;
+  animation: sheet-fade-in 0.2s ease-out;
 }
 
 [data-scope='dialog'][data-part='backdrop'][data-state='closed'] {
-  animation: dialog-fade-out 0.15s ease-in;
+  animation: sheet-fade-out 0.15s ease-in;
 }
 
-@keyframes dialog-fade-in {
+/* Keyframes */
+@keyframes sheet-fade-in {
   from {
     opacity: 0;
   }
@@ -155,7 +166,7 @@ const isOpen = computed({
   }
 }
 
-@keyframes dialog-fade-out {
+@keyframes sheet-fade-out {
   from {
     opacity: 1;
   }
@@ -164,25 +175,39 @@ const isOpen = computed({
   }
 }
 
-@keyframes dialog-zoom-in {
+@keyframes sheet-slide-in-right {
   from {
-    transform: scale(0.95);
-    opacity: 0;
+    transform: translateX(100%);
   }
   to {
-    transform: scale(1);
-    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-@keyframes dialog-zoom-out {
+@keyframes sheet-slide-out-right {
   from {
-    transform: scale(1);
-    opacity: 1;
+    transform: translateX(0);
   }
   to {
-    transform: scale(0.95);
-    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sheet-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
   }
 }
 </style>

@@ -4,11 +4,13 @@ import { computed } from 'vue'
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
   size?: 'sm' | 'md' | 'lg' | 'icon'
+  as?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
   size: 'md',
+  as: 'button',
 })
 
 const buttonClass = computed(() => {
@@ -40,7 +42,7 @@ const buttonClass = computed(() => {
 </script>
 
 <template>
-  <button :class="buttonClass">
+  <component :is="as" :class="buttonClass" v-bind="$attrs">
     <slot />
-  </button>
+  </component>
 </template>
