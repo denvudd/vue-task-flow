@@ -25,7 +25,7 @@ const emit = defineEmits<{
     <Field.Textarea
       :class="[
         'w-full rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none resize-none',
-        'border focus:ring-2',
+        'border focus:ring-1',
         invalid
           ? 'border-error-500 focus:border-error-500 focus:ring-error-500'
           : valid

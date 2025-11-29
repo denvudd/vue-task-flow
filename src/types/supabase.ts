@@ -207,6 +207,35 @@ export type Database = {
           },
         ]
       }
+      ticket_documents: {
+        Row: {
+          id: string
+          ticket_id: string
+          updated_at: string | null
+          ydoc_state: string | null
+        }
+        Insert: {
+          id?: string
+          ticket_id: string
+          updated_at?: string | null
+          ydoc_state?: string | null
+        }
+        Update: {
+          id?: string
+          ticket_id?: string
+          updated_at?: string | null
+          ydoc_state?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_ticket"
+            columns: ["ticket_id"]
+            isOneToOne: true
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickets: {
         Row: {
           assignee_id: string | null

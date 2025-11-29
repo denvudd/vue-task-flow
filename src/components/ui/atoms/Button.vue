@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Tooltip as ArkTooltip } from '@ark-ui/vue/tooltip'
 
 interface Props {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
   size?: 'sm' | 'md' | 'lg' | 'icon'
   as?: string
+  tooltip?: string
+  tooltipOpenDelay?: number
+  tooltipCloseDelay?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
   size: 'md',
   as: 'button',
+  tooltipOpenDelay: 200,
+  tooltipCloseDelay: 200,
 })
 
 const buttonClass = computed(() => {
@@ -37,12 +43,57 @@ const buttonClass = computed(() => {
       'bg-error-600 text-white hover:bg-error-700 active:bg-error-800 focus-visible:ring-error-500',
   }
 
-  return `${baseClass} ${sizeClasses[props.size]} ${variantClasses[props.variant]} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`
+  return `${baseClass} ${sizeClasses[props.size]} ${variantClasses[props.variant]} focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2`
 })
 </script>
 
 <template>
-  <component :is="as" :class="buttonClass" v-bind="$attrs">
+  <ArkTooltip.Root v-if="tooltip" :open-delay="tooltipOpenDelay" :close-delay="tooltipCloseDelay">
+    <ArkTooltip.Trigger as-child>
+      <component :is="as" :class="buttonClass" v-bind="$attrs">
+        <slot />
+      </component>
+    </ArkTooltip.Trigger>
+
+    <Teleport to="body">
+      <ArkTooltip.Positioner>
+        <ArkTooltip.Content
+          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs font-medium text-white shadow-ьв"
+        >
+          {{ tooltip }}
+        </ArkTooltip.Content>
+      </ArkTooltip.Positioner>
+    </Teleport>
+  </ArkTooltip.Root>
+
+  <component v-else :is="as" :class="buttonClass" v-bind="$attrs">
     <slot />
   </component>
 </template>
+
+<style scoped>
+.tooltip-content {
+  animation: tooltip-fade-in 0.2s ease-out;
+}
+
+.tooltip-arrow {
+  --arrow-size: 8px;
+  --arrow-background: theme('colors.neutral.800');
+}
+
+.tooltip-arrow-tip {
+  border-color: var(--arrow-background);
+  border-width: var(--arrow-size);
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

@@ -67,12 +67,12 @@ const handleValueCancel = () => {
       <ArkEditable.Input
         :class="[
           inputClass,
-          'w-full bg-neutral-50 focus:outline-none focus:ring-2 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
+          'w-full bg-neutral-50 focus:outline-none focus:ring-1 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
         ]"
       />
       <ArkEditable.Preview
         :class="[
-          'cursor-pointer hover:bg-neutral-100 rounded px-2 py-1 -mx-2 -my-1 transition-colors min-h-6 w-full',
+          'cursor-pointer hover:bg-neutral-100 rounded px-2 py-1 transition-colors min-h-6 w-full',
           previewClass,
           {
             'cursor-not-allowed! hover:bg-transparent': disabled,

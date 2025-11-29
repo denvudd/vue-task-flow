@@ -139,6 +139,8 @@ const handleOpenChange = (details: { open: boolean }) => {
         :disabled="disabled"
         :input-value="inputValue"
         :open-on-click="true"
+        :lazy-mount="true"
+        :unmount-on-exit="true"
         @value-change="handleValueChange"
         @input-value-change="handleInputValueChange"
         @open-change="handleOpenChange"

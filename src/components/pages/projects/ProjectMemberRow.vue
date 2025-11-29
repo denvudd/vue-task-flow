@@ -85,7 +85,7 @@ const saveRole = async () => {
     })
     createToast({
       title: 'Role updated',
-      description: `Role changed to ${PROJECT_ROLE_LABELS[selectedRole.value]}`,
+      description: `Role changed to "${PROJECT_ROLE_LABELS[selectedRole.value]}"`,
       type: 'success',
     })
     isEditingRole.value = false
@@ -144,7 +144,7 @@ const formatDate = (dateString: string) => {
       </div>
 
       <div v-else class="flex items-center gap-1">
-        <div class="min-w-[180px]">
+        <div>
           <FieldSelect
             :items="roleItems"
             :value="selectedRoleValue"

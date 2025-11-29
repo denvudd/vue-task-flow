@@ -46,9 +46,9 @@ const emit = defineEmits<{
   blur: [event: FocusEvent]
 }>()
 
-const editor = useEditor({
-  content: props.modelValue || '',
-  extensions: [
+// Build extensions array
+const buildExtensions = () => {
+  const extensions: any[] = [
     StarterKit,
     Placeholder.configure({
       placeholder: props.placeholder || 'Enter text...',
@@ -80,7 +80,14 @@ const editor = useEditor({
       },
       suggestion: generateMentionSuggestions(props.mentionUsers),
     }),
-  ],
+  ]
+
+  return extensions
+}
+
+const editor = useEditor({
+  content: props.modelValue || '',
+  extensions: buildExtensions(),
   editable: !props.disabled,
   onUpdate: ({ editor }) => {
     emit('update:modelValue', editor.getHTML())
@@ -548,7 +555,7 @@ const addImage = () => {
   :deep(.tiptap ul[data-type='taskList'] li > label > input[type='checkbox']) {
   @apply w-4 h-4 rounded border-2 border-neutral-300;
   @apply cursor-pointer transition-all duration-150;
-  @apply focus:ring-2 focus:ring-primary-500 focus:ring-offset-1;
+  @apply focus:ring-1 focus:ring-primary-500 focus:ring-offset-1;
   appearance: none;
   background-color: white;
   position: relative;
@@ -665,7 +672,7 @@ const addImage = () => {
 }
 
 .rich-text-editor-wrapper :deep(.tiptap img.ProseMirror-selectednode) {
-  @apply ring-2 ring-primary-500;
+  @apply ring-1 ring-primary-500;
   outline: none;
 }
 
@@ -817,7 +824,7 @@ const addImage = () => {
   @apply flex items-center justify-center w-8 h-8 rounded-md;
   @apply text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900;
   @apply transition-all duration-150 ease-in-out;
-  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
+  @apply focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
   cursor: pointer;
 }
 
@@ -854,7 +861,7 @@ const addImage = () => {
   @apply flex items-center gap-3 px-3 py-2 rounded-md;
   @apply text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900;
   @apply transition-all duration-150 ease-in-out;
-  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
+  @apply focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
   cursor: pointer;
   text-align: left;
 }

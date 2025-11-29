@@ -20,7 +20,15 @@ import {
 import { useUpdateTicket, useTicket } from '@/composables/useTickets'
 import { useProjectMembers } from '@/composables/useMembers'
 import type { Tables } from '@/types/supabase'
-import { ChevronsRight, CircleChevronDown, Flag, Loader, MoveDiagonal, X } from 'lucide-vue-next'
+import {
+  ChevronsRight,
+  CircleChevronDown,
+  Flag,
+  Loader,
+  MoveDiagonal,
+  PanelRight,
+  X,
+} from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { ROUTES } from '@/lib/routing'
 
@@ -114,12 +122,6 @@ const handleTypeChange = async (newType: TicketType | null) => {
   type.value = newType
   await updateTicketField({ type: newType })
 }
-
-const handleOpenDetails = () => {
-  if (!props.projectId || !props.ticketId) return
-
-  router.push(ROUTES.Ticket(props.projectId, props.ticketId))
-}
 </script>
 
 <template>
@@ -127,7 +129,7 @@ const handleOpenDetails = () => {
     <!-- Header -->
     <div class="flex items-center justify-between px-3 pt-2 gap-1">
       <div class="flex items-center">
-        <Button variant="ghost" size="icon" @click="emit('close')" class="shrink-0">
+        <Button variant="ghost" size="icon" @click="emit('close')" class="shrink-0" tooltip="Close">
           <ChevronsRight class="size-4" />
         </Button>
         <Button
@@ -136,8 +138,21 @@ const handleOpenDetails = () => {
           as="router-link"
           :to="ROUTES.Ticket(props.projectId, props.ticketId)"
           class="shrink-0"
+          tooltip="Open in full page"
         >
           <MoveDiagonal class="size-4" />
+        </Button>
+      </div>
+      <div class="flex items-center">
+        <Button variant="ghost" @click="emit('close')" class="shrink-0 px-2!"> Share </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          @click="emit('close')"
+          class="shrink-0"
+          tooltip="View details"
+        >
+          <PanelRight class="size-4" />
         </Button>
       </div>
     </div>
@@ -149,8 +164,9 @@ const handleOpenDetails = () => {
         :value="title"
         placeholder="Enter ticket title"
         @value-commit="handleTitleCommit"
-        preview-class="text-3xl font-semibold w-full flex-1"
-        input-class="text-3xl font-semibold w-full flex-1"
+        :with-controls="false"
+        preview-class="text-3xl font-semibold w-full flex-1 h-12"
+        input-class="text-3xl font-semibold w-full flex-1 h-12"
         root-class="w-full flex-1"
       />
       <span v-else class="text-2xl font-semibold">Loading ticket...</span>
@@ -201,6 +217,8 @@ const handleOpenDetails = () => {
               placeholder="Enter ticket description"
               min-height="200px"
               :mention-users="mentionUsers"
+              :ticket-id="ticketId"
+              :collaborative-enabled="true"
             />
           </Field>
         </div>

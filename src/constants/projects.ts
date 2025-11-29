@@ -8,15 +8,15 @@ export const PROJECT_ROLES = {
 export type ProjectRole = (typeof PROJECT_ROLES)[keyof typeof PROJECT_ROLES]
 
 export const PROJECT_ROLE_LABELS: Record<ProjectRole, string> = {
-  [PROJECT_ROLES.VIEWER]: 'Viewer',
-  [PROJECT_ROLES.COMMENTER]: 'Commenter',
-  [PROJECT_ROLES.EDITOR]: 'Editor',
+  [PROJECT_ROLES.VIEWER]: 'Can view',
+  [PROJECT_ROLES.COMMENTER]: 'Can comment',
+  [PROJECT_ROLES.EDITOR]: 'Can edit',
 }
 
 export const PROJECT_ROLE_DESCRIPTIONS: Record<ProjectRole, string> = {
-  [PROJECT_ROLES.VIEWER]: 'Can view project and tickets',
-  [PROJECT_ROLES.COMMENTER]: 'Can view and comment on tickets',
-  [PROJECT_ROLES.EDITOR]: 'Can view, comment, and edit tickets',
+  [PROJECT_ROLES.VIEWER]: '',
+  [PROJECT_ROLES.COMMENTER]: 'Suggest and comment',
+  [PROJECT_ROLES.EDITOR]: 'Edit, suggest, and comment',
 }
 
 // Role hierarchy for comparison (higher index = more permissions)
@@ -42,6 +42,3 @@ export function compareRoles(role1: ProjectRole, role2: ProjectRole): number {
 export function getHigherRole(role1: ProjectRole, role2: ProjectRole): ProjectRole {
   return compareRoles(role1, role2) >= 0 ? role1 : role2
 }
-
-
-

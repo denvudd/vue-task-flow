@@ -83,7 +83,7 @@ const { elementRef: tableBodyRef } = useDroppable({
       <p class="text-neutral-600">No tickets yet. Create your first ticket!</p>
     </div>
 
-    <Table v-show="!isLoading && hasTickets" density="comfortable">
+    <Table v-show="!isLoading && hasTickets" density="compact">
       <TableHeader>
         <TableRow :hover="false">
           <TableHeadCell v-if="isAuthenticated"></TableHeadCell>

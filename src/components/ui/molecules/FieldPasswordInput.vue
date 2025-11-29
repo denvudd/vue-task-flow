@@ -132,7 +132,7 @@ const strength = computed(() => {
           <PasswordInput.Control
             :class="[
               'w-full rounded-lg px-3 py-2 text-sm transition-colors focus-within:outline-none',
-              'border focus-within:ring-2',
+              'border focus-within:ring-1',
               'disabled:bg-neutral-100 disabled:cursor-not-allowed',
               'flex items-center gap-2',
               invalid

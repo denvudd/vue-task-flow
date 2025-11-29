@@ -95,8 +95,8 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         :with-controls="false"
         :disabled="!isAuthenticated"
         @value-commit="(e) => emit('update:title', { ticket, value: e.value })"
-        preview-class="inline min-w-[200px] w-full"
-        input-class="relative z-20"
+        preview-class="inline min-w-[200px] w-full h-7"
+        input-class="relative z-20 h-7"
       />
       <div
         v-if="isAuthenticated"
@@ -107,6 +107,8 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
           size="sm"
           class="flex gap-1 items-center uppercase"
           @click="openEditDialog(ticket)"
+          tooltip="Open in side peek"
+          :tooltip-open-delay="500"
         >
           <PanelsTopLeft class="size-3" />
           Open

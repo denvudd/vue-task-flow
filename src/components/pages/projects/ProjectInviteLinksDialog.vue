@@ -87,19 +87,17 @@ const open = () => {
       <div class="space-y-6">
         <!-- Create new link form -->
         <div v-if="showCreateForm" class="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-          <h3 class="text-lg font-semibold mb-4">Create New Invite Link</h3>
-
-          <Field label="Select Role" required class="mb-4">
+          <Field label="Anyone on the web with this link" class="mb-4">
             <div class="space-y-2">
               <label
                 v-for="role in Object.values(PROJECT_ROLES)"
                 :key="role"
-                class="flex items-start gap-3 p-3 border border-neutral-200 rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors"
+                class="flex items-center gap-3 p-3 border border-neutral-200 rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors"
                 :class="{
                   'bg-primary-50 border-primary-300': selectedRole === role,
                 }"
               >
-                <input type="radio" :value="role" v-model="selectedRole" class="mt-1" />
+                <input type="radio" :value="role" v-model="selectedRole" />
                 <div class="flex-1">
                   <div class="font-medium text-neutral-900">
                     {{ PROJECT_ROLE_LABELS[role] }}
@@ -113,10 +111,10 @@ const open = () => {
           </Field>
 
           <div class="flex justify-end gap-2">
-            <Button variant="outline" @click="handleCancelCreate" :disabled="isCreating">
+            <Button variant="outline" size="sm" @click="handleCancelCreate" :disabled="isCreating">
               Cancel
             </Button>
-            <Button @click="handleCreateLink" :disabled="isCreating">
+            <Button @click="handleCreateLink" size="sm" :disabled="isCreating">
               {{ isCreating ? 'Creating...' : 'Create Link' }}
             </Button>
           </div>
