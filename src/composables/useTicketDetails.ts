@@ -13,45 +13,35 @@ import {
   type TicketType,
 } from '@/constants/tickets'
 
-/**
- * Composable for working with ticket details
- * Provides reactive access to ticket details state and methods
- * Integrates Vue Query composables with Pinia store
- */
 export function useTicketDetails() {
   const ticketDetailsStore = useTicketDetailsStore()
 
   const { currentTicketId, currentProjectId } = storeToRefs(ticketDetailsStore)
   const { openTicket, closeTicket } = ticketDetailsStore
 
-  // Ticket data query - useTicket expects MaybeRef
   const ticketQuery = useTicket(currentTicketId)
   const ticket = computed(() => ticketQuery.data.value)
   const isLoadingTicket = computed(() => ticketQuery.isLoading.value)
   const ticketError = computed(() => ticketQuery.error.value)
 
-  // Project members for mentions
   const membersQuery = useProjectMembers(currentProjectId)
   const mentionUsers = computed(() => {
     const members = membersQuery.data.value?.data || []
-    return members.map((member: any) => ({
+    return members.map((member) => ({
       id: member.user_id,
       name: member.user?.full_name || member.user?.username || 'Unknown User',
       avatar: member.user?.avatar_url || null,
     }))
   })
 
-  // Update mutation
   const { mutateAsync: updateTicketMutation } = useUpdateTicket()
 
-  // Local state for optimistic updates
   const localTitle = ref<string>('')
   const localDescription = ref<string>('')
   const localStatus = ref<TicketStatus | null>(null)
   const localPriority = ref<TicketPriority | null>(null)
   const localType = ref<TicketType | null>(null)
 
-  // Computed values for ticket fields with defaults
   const ticketTitle = computed(() => ticket.value?.title || '')
   const ticketDescription = computed(() => ticket.value?.description || '')
   const ticketStatus = computed<TicketStatus>(
@@ -64,22 +54,23 @@ export function useTicketDetails() {
     () => (ticket.value?.type || TICKET_TYPES.TASK) as TicketType,
   )
 
-  // Sync local state with ticket data
   watch(
     () => ticket.value,
     (ticketValue) => {
       if (ticketValue) {
         if (!localTitle.value) localTitle.value = ticketValue.title
         if (!localDescription.value) localDescription.value = ticketValue.description || ''
-        if (!localStatus.value) localStatus.value = (ticketValue.status || TICKET_STATUSES.TODO) as TicketStatus
-        if (!localPriority.value) localPriority.value = (ticketValue.priority || TICKET_PRIORITIES.MEDIUM) as TicketPriority
-        if (!localType.value) localType.value = (ticketValue.type || TICKET_TYPES.TASK) as TicketType
+        if (!localStatus.value)
+          localStatus.value = (ticketValue.status || TICKET_STATUSES.TODO) as TicketStatus
+        if (!localPriority.value)
+          localPriority.value = (ticketValue.priority || TICKET_PRIORITIES.MEDIUM) as TicketPriority
+        if (!localType.value)
+          localType.value = (ticketValue.type || TICKET_TYPES.TASK) as TicketType
       }
     },
     { immediate: true },
   )
 
-  // Reset local state when ticket changes
   watch(
     () => currentTicketId.value,
     () => {
@@ -91,14 +82,12 @@ export function useTicketDetails() {
     },
   )
 
-  // Computed values that prefer local state
   const title = computed(() => localTitle.value || ticketTitle.value)
   const description = computed(() => localDescription.value || ticketDescription.value)
   const status = computed(() => localStatus.value || ticketStatus.value)
   const priority = computed(() => localPriority.value || ticketPriority.value)
   const type = computed(() => localType.value || ticketType.value)
 
-  // Methods
   async function updateTicketField(updates: Partial<TicketUpdate>) {
     if (!currentTicketId.value || !ticket.value) return
 
@@ -136,26 +125,21 @@ export function useTicketDetails() {
   }
 
   return {
-    // State
     currentTicketId,
     currentProjectId,
 
-    // Ticket data
     ticket,
     isLoadingTicket,
     ticketError,
 
-    // Computed fields
     title,
     description,
     status,
     priority,
     type,
 
-    // Mention users
     mentionUsers,
 
-    // Methods
     openTicket,
     closeTicket,
     updateTicketField,
@@ -166,4 +150,3 @@ export function useTicketDetails() {
     setLocalType,
   }
 }
-

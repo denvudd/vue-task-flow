@@ -58,7 +58,6 @@ const selectedItem = computed(() => {
 
 const inputValue = ref(displayValue.value)
 
-// Filter function - declared before watch
 function filterItems(searchValue: string) {
   if (!searchValue) {
     filteredItems.value = props.items
@@ -69,12 +68,10 @@ function filterItems(searchValue: string) {
   filteredItems.value = props.items.filter((item) => item.label.toLowerCase().includes(lowerSearch))
 }
 
-// Sync inputValue with props.value changes
 watch(displayValue, (newDisplayValue) => {
   inputValue.value = newDisplayValue
 })
 
-// Update filtered items when props.items changes
 watch(
   () => props.items,
   (newItems) => {
@@ -91,7 +88,6 @@ const handleValueChange = (details: { value: string[] }) => {
   const selectedItems = props.items.filter((item) => details.value.includes(item.value))
   const payload = { items: selectedItems, value: details.value }
 
-  // Update display when value changes
   if (details.value.length > 0) {
     const item = props.items.find((item) => item.value === details.value[0])
     if (item) {
@@ -101,7 +97,6 @@ const handleValueChange = (details: { value: string[] }) => {
     inputValue.value = ''
   }
 
-  // Reset filter after selection
   filteredItems.value = props.items
 
   emit('on-value-change', payload)
@@ -115,10 +110,8 @@ const handleInputValueChange = (details: { inputValue: string }) => {
 
 const handleOpenChange = (details: { open: boolean }) => {
   if (details.open) {
-    // When opening, show all items
     filteredItems.value = props.items
   } else {
-    // When closing without selection, restore the display value
     inputValue.value = displayValue.value
     filteredItems.value = props.items
   }
@@ -211,12 +204,10 @@ const handleOpenChange = (details: { open: boolean }) => {
       </Combobox.Root>
     </div>
 
-    <!-- Helper Text -->
     <p v-if="helperText && !invalid" class="text-xs text-neutral-500">
       <slot name="helperText">{{ helperText }}</slot>
     </p>
 
-    <!-- Error Text -->
     <p v-if="(errorText || invalid) && invalid" class="text-xs text-error-600">
       <slot name="errorText">{{ errorText || 'This field is required' }}</slot>
     </p>
@@ -224,7 +215,6 @@ const handleOpenChange = (details: { open: boolean }) => {
 </template>
 
 <style>
-/* Animations for Combobox content open/close */
 [data-scope='combobox'][data-part='content'][data-state='open'] {
   animation: combobox-fade-in 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -238,7 +228,6 @@ const handleOpenChange = (details: { open: boolean }) => {
   width: var(--reference-width);
 } */
 
-/* Base content surface to match app UI */
 [data-scope='combobox'][data-part='content'] {
   border: 1px solid rgb(212 212 216); /* ~ neutral-300 */
   background: #fff;
@@ -248,17 +237,15 @@ const handleOpenChange = (details: { open: boolean }) => {
   overflow-y: auto;
 }
 
-/* Group label emphasis */
 [data-scope='combobox'][data-part='item-group-label'] {
   font-weight: 600;
 }
 
-/* Item layout and states */
 [data-scope='combobox'][data-part='item'] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem; /* px-3 py-2 */
+  padding: 0.5rem 0.75rem; 
   cursor: pointer;
 }
 

@@ -65,7 +65,6 @@ export const buildEditorExtensions = ({
     }),
   ]
 
-  // Add collaboration extensions if collaborative editing is enabled
   // Note: Collaboration extension automatically replaces History extension from StarterKit
   if (isCollaborative && ydoc && provider) {
     extensions.push(

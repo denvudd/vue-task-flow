@@ -314,7 +314,6 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
     isLoading.value = true
     error.value = null
 
-    // Create channel with presence
     channel = supabase.channel(`ticket:${id}:presence`, {
       config: {
         presence: {
@@ -323,7 +322,6 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
       },
     })
 
-    // Set initial presence state
     const presenceState = {
       user: {
         id: user.value.id,
@@ -337,7 +335,6 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
       },
     }
 
-    // Handle presence sync
     channel.on('presence', { event: 'sync' }, () => {
       const state = channel?.presenceState()
       if (!state) return
@@ -347,6 +344,7 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
         const presence = state[userId] as Array<{
           user?: { id: string; email: string; profile: ConnectedUser['profile'] }
         }>
+
         if (presence && presence.length > 0) {
           const userPresence = presence[0]
           if (userPresence?.user?.profile) {
@@ -363,7 +361,6 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
       isLoading.value = false
     })
 
-    // Handle presence changes (join/leave)
     channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
       console.log(`[Presence] User ${key} joined ticket ${id}`)
       newPresences.forEach((presence) => {
@@ -373,7 +370,7 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
             email: presence.user.email,
             profile: presence.user.profile,
           }
-          // Add new user to the list if not already present
+
           if (!connectedUsers.value.find((u) => u.userId === newUser.userId)) {
             connectedUsers.value.push(newUser)
           }
@@ -383,7 +380,6 @@ export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
 
     channel.on('presence', { event: 'leave' }, ({ key }) => {
       console.log(`[Presence] User ${key} left ticket ${id}`)
-      // Remove user from the list
       connectedUsers.value = connectedUsers.value.filter((u) => u.userId !== key)
     })
 

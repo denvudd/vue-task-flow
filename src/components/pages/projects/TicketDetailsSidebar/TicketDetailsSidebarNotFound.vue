@@ -4,7 +4,6 @@ import { ROUTES } from '@/lib/routing'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// if ticket is not found, clear the id from the url
 interface Props {
   projectId: string
 }

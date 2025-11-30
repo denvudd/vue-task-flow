@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
 import type { ProjectRole } from '@/constants/projects'
+import type { PostgrestSingleResponse } from '@supabase/supabase-js'
 
 export type ProjectMember = Tables<'project_members'>
 export type ProjectMemberInsert = TablesInsert<'project_members'>
@@ -9,7 +10,9 @@ export type ProjectMemberUpdate = TablesUpdate<'project_members'>
 /**
  * Get all members of a project with their profile information
  */
-export async function getProjectMembers(projectId: string) {
+export async function getProjectMembers(
+  projectId: string,
+): Promise<PostgrestSingleResponse<(ProjectMember & { user: Tables<'profiles'> })[]>> {
   return await supabase
     .from('project_members')
     .select('*, user:profiles(*)')

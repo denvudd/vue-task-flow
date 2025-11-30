@@ -1,3 +1,5 @@
 export * from './cn'
 export * from './get-user-display-name'
 export * from './get-avatar-url'
+export * from './get-higher-user-role'
+export * from './compare-user-roles'

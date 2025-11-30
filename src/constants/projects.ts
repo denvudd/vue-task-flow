@@ -1,4 +1,3 @@
-// Project member roles
 export const PROJECT_ROLES = {
   VIEWER: 'viewer',
   COMMENTER: 'commenter',
@@ -19,26 +18,15 @@ export const PROJECT_ROLE_DESCRIPTIONS: Record<ProjectRole, string> = {
   [PROJECT_ROLES.EDITOR]: 'Edit, suggest, and comment',
 }
 
-// Role hierarchy for comparison (higher index = more permissions)
 export const ROLE_HIERARCHY: ProjectRole[] = [
   PROJECT_ROLES.VIEWER,
   PROJECT_ROLES.COMMENTER,
   PROJECT_ROLES.EDITOR,
 ]
 
-/**
- * Compare two roles to determine which has more permissions
- * @returns positive if role1 > role2, negative if role1 < role2, 0 if equal
- */
-export function compareRoles(role1: ProjectRole, role2: ProjectRole): number {
-  const index1 = ROLE_HIERARCHY.indexOf(role1)
-  const index2 = ROLE_HIERARCHY.indexOf(role2)
-  return index1 - index2
-}
+export const PROJECT_VISIBILITIES = {
+  PUBLIC: 'public',
+  PRIVATE: 'private',
+} as const
 
-/**
- * Get the higher of two roles
- */
-export function getHigherRole(role1: ProjectRole, role2: ProjectRole): ProjectRole {
-  return compareRoles(role1, role2) >= 0 ? role1 : role2
-}
+export type ProjectVisibility = (typeof PROJECT_VISIBILITIES)[keyof typeof PROJECT_VISIBILITIES]

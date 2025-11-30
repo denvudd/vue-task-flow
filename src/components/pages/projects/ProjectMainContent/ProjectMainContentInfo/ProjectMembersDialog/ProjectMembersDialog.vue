@@ -20,7 +20,6 @@ const { data: membersResponse, isLoading } = useProjectMembers(computed(() => pr
 
 const members = computed(() => membersResponse.value?.data || [])
 
-// Separate owner and regular members
 const owner = computed(() => members.value.find((m) => m.user_id === props.ownerId))
 const regularMembers = computed(() => members.value.filter((m) => m.user_id !== props.ownerId))
 

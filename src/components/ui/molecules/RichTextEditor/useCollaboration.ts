@@ -10,7 +10,7 @@ export function useCollaboration(ticketId: string) {
 
   const provider = new HocuspocusProvider({
     url: HOCUSPOCUS_SERVER_URL,
-    name: ticketId, // documentName для сервера (відповідає ticket_id в БД)
+    name: ticketId,
     document: ydoc,
     onConnect: () => {
       console.log(`[Collaboration] Connected to document: ${ticketId}`)

@@ -21,7 +21,6 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
   const ticketId = toValue(options.ticketId)
   const collaborativeEnabled = toValue(options.collaborativeEnabled) ?? true
 
-  // Get current user info for collaboration caret
   const { profile, user } = useAuth()
 
   const userName = computed(() => {
@@ -45,7 +44,6 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
     return '#0d0d0d'
   })
 
-  // Initialize collaboration if enabled and ticketId is provided
   const collaboration = collaborativeEnabled && ticketId ? useCollaboration(ticketId) : undefined
 
   const editor = useEditor({
@@ -74,13 +72,11 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
     },
   })
 
-  // Watch for modelValue changes
   // Note: When collaborative editing is enabled, we should not update content
   // via setContent as Yjs handles synchronization automatically
   watch(
     () => toValue(options.modelValue),
     (value) => {
-      // Skip content updates when collaborative editing is active
       if (collaboration) {
         return
       }
@@ -94,7 +90,6 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
     },
   )
 
-  // Watch for disabled changes
   watch(
     () => toValue(options.disabled),
     (disabled) => {
@@ -104,14 +99,10 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
     },
   )
 
-  // Note: Placeholder is set during editor initialization
-  // Dynamic placeholder updates would require recreating the editor
-
   onBeforeUnmount(() => {
     editor.value?.destroy()
   })
 
-  // Active state computed properties
   const activeStates = computed(() => ({
     isBold: editor.value?.isActive('bold') ?? false,
     isItalic: editor.value?.isActive('italic') ?? false,
@@ -127,7 +118,6 @@ export function useRichTextEditor(options: UseRichTextEditorOptions) {
     isTaskList: editor.value?.isActive('taskList') ?? false,
   }))
 
-  // Command functions
   const commands = {
     toggleBold: () => editor.value?.chain().focus().toggleBold().run(),
     toggleItalic: () => editor.value?.chain().focus().toggleItalic().run(),

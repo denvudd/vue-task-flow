@@ -43,17 +43,13 @@ const handleClose = () => {
 
     <div class="flex-1 overflow-y-auto px-15 pt-3 pb-6">
       <TicketDetailsSidebarLoader v-if="isLoadingTicket" />
-
       <template v-else-if="ticket">
         <TicketDetailsSidebarTitle />
-
         <div class="space-y-6 mt-2.5 animate-in fade-in duration-300">
           <TicketDetailsSidebarPanel />
-
           <TicketDetailsSidebarContent />
         </div>
       </template>
-
       <TicketDetailsSidebarNotFound v-else :project-id="props.projectId" />
     </div>
   </div>

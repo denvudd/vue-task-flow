@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
 import type { ProjectRole } from '@/constants/projects'
+import { getHigherUserRole } from '@/lib/utils'
 
 export type InviteLink = Tables<'project_invite_links'>
 export type InviteLinkInsert = TablesInsert<'project_invite_links'>
@@ -93,7 +94,6 @@ export async function deleteInviteLink(linkId: string) {
  * Join project using invite link
  */
 export async function joinProjectViaInvite(token: string, userId: string) {
-  // First, get the invite link details
   const { data: inviteLink, error: inviteError } = await getInviteLinkByToken(token)
 
   if (inviteError || !inviteLink) {
@@ -104,7 +104,6 @@ export async function joinProjectViaInvite(token: string, userId: string) {
     throw new Error('This invite link is no longer active')
   }
 
-  // Check if user is already a member
   const { data: existingMember } = await supabase
     .from('project_members')
     .select('*')
@@ -113,16 +112,12 @@ export async function joinProjectViaInvite(token: string, userId: string) {
     .maybeSingle()
 
   if (existingMember) {
-    // User is already a member, check if we need to upgrade role
     const currentRole = existingMember.role as ProjectRole
     const inviteRole = inviteLink.role as ProjectRole
 
-    // Import role comparison function
-    const { getHigherRole } = await import('@/constants/projects')
-    const higherRole = getHigherRole(currentRole, inviteRole)
+    const higherRole = getHigherUserRole(currentRole, inviteRole)
 
     if (higherRole !== currentRole) {
-      // Upgrade role
       const { error: updateError } = await supabase
         .from('project_members')
         .update({ role: higherRole })
@@ -149,7 +144,6 @@ export async function joinProjectViaInvite(token: string, userId: string) {
     }
   }
 
-  // Add user as new member
   const { error: insertError } = await supabase.from('project_members').insert({
     project_id: inviteLink.project_id,
     user_id: userId,
@@ -167,6 +161,3 @@ export async function joinProjectViaInvite(token: string, userId: string) {
     projectId: inviteLink.project_id,
   }
 }
-
-
-

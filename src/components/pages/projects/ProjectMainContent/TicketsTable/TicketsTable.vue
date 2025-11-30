@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell } from '@/components/ui'
-import TicketRow from '@/components/pages/projects/TicketRow.vue'
+import TicketRow from './TicketRow.vue'
 import { useDeleteTicket } from '@/composables/useTickets'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'

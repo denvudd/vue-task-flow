@@ -139,7 +139,6 @@ export function useJoinProjectViaInvite() {
     mutationFn: ({ token, userId }: { token: string; userId: string }) =>
       joinProjectViaInvite(token, userId),
     onSuccess: (data) => {
-      // Invalidate project queries to refresh access
       queryClient.invalidateQueries({ queryKey: projectKeys.detail(data.projectId) })
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() })
     },

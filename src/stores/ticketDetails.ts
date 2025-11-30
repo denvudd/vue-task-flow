@@ -7,8 +7,8 @@ import { defineStore } from 'pinia'
  * Actual data fetching is handled in useTicketDetails composable
  */
 export const useTicketDetailsStore = defineStore('ticketDetails', () => {
-  const currentTicketId = ref<string | null>(null)
-  const currentProjectId = ref<string | null>(null)
+  const currentTicketId = ref<string | undefined>(undefined)
+  const currentProjectId = ref<string | undefined>(undefined)
 
   function openTicket(ticketId: string, projectId: string) {
     currentTicketId.value = ticketId
@@ -16,8 +16,8 @@ export const useTicketDetailsStore = defineStore('ticketDetails', () => {
   }
 
   function closeTicket() {
-    currentTicketId.value = null
-    currentProjectId.value = null
+    currentTicketId.value = undefined
+    currentProjectId.value = undefined
   }
 
   return {

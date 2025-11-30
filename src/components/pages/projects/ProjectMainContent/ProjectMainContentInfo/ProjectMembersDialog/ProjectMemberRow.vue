@@ -6,9 +6,10 @@ import { Trash2, Check, X, Edit } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
 import { useRemoveProjectMember, useUpdateProjectMemberRole } from '@/composables/useMembers'
 import { PROJECT_ROLES, PROJECT_ROLE_LABELS, type ProjectRole } from '@/constants/projects'
+import type { Tables } from '@/types/supabase'
 
 interface Props {
-  member: any // project_members with user:profiles
+  member: Tables<'project_members'> & { user: Tables<'profiles'> }
   projectId: string
   currentUserId: string
   ownerId: string
@@ -26,7 +27,6 @@ const selectedRole = ref<ProjectRole>(props.member.role as ProjectRole)
 const isOwner = computed(() => props.member.user_id === props.ownerId)
 const isCurrentUser = computed(() => props.member.user_id === props.currentUserId)
 
-// Prepare role options for FieldSelect
 const roleItems = computed<SelectItem[]>(() =>
   Object.values(PROJECT_ROLES).map((role) => ({
     label: PROJECT_ROLE_LABELS[role],
@@ -34,7 +34,6 @@ const roleItems = computed<SelectItem[]>(() =>
   })),
 )
 
-// Convert selectedRole to array format for FieldSelect
 const selectedRoleValue = computed(() => [selectedRole.value])
 
 const handleRemove = async () => {
@@ -122,7 +121,9 @@ const formatDate = (dateString: string) => {
           <Badge v-if="isOwner" variant="primary" size="sm">Owner</Badge>
           <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">You</Badge>
         </div>
-        <div class="text-sm text-neutral-600">Joined {{ formatDate(member.joined_at) }}</div>
+        <div v-if="member.joined_at" class="text-sm text-neutral-600">
+          Joined {{ formatDate(member.joined_at) }}
+        </div>
       </div>
     </div>
 
