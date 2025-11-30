@@ -1,29 +1,11 @@
 <script setup lang="ts">
-import { useEditor, EditorContent, VueRenderer } from '@tiptap/vue-3'
+import { EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu, FloatingMenu } from '@tiptap/vue-3/menus'
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import TaskList from '@tiptap/extension-task-list'
-import TaskItem from '@tiptap/extension-task-item'
-import Image from '@tiptap/extension-image'
-import Mention from '@tiptap/extension-mention'
-import { watch, onBeforeUnmount, computed } from 'vue'
-import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Code,
-  Minus,
-  CheckSquare,
-  ImageIcon,
-} from 'lucide-vue-next'
-import { generateMentionSuggestions, type MentionUser } from './suggestions'
+import { computed } from 'vue'
+import { useRichTextEditor } from './useRichTextEditor'
+import BubbleMenuButtons from './BubbleMenuButtons.vue'
+import FloatingMenuButtons from './FloatingMenuButtons.vue'
+import type { MentionUser } from './suggestions'
 
 interface Props {
   modelValue?: string
@@ -34,11 +16,14 @@ interface Props {
   valid?: boolean
   minHeight?: string
   mentionUsers?: MentionUser[]
+  ticketId?: string
+  collaborativeEnabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   minHeight: '200px',
   mentionUsers: () => [],
+  collaborativeEnabled: true,
 })
 
 const emit = defineEmits<{
@@ -46,139 +31,26 @@ const emit = defineEmits<{
   blur: [event: FocusEvent]
 }>()
 
-// Build extensions array
-const buildExtensions = () => {
-  const extensions: any[] = [
-    StarterKit,
-    Placeholder.configure({
-      placeholder: props.placeholder || 'Enter text...',
-    }),
-    TaskList,
-    TaskItem.configure({
-      nested: true,
-    }),
-    Image.configure({
-      inline: false,
-      allowBase64: true,
-      resize: {
-        enabled: true,
-        directions: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
-        minWidth: 100,
-        minHeight: 100,
-        alwaysPreserveAspectRatio: true,
-      },
-      HTMLAttributes: {
-        style: 'max-width: 1200px; max-height: 1200px;',
-      },
-    }),
-    Mention.configure({
-      HTMLAttributes: {
-        class: 'mention',
-      },
-      renderLabel({ node }) {
-        return `@${node.attrs.label ?? node.attrs.id}`
-      },
-      suggestion: generateMentionSuggestions(props.mentionUsers),
-    }),
-  ]
-
-  return extensions
-}
-
-const editor = useEditor({
-  content: props.modelValue || '',
-  extensions: buildExtensions(),
-  editable: !props.disabled,
-  onUpdate: ({ editor }) => {
-    emit('update:modelValue', editor.getHTML())
+const {
+  editor: editorRef,
+  activeStates,
+  commands,
+} = useRichTextEditor({
+  modelValue: computed(() => props.modelValue),
+  placeholder: computed(() => props.placeholder),
+  disabled: computed(() => props.disabled),
+  mentionUsers: computed(() => props.mentionUsers),
+  ticketId: computed(() => props.ticketId),
+  collaborativeEnabled: computed(() => props.collaborativeEnabled),
+  onUpdate: (html) => {
+    emit('update:modelValue', html)
   },
-  onBlur: ({ event }) => {
-    emit('blur', event as FocusEvent)
-  },
-  editorProps: {
-    attributes: {
-      class: 'prose prose-sm max-w-none focus:outline-none',
-    },
+  onBlur: (event) => {
+    emit('blur', event)
   },
 })
 
-watch(
-  () => props.modelValue,
-  (value) => {
-    const isSame = editor.value?.getHTML() === value
-    const isFocused = editor.value?.isFocused
-
-    // Don't update if content is the same or editor is focused (being edited)
-    if (editor.value && !isSame && !isFocused) {
-      editor.value.commands.setContent(value || '')
-    }
-  },
-)
-
-watch(
-  () => props.disabled,
-  (disabled) => {
-    if (editor.value) {
-      editor.value.setEditable(!disabled)
-    }
-  },
-)
-
-watch(
-  () => props.placeholder,
-  (placeholder) => {
-    if (editor.value) {
-      const placeholderExtension = editor.value.extensionManager.extensions.find(
-        (ext) => ext.name === 'placeholder',
-      )
-      if (placeholderExtension) {
-        editor.value.extensionManager.extensions = editor.value.extensionManager.extensions.map(
-          (ext) =>
-            ext.name === 'placeholder'
-              ? Placeholder.configure({ placeholder: placeholder || 'Enter text...' })
-              : ext,
-        )
-      }
-    }
-  },
-)
-
-onBeforeUnmount(() => {
-  editor.value?.destroy()
-})
-
-const isBold = computed(() => editor.value?.isActive('bold') ?? false)
-const isItalic = computed(() => editor.value?.isActive('italic') ?? false)
-const isStrike = computed(() => editor.value?.isActive('strike') ?? false)
-const isHeading1 = computed(() => editor.value?.isActive('heading', { level: 1 }) ?? false)
-const isHeading2 = computed(() => editor.value?.isActive('heading', { level: 2 }) ?? false)
-const isHeading3 = computed(() => editor.value?.isActive('heading', { level: 3 }) ?? false)
-const isBulletList = computed(() => editor.value?.isActive('bulletList') ?? false)
-const isOrderedList = computed(() => editor.value?.isActive('orderedList') ?? false)
-const isBlockquote = computed(() => editor.value?.isActive('blockquote') ?? false)
-const isCode = computed(() => editor.value?.isActive('code') ?? false)
-const isCodeBlock = computed(() => editor.value?.isActive('codeBlock') ?? false)
-const isTaskList = computed(() => editor.value?.isActive('taskList') ?? false)
-
-const toggleBold = () => editor.value?.chain().focus().toggleBold().run()
-const toggleItalic = () => editor.value?.chain().focus().toggleItalic().run()
-const toggleStrike = () => editor.value?.chain().focus().toggleStrike().run()
-const toggleHeading1 = () => editor.value?.chain().focus().toggleHeading({ level: 1 }).run()
-const toggleHeading2 = () => editor.value?.chain().focus().toggleHeading({ level: 2 }).run()
-const toggleHeading3 = () => editor.value?.chain().focus().toggleHeading({ level: 3 }).run()
-const toggleBulletList = () => editor.value?.chain().focus().toggleBulletList().run()
-const toggleOrderedList = () => editor.value?.chain().focus().toggleOrderedList().run()
-const toggleBlockquote = () => editor.value?.chain().focus().toggleBlockquote().run()
-const toggleCode = () => editor.value?.chain().focus().toggleCode().run()
-const toggleCodeBlock = () => editor.value?.chain().focus().toggleCodeBlock().run()
-const toggleTaskList = () => editor.value?.chain().focus().toggleTaskList().run()
-const insertHorizontalRule = () => editor.value?.chain().focus().setHorizontalRule().run()
-const addImage = () => {
-  const url = window.prompt('Enter image URL:')
-  if (url) {
-    editor.value?.chain().focus().setImage({ src: url }).run()
-  }
-}
+const editor = computed(() => editorRef.value ?? undefined)
 </script>
 
 <template>
@@ -200,101 +72,7 @@ const addImage = () => {
       :options="{ placement: 'top' }"
       class="bubble-menu-wrapper"
     >
-      <div class="bubble-menu-content">
-        <button
-          @click="toggleBold"
-          :class="['menu-button', { 'is-active': isBold }]"
-          type="button"
-          title="Bold"
-        >
-          <Bold :size="16" />
-        </button>
-
-        <button
-          @click="toggleItalic"
-          :class="['menu-button', { 'is-active': isItalic }]"
-          type="button"
-          title="Italic"
-        >
-          <Italic :size="16" />
-        </button>
-
-        <button
-          @click="toggleStrike"
-          :class="['menu-button', { 'is-active': isStrike }]"
-          type="button"
-          title="Strikethrough"
-        >
-          <Strikethrough :size="16" />
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <button
-          @click="toggleHeading1"
-          :class="['menu-button', { 'is-active': isHeading1 }]"
-          type="button"
-          title="Heading 1"
-        >
-          <Heading1 :size="16" />
-        </button>
-
-        <button
-          @click="toggleHeading2"
-          :class="['menu-button', { 'is-active': isHeading2 }]"
-          type="button"
-          title="Heading 2"
-        >
-          <Heading2 :size="16" />
-        </button>
-
-        <button
-          @click="toggleHeading3"
-          :class="['menu-button', { 'is-active': isHeading3 }]"
-          type="button"
-          title="Heading 3"
-        >
-          <Heading3 :size="16" />
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <button
-          @click="toggleBulletList"
-          :class="['menu-button', { 'is-active': isBulletList }]"
-          type="button"
-          title="Bullet List"
-        >
-          <List :size="16" />
-        </button>
-
-        <button
-          @click="toggleOrderedList"
-          :class="['menu-button', { 'is-active': isOrderedList }]"
-          type="button"
-          title="Ordered List"
-        >
-          <ListOrdered :size="16" />
-        </button>
-
-        <button
-          @click="toggleBlockquote"
-          :class="['menu-button', { 'is-active': isBlockquote }]"
-          type="button"
-          title="Quote"
-        >
-          <Quote :size="16" />
-        </button>
-
-        <button
-          @click="toggleCode"
-          :class="['menu-button', { 'is-active': isCode }]"
-          type="button"
-          title="Code"
-        >
-          <Code :size="16" />
-        </button>
-      </div>
+      <BubbleMenuButtons :active-states="activeStates" :commands="commands" />
     </BubbleMenu>
 
     <FloatingMenu
@@ -303,106 +81,7 @@ const addImage = () => {
       :options="{ placement: 'bottom' }"
       class="floating-menu-wrapper"
     >
-      <div class="floating-menu-content">
-        <button
-          @click="toggleHeading1"
-          :class="['floating-menu-button', { 'is-active': isHeading1 }]"
-          type="button"
-          title="Heading 1"
-        >
-          <Heading1 :size="18" />
-          <span class="button-label">Heading 1</span>
-        </button>
-
-        <button
-          @click="toggleHeading2"
-          :class="['floating-menu-button', { 'is-active': isHeading2 }]"
-          type="button"
-          title="Heading 2"
-        >
-          <Heading2 :size="18" />
-          <span class="button-label">Heading 2</span>
-        </button>
-
-        <button
-          @click="toggleHeading3"
-          :class="['floating-menu-button', { 'is-active': isHeading3 }]"
-          type="button"
-          title="Heading 3"
-        >
-          <Heading3 :size="18" />
-          <span class="button-label">Heading 3</span>
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <button
-          @click="toggleBulletList"
-          :class="['floating-menu-button', { 'is-active': isBulletList }]"
-          type="button"
-          title="Bullet List"
-        >
-          <List :size="18" />
-          <span class="button-label">Bullet List</span>
-        </button>
-
-        <button
-          @click="toggleOrderedList"
-          :class="['floating-menu-button', { 'is-active': isOrderedList }]"
-          type="button"
-          title="Ordered List"
-        >
-          <ListOrdered :size="18" />
-          <span class="button-label">Numbered List</span>
-        </button>
-
-        <button
-          @click="toggleBlockquote"
-          :class="['floating-menu-button', { 'is-active': isBlockquote }]"
-          type="button"
-          title="Quote"
-        >
-          <Quote :size="18" />
-          <span class="button-label">Quote</span>
-        </button>
-
-        <button
-          @click="toggleCodeBlock"
-          :class="['floating-menu-button', { 'is-active': isCodeBlock }]"
-          type="button"
-          title="Code Block"
-        >
-          <Code :size="18" />
-          <span class="button-label">Code Block</span>
-        </button>
-
-        <div class="menu-divider"></div>
-
-        <button
-          @click="insertHorizontalRule"
-          class="floating-menu-button"
-          type="button"
-          title="Horizontal Rule"
-        >
-          <Minus :size="18" />
-          <span class="button-label">Divider</span>
-        </button>
-
-        <button
-          @click="toggleTaskList"
-          :class="['floating-menu-button', { 'is-active': isTaskList }]"
-          type="button"
-          title="Task List"
-        >
-          <CheckSquare :size="18" />
-          <span class="button-label">Task List</span>
-        </button>
-
-        <button @click="addImage" class="floating-menu-button" type="button" title="Image">
-          <ImageIcon :size="18" />
-          <span class="button-label">Image</span>
-        </button>
-      </div>
+      <FloatingMenuButtons :active-states="activeStates" :commands="commands" />
     </FloatingMenu>
   </div>
 </template>
@@ -808,81 +487,31 @@ const addImage = () => {
   @apply bg-primary-100;
 }
 
+/* Collaboration Caret Styles */
+.rich-text-editor-wrapper :deep(.tiptap .collaboration-carets__caret) {
+  @apply border-l border-r border-neutral-900;
+  @apply -ml-px -mr-px pointer-events-none relative;
+  @apply animate-in fade-in;
+  word-break: normal;
+}
+
+.rich-text-editor-wrapper :deep(.tiptap .collaboration-carets__label) {
+  @apply rounded-sm rounded-tl-none text-xs font-semibold text-neutral-900;
+  @apply px-1.5 py-0.5 absolute -top-[1.4em] -left-px;
+  @apply select-none whitespace-nowrap;
+  @apply animate-in fade-in;
+  font-style: normal;
+  line-height: normal;
+  pointer-events: none;
+}
+
 /* Bubble Menu Styles */
 .bubble-menu-wrapper {
   @apply z-50 animate-in fade-in zoom-in duration-200;
 }
 
-.bubble-menu-content {
-  @apply flex items-center gap-0.5 bg-white rounded-lg shadow-lg border border-neutral-200 p-1;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-}
-
-.bubble-menu-content .menu-button {
-  @apply flex items-center justify-center w-8 h-8 rounded-md;
-  @apply text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900;
-  @apply transition-all duration-150 ease-in-out;
-  @apply focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
-  cursor: pointer;
-}
-
-.bubble-menu-content .menu-button.is-active {
-  @apply bg-primary-100 text-primary-700;
-}
-
-.bubble-menu-content .menu-button.is-active:hover {
-  @apply bg-primary-200 text-primary-800;
-}
-
-.bubble-menu-content .menu-button:active {
-  @apply scale-95;
-}
-
-.bubble-menu-content .menu-divider {
-  @apply w-px h-6 bg-neutral-200 mx-0.5;
-}
-
 /* Floating Menu Styles */
 .floating-menu-wrapper {
   @apply z-9999 animate-in fade-in zoom-in duration-200;
-}
-
-.floating-menu-content {
-  @apply flex flex-col gap-0.5 bg-white rounded-lg shadow-lg border border-neutral-200 p-1;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-}
-
-.floating-menu-content .floating-menu-button {
-  @apply flex items-center gap-3 px-3 py-2 rounded-md;
-  @apply text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900;
-  @apply transition-all duration-150 ease-in-out;
-  @apply focus:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
-  cursor: pointer;
-  text-align: left;
-}
-
-.floating-menu-content .floating-menu-button .button-label {
-  @apply text-sm font-medium;
-}
-
-.floating-menu-content .floating-menu-button.is-active {
-  @apply bg-primary-50 text-primary-700;
-}
-
-.floating-menu-content .floating-menu-button.is-active:hover {
-  @apply bg-primary-100 text-primary-800;
-}
-
-.floating-menu-content .floating-menu-button:active {
-  @apply scale-[0.98];
-}
-
-.floating-menu-content .menu-divider {
-  @apply h-px w-full bg-neutral-200 my-0.5;
 }
 </style>

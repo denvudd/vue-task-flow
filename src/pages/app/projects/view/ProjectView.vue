@@ -5,11 +5,12 @@ import { useProject } from '@/composables/useProjects'
 import { useProjectTickets, useUpdateTicket } from '@/composables/useTickets'
 import { useAuth } from '@/composables/useAuth'
 import { useJoinProjectViaInvite } from '@/composables/useInvites'
+import { useTicketDetails } from '@/composables/useTicketDetails'
 import { reorderTickets } from '@/api/tickets'
 import { Button, Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui'
 import TicketsTable from '@/components/pages/projects/TicketsTable.vue'
 import TicketCreateDialog from '@/components/pages/projects/TicketCreateDialog.vue'
-import TicketDetailsSidebar from '@/components/pages/projects/TicketDetailsSidebar.vue'
+import { TicketDetailsSidebar } from '@/components/pages/projects/TicketDetailsSidebar'
 import ProjectInviteLinksDialog from '@/components/pages/projects/ProjectInviteLinksDialog.vue'
 import ProjectMembersDialog from '@/components/pages/projects/ProjectMembersDialog.vue'
 import { ROUTES } from '@/lib/routing'
@@ -33,15 +34,46 @@ const { data: tickets, isLoading: isLoadingTickets } = useProjectTickets(project
 const { mutateAsync: updateTicket } = useUpdateTicket()
 const { mutateAsync: joinProjectViaInvite } = useJoinProjectViaInvite()
 
-// Sidebar state for ticket details
+// Ticket details store
+const { currentTicketId, openTicket, closeTicket } = useTicketDetails()
+
+// Sidebar state for ticket details - sync with route query
 const selectedTicketId = computed(() => {
   const ticketParam = route.query.ticket
   return typeof ticketParam === 'string' ? ticketParam : undefined
 })
 
-const isSidebarOpen = computed(() => !!selectedTicketId.value)
+// Sync route query with store
+watch(
+  selectedTicketId,
+  (ticketId) => {
+    if (ticketId && projectId.value) {
+      openTicket(ticketId, projectId.value)
+    } else {
+      closeTicket()
+    }
+  },
+  { immediate: true },
+)
+
+// Sync store with route query (when store changes externally)
+watch(currentTicketId, (ticketId) => {
+  const queryTicketId = selectedTicketId.value
+  if (ticketId !== queryTicketId) {
+    const query = { ...route.query }
+    if (ticketId) {
+      query.ticket = ticketId
+    } else {
+      delete query.ticket
+    }
+    router.replace({ query })
+  }
+})
+
+const isSidebarOpen = computed(() => !!currentTicketId.value)
 
 const closeSidebar = () => {
+  closeTicket()
   const query = { ...route.query }
   delete query.ticket
   router.push({ query })
@@ -408,11 +440,11 @@ watch(
         leave-to-class="translate-x-full opacity-0"
       >
         <div
-          v-if="isSidebarOpen && selectedTicketId"
+          v-if="isSidebarOpen && currentTicketId"
           class="w-1/2 border-l border-neutral-200 bg-white overflow-hidden flex flex-col"
         >
           <TicketDetailsSidebar
-            :ticket-id="selectedTicketId"
+            :ticket-id="currentTicketId"
             :project-id="projectId"
             @close="closeSidebar"
           />

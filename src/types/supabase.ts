@@ -207,6 +207,48 @@ export type Database = {
           },
         ]
       }
+      ticket_document_sessions: {
+        Row: {
+          connected_at: string
+          id: string
+          last_seen_at: string
+          session_id: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          id?: string
+          last_seen_at?: string
+          session_id: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          id?: string
+          last_seen_at?: string
+          session_id?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_document_sessions_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_document_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ticket_documents: {
         Row: {
           id: string

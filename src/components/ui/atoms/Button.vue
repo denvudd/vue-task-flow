@@ -48,7 +48,11 @@ const buttonClass = computed(() => {
 </script>
 
 <template>
-  <ArkTooltip.Root v-if="tooltip" :open-delay="tooltipOpenDelay" :close-delay="tooltipCloseDelay">
+  <ArkTooltip.Root
+    v-if="tooltip || $slots.tooltip"
+    :open-delay="tooltipOpenDelay"
+    :close-delay="tooltipCloseDelay"
+  >
     <ArkTooltip.Trigger as-child>
       <component :is="as" :class="buttonClass" v-bind="$attrs">
         <slot />
@@ -58,7 +62,14 @@ const buttonClass = computed(() => {
     <Teleport to="body">
       <ArkTooltip.Positioner>
         <ArkTooltip.Content
-          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs font-medium text-white shadow-ьв"
+          v-if="$slots.tooltip"
+          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
+        >
+          <slot name="tooltip" />
+        </ArkTooltip.Content>
+        <ArkTooltip.Content
+          v-else
+          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
         >
           {{ tooltip }}
         </ArkTooltip.Content>

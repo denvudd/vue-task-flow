@@ -12,6 +12,21 @@ import {
   type TicketUpdate,
 } from '@/api/tickets'
 import type { Tables } from '@/types/supabase'
+import { useAuth } from '@/composables/useAuth'
+
+/**
+ * Interface for connected user presence
+ */
+export interface ConnectedUser {
+  userId: string
+  email: string
+  profile: {
+    id: string
+    full_name: string | null
+    username: string | null
+    avatar_url: string | null
+  }
+}
 
 /**
  * Query keys for tickets
@@ -269,4 +284,162 @@ export function useDeleteTicket() {
       if (error) throw error
     },
   })
+}
+
+/**
+ * Hook to track connected users to a ticket using Supabase Realtime Presence
+ */
+export function useTicketPresence(ticketId: MaybeRef<string | undefined>) {
+  const connectedUsers = ref<ConnectedUser[]>([])
+  const isLoading = ref(false)
+  const error = ref<Error | null>(null)
+  let channel: ReturnType<typeof supabase.channel> | null = null
+
+  const { user, profile } = useAuth()
+
+  const currentTicketId = computed(() => unref(ticketId))
+
+  const setupPresence = async (id: string) => {
+    if (!user.value || !profile.value) {
+      console.warn('[Presence] User not authenticated, skipping presence setup')
+      return
+    }
+
+    if (channel) {
+      await channel.unsubscribe()
+      supabase.removeChannel(channel)
+      channel = null
+    }
+
+    isLoading.value = true
+    error.value = null
+
+    // Create channel with presence
+    channel = supabase.channel(`ticket:${id}:presence`, {
+      config: {
+        presence: {
+          key: user.value.id,
+        },
+      },
+    })
+
+    // Set initial presence state
+    const presenceState = {
+      user: {
+        id: user.value.id,
+        email: user.value.email,
+        profile: {
+          id: profile.value.id,
+          full_name: profile.value.full_name,
+          username: profile.value.username,
+          avatar_url: profile.value.avatar_url,
+        },
+      },
+    }
+
+    // Handle presence sync
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel?.presenceState()
+      if (!state) return
+
+      const users: ConnectedUser[] = []
+      Object.keys(state).forEach((userId) => {
+        const presence = state[userId] as Array<{
+          user?: { id: string; email: string; profile: ConnectedUser['profile'] }
+        }>
+        if (presence && presence.length > 0) {
+          const userPresence = presence[0]
+          if (userPresence?.user?.profile) {
+            users.push({
+              userId,
+              email: userPresence.user.email,
+              profile: userPresence.user.profile,
+            })
+          }
+        }
+      })
+
+      connectedUsers.value = users
+      isLoading.value = false
+    })
+
+    // Handle presence changes (join/leave)
+    channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      console.log(`[Presence] User ${key} joined ticket ${id}`)
+      newPresences.forEach((presence) => {
+        if (presence?.user?.profile) {
+          const newUser: ConnectedUser = {
+            userId: key,
+            email: presence.user.email,
+            profile: presence.user.profile,
+          }
+          // Add new user to the list if not already present
+          if (!connectedUsers.value.find((u) => u.userId === newUser.userId)) {
+            connectedUsers.value.push(newUser)
+          }
+        }
+      })
+    })
+
+    channel.on('presence', { event: 'leave' }, ({ key }) => {
+      console.log(`[Presence] User ${key} left ticket ${id}`)
+      // Remove user from the list
+      connectedUsers.value = connectedUsers.value.filter((u) => u.userId !== key)
+    })
+
+    // Subscribe to channel first, then track presence
+    channel.subscribe(async (status, err) => {
+      if (status === 'SUBSCRIBED') {
+        console.log(`[Presence] Successfully subscribed to ticket ${id} presence`)
+        // Track presence only after successful subscription
+        await channel?.track(presenceState)
+        isLoading.value = false
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('[Presence] Channel error:', err)
+        error.value = new Error('Failed to subscribe to ticket presence')
+        isLoading.value = false
+      } else if (status === 'TIMED_OUT') {
+        console.error('[Presence] Subscription timed out')
+        error.value = new Error('Presence subscription timed out')
+        isLoading.value = false
+      } else if (status === 'CLOSED') {
+        console.log('[Presence] Channel closed')
+      }
+    })
+  }
+
+  watch(
+    currentTicketId,
+    async (newId) => {
+      if (!newId) {
+        connectedUsers.value = []
+        isLoading.value = false
+        if (channel) {
+          await channel.unsubscribe()
+          await channel.untrack()
+          supabase.removeChannel(channel)
+          channel = null
+        }
+        return
+      }
+
+      await setupPresence(newId)
+    },
+    { immediate: true },
+  )
+
+  onUnmounted(async () => {
+    if (channel) {
+      await channel.unsubscribe()
+      await channel.untrack()
+      supabase.removeChannel(channel)
+      channel = null
+    }
+  })
+
+  return {
+    connectedUsers: computed(() => connectedUsers.value),
+    isLoading: computed(() => isLoading.value),
+    error: computed(() => error.value),
+  }
 }
