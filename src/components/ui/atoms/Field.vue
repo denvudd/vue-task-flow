@@ -16,7 +16,7 @@ const props = defineProps<Props>()
 
 <template>
   <ArkField.Root :required="required" :disabled="disabled" :invalid="invalid">
-    <div :class="['space-y-2', rootClass]">
+    <div :class="['space-y-1', rootClass]">
       <!-- Label -->
       <ArkField.Label v-if="$slots.label" class="block text-sm font-medium text-neutral-700">
         <slot name="label">

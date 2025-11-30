@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Editable as ArkEditable } from '@ark-ui/vue/editable'
 import { ref, watch } from 'vue'
-import Button from './Button.vue'
+import { Button } from './Button'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
 
 interface Props {

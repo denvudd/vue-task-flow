@@ -18,6 +18,14 @@ export const PROJECT_ROLE_DESCRIPTIONS: Record<ProjectRole, string> = {
   [PROJECT_ROLES.EDITOR]: 'Edit, suggest, and comment',
 }
 
+export const PROJECT_JOIN_STATUS = {
+  JOINED: 'joined',
+  ROLE_UPGRADED: 'role_upgraded',
+  ALREADY_MEMBER: 'already_member',
+} as const
+
+export type ProjectJoinStatus = (typeof PROJECT_JOIN_STATUS)[keyof typeof PROJECT_JOIN_STATUS]
+
 export const ROLE_HIERARCHY: ProjectRole[] = [
   PROJECT_ROLES.VIEWER,
   PROJECT_ROLES.COMMENTER,

@@ -58,9 +58,8 @@ const open = () => {
             />
           </div>
 
-          <!-- Members section -->
           <div v-if="regularMembers.length > 0" class="space-y-3">
-            <h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
+            <h3 class="text-sm font-semibold text-neutral-700">
               Members ({{ regularMembers.length }})
             </h3>
             <div class="space-y-3">

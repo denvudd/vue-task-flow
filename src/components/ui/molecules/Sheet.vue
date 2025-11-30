@@ -2,7 +2,7 @@
 import { Dialog as ArkDialog } from '@ark-ui/vue/dialog'
 import { computed } from 'vue'
 import { X } from 'lucide-vue-next'
-import Button from '../atoms/Button.vue'
+import { Button } from '../atoms/Button'
 
 interface Props {
   open?: boolean

@@ -2,7 +2,7 @@
 import { Clipboard } from '@ark-ui/vue/clipboard'
 import { CheckIcon, ClipboardCopyIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
-import Button from './Button.vue'
+import { Button } from './Button'
 
 const props = defineProps<{
   value: string
@@ -25,7 +25,7 @@ const label = computed(() => {
         class="font-mono text-xs bg-neutral-50 px-3 py-2 rounded border max-w-full w-full scroll-hidden overflow-x-auto border-neutral-200 break-all"
       />
       <Clipboard.Context v-slot="clipboard">
-        <Button variant="outline" size="icon" @click="clipboard.copy">
+        <Button variant="outline" size="icon" @click="clipboard.copy" tooltip="Copy to clipboard">
           <CheckIcon v-if="clipboard.copied" class="size-4" />
           <ClipboardCopyIcon v-else class="size-4" />
         </Button>

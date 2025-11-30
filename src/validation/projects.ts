@@ -20,16 +20,29 @@ export const createProjectSchema = z.object({
 export type CreateProjectForm = z.infer<typeof createProjectSchema>
 
 export const createTicketSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
-  description: z.string().max(2000, 'Description is too long').optional(),
+  title: z.string('Title is required').min(1, 'Title is required').max(200, 'Title is too long'),
   status: z
-    .enum([TICKET_STATUSES.TODO, TICKET_STATUSES.IN_PROGRESS, TICKET_STATUSES.REVIEW, TICKET_STATUSES.DONE, TICKET_STATUSES.ARCHIVED] as [TicketStatus, ...TicketStatus[]])
+    .enum([
+      TICKET_STATUSES.TODO,
+      TICKET_STATUSES.IN_PROGRESS,
+      TICKET_STATUSES.REVIEW,
+      TICKET_STATUSES.DONE,
+      TICKET_STATUSES.ARCHIVED,
+    ] as [TicketStatus, ...TicketStatus[]])
     .optional(),
   priority: z
-    .enum([TICKET_PRIORITIES.LOW, TICKET_PRIORITIES.MEDIUM, TICKET_PRIORITIES.HIGH, TICKET_PRIORITIES.URGENT] as [TicketPriority, ...TicketPriority[]])
+    .enum([
+      TICKET_PRIORITIES.LOW,
+      TICKET_PRIORITIES.MEDIUM,
+      TICKET_PRIORITIES.HIGH,
+      TICKET_PRIORITIES.URGENT,
+    ] as [TicketPriority, ...TicketPriority[]])
     .optional(),
   type: z
-    .enum([TICKET_TYPES.TASK, TICKET_TYPES.BUG, TICKET_TYPES.FEATURE, TICKET_TYPES.IMPROVEMENT] as [TicketType, ...TicketType[]])
+    .enum([TICKET_TYPES.TASK, TICKET_TYPES.BUG, TICKET_TYPES.FEATURE, TICKET_TYPES.IMPROVEMENT] as [
+      TicketType,
+      ...TicketType[],
+    ])
     .optional(),
   due_date: z.string().optional(),
 })

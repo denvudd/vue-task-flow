@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type { Tables, TablesInsert, TablesUpdate } from '@/types/supabase'
-import type { ProjectRole } from '@/constants/projects'
+import { PROJECT_JOIN_STATUS, type ProjectRole } from '@/constants/projects'
 import { getHigherUserRole } from '@/lib/utils'
 
 export type InviteLink = Tables<'project_invite_links'>
@@ -130,7 +130,7 @@ export async function joinProjectViaInvite(token: string, userId: string) {
 
       return {
         success: true,
-        status: 'role_upgraded' as const,
+        status: PROJECT_JOIN_STATUS.ROLE_UPGRADED,
         role: higherRole,
         projectId: inviteLink.project_id,
       }
@@ -138,7 +138,7 @@ export async function joinProjectViaInvite(token: string, userId: string) {
 
     return {
       success: true,
-      status: 'already_member' as const,
+      status: PROJECT_JOIN_STATUS.ALREADY_MEMBER,
       role: currentRole,
       projectId: inviteLink.project_id,
     }
@@ -156,7 +156,7 @@ export async function joinProjectViaInvite(token: string, userId: string) {
 
   return {
     success: true,
-    status: 'joined' as const,
+    status: PROJECT_JOIN_STATUS.JOINED,
     role: inviteLink.role as ProjectRole,
     projectId: inviteLink.project_id,
   }

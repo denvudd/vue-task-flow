@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useProject } from '@/composables/useProjects'
+import { useProjectContext } from '@/composables/useProjectContext'
 import { useAuth } from '@/composables/useAuth'
 import { useJoinProjectViaInvite } from '@/composables/useInvites'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 import { TicketDetailsSidebar } from '@/components/pages/projects/TicketDetailsSidebar'
-import { PROJECT_ROLE_LABELS, PROJECT_VISIBILITIES } from '@/constants/projects'
+import { PROJECT_JOIN_STATUS, PROJECT_ROLE_LABELS } from '@/constants/projects'
 import { useToast } from '@/composables/useToast'
 import ProjectMainContent from '@/components/pages/projects/ProjectMainContent/ProjectMainContent.vue'
 
@@ -19,7 +19,7 @@ const projectId = computed(() => route.params.id as string)
 
 const isProcessingInvite = ref(false)
 
-const { data: project, refetch: refetchProject } = useProject(projectId)
+const { setProject, refetch: refetchProject } = useProjectContext()
 const { mutateAsync: joinProjectViaInvite } = useJoinProjectViaInvite()
 
 const { currentTicketId, openTicket, closeTicket } = useTicketDetails()
@@ -65,35 +65,15 @@ const closeSidebar = () => {
   router.push({ query })
 }
 
-const hasUserAccess = computed(() => {
-  const projectData = project.value
-  const userData = user.value
-
-  if (!projectData) return false
-
-  const isProjectPublic = projectData.visibility === PROJECT_VISIBILITIES.PUBLIC
-
-  if (isProjectPublic) {
-    return true
-  }
-
-  if (!userData) return false
-
-  const isUserOwner = projectData.owner_id === userData.id
-
-  if (isUserOwner) {
-    return true
-  }
-
-  const projectMembers = projectData.members as Array<{ user_id: string }> | null
-  const isUserMember = projectMembers?.some((member) => member.user_id === userData.id)
-
-  if (isUserMember) {
-    return true
-  }
-
-  return false
-})
+watch(
+  projectId,
+  (id) => {
+    if (id) {
+      setProject(id, null)
+    }
+  },
+  { immediate: true },
+)
 
 const handleInviteToken = async () => {
   const inviteToken = route.query.invite as string | undefined
@@ -127,19 +107,19 @@ const handleInviteToken = async () => {
     delete query.invite
     await router.replace({ query })
 
-    if (result.status === 'joined') {
+    if (result.status === PROJECT_JOIN_STATUS.JOINED) {
       createToast({
         title: 'Welcome to the project!',
         description: `You've joined as ${PROJECT_ROLE_LABELS[result.role]}`,
         type: 'success',
       })
-    } else if (result.status === 'role_upgraded') {
+    } else if (result.status === PROJECT_JOIN_STATUS.ROLE_UPGRADED) {
       createToast({
         title: 'Role upgraded',
         description: `Your role has been upgraded to ${PROJECT_ROLE_LABELS[result.role]}`,
         type: 'success',
       })
-    } else if (result.status === 'already_member') {
+    } else if (result.status === PROJECT_JOIN_STATUS.ALREADY_MEMBER) {
       createToast({
         title: 'Already a member',
         description: 'You already have access to this project',
@@ -182,8 +162,7 @@ watch(
 <template>
   <div class="min-h-screen bg-neutral-50 flex flex-col">
     <div class="flex flex-1 overflow-hidden pb-8">
-      <ProjectMainContent :has-user-access="hasUserAccess" :project="project" />
-      <!-- Ticket Details Sidebar -->
+      <ProjectMainContent />
       <Transition
         enter-active-class="transition-all duration-150 ease-out"
         enter-from-class="translate-x-full opacity-0"

@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Dialog, Button, Field } from '@/components/ui'
+import { Dialog, Button, Field, Toggle, buttonVariants } from '@/components/ui'
 import { useProjectInviteLinks, useCreateInviteLink } from '@/composables/useInvites'
-import { Plus, Share2 } from 'lucide-vue-next'
+import { Plus, Share2, Eye, LockKeyhole } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
 import InviteLinkRow from './InviteLinkRow.vue'
 import {
   PROJECT_ROLES,
   PROJECT_ROLE_LABELS,
   PROJECT_ROLE_DESCRIPTIONS,
+  PROJECT_VISIBILITIES,
   type ProjectRole,
+  type ProjectVisibility,
 } from '@/constants/projects'
 import { ROUTES } from '@/lib/routing'
+import { useProjectContext } from '@/composables/useProjectContext'
+import { useUpdateProject } from '@/composables/useProjects'
 
 interface Props {
   projectId: string
@@ -21,6 +25,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const { createToast } = useToast()
+const { project, isOwner } = useProjectContext()
+const { mutateAsync: updateProject, isPending: isUpdatingVisibility } = useUpdateProject()
+
 const isOpen = ref(false)
 const showCreateForm = ref(false)
 const selectedRole = ref<ProjectRole>(PROJECT_ROLES.VIEWER)
@@ -35,6 +42,34 @@ const inviteLinks = computed(() => inviteLinksResponse.value?.data || [])
 const baseUrl = computed(() => {
   return `${window.location.origin}${ROUTES.Project(props.projectId)}`
 })
+
+const projectVisibility = computed(() => {
+  return (project.value?.visibility as ProjectVisibility) || PROJECT_VISIBILITIES.PRIVATE
+})
+
+const isProjectPrivate = computed(() => {
+  return projectVisibility.value === PROJECT_VISIBILITIES.PRIVATE
+})
+
+const handleVisibilityChange = async (pressed: boolean) => {
+  const newVisibility = pressed
+    ? (PROJECT_VISIBILITIES.PRIVATE as ProjectVisibility)
+    : (PROJECT_VISIBILITIES.PUBLIC as ProjectVisibility)
+  if (newVisibility === projectVisibility.value) return
+
+  try {
+    await updateProject({
+      projectId: props.projectId,
+      updates: { visibility: newVisibility },
+    })
+  } catch (err) {
+    console.error('Failed to update visibility:', err)
+    createToast({
+      title: 'Failed to update visibility',
+      type: 'error',
+    })
+  }
+}
 
 const handleCreateLink = async () => {
   try {
@@ -78,15 +113,54 @@ const open = () => {
     </slot>
 
     <Dialog v-model:open="isOpen" size="xl">
-      <template #title>Share project {{ projectName }}</template>
-      <template #description>
-        Create and manage invite links for this project. Anyone with the link can join based on the
-        role you assign.
-      </template>
+      <template #title>Share {{ projectName }}</template>
 
       <div class="space-y-6">
+        <Field v-if="isOwner">
+          <div class="flex items-start justify-between w-full gap-3">
+            <div class="span-y-1">
+              <p class="text-sm font-medium text-neutral-700">Visibility</p>
+              <p class="text-xs text-neutral-600">
+                {{
+                  isProjectPrivate
+                    ? 'You can invite members to this project by sharing an invite link.'
+                    : 'Anyone on the web can view this project.'
+                }}
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium text-neutral-700">{{
+                isProjectPrivate ? 'Private' : 'Public'
+              }}</span>
+              <Toggle
+                :pressed="isProjectPrivate"
+                :disabled="isUpdatingVisibility"
+                :class="buttonVariants({ variant: 'outline', size: 'icon' })"
+                :tooltip="isProjectPrivate ? 'Make public' : 'Make private'"
+                @pressed-change="handleVisibilityChange"
+              >
+                <span class="sr-only">{{ isProjectPrivate ? 'Make public' : 'Make private' }}</span>
+                <Eye v-if="!isProjectPrivate" class="size-4 text-neutral-700" />
+                <LockKeyhole v-else class="size-4 text-neutral-700" />
+              </Toggle>
+            </div>
+          </div>
+        </Field>
+
+        <!-- Info message for public projects -->
+        <div
+          v-if="!isProjectPrivate"
+          class="p-4 bg-neutral-50 border border-neutral-200 rounded-lg text-sm text-neutral-600"
+        >
+          <p class="font-medium mb-1">Invite links are disabled</p>
+          <p>Make the project private to create and manage invite links.</p>
+        </div>
+
         <!-- Create new link form -->
-        <div v-if="showCreateForm" class="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+        <div
+          v-if="showCreateForm && isProjectPrivate"
+          class="p-4 bg-neutral-50 rounded-lg border border-neutral-200"
+        >
           <Field label="Anyone on the web with this link" class="mb-4">
             <div class="space-y-2">
               <label
@@ -99,10 +173,10 @@ const open = () => {
               >
                 <input type="radio" :value="role" v-model="selectedRole" />
                 <div class="flex-1">
-                  <div class="font-medium text-neutral-900">
+                  <div class="font-medium text-sm text-neutral-900">
                     {{ PROJECT_ROLE_LABELS[role] }}
                   </div>
-                  <div class="text-sm text-neutral-600">
+                  <div class="text-xs text-neutral-600">
                     {{ PROJECT_ROLE_DESCRIPTIONS[role] }}
                   </div>
                 </div>
@@ -115,25 +189,24 @@ const open = () => {
               Cancel
             </Button>
             <Button @click="handleCreateLink" size="sm" :disabled="isCreating">
-              {{ isCreating ? 'Creating...' : 'Create Link' }}
+              {{ isCreating ? 'Creating...' : 'Create' }}
             </Button>
           </div>
         </div>
 
-        <!-- Show create button if form is not visible -->
-        <Button
-          v-if="!showCreateForm"
-          variant="outline"
-          @click="showCreateForm = true"
-          class="w-full"
-        >
-          <Plus class="w-4 h-4 mr-2" />
-          Create New Invite Link
-        </Button>
-
-        <!-- List of existing invite links -->
-        <div class="space-y-4">
-          <h3 class="text-lg font-semibold">Existing Invite Links</h3>
+        <div v-if="isProjectPrivate" class="space-y-4">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="font-semibold">Invite Links</h3>
+            <Button
+              v-if="!showCreateForm && isProjectPrivate"
+              variant="outline"
+              @click="showCreateForm = true"
+              size="sm"
+            >
+              <Plus class="w-4 h-4 mr-1" />
+              New
+            </Button>
+          </div>
 
           <div v-if="isLoading" class="text-center py-8 text-neutral-600">
             Loading invite links...

@@ -121,7 +121,7 @@ const formatDate = (dateString: string) => {
           <Badge v-if="isOwner" variant="primary" size="sm">Owner</Badge>
           <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">You</Badge>
         </div>
-        <div v-if="member.joined_at" class="text-sm text-neutral-600">
+        <div v-if="member.joined_at" class="text-xs text-neutral-600">
           Joined {{ formatDate(member.joined_at) }}
         </div>
       </div>

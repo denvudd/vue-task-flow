@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import { Upload, X, Edit2 } from 'lucide-vue-next'
-import Button from '../atoms/Button.vue'
+import { Button } from '../atoms/Button'
 import Dialog from './Dialog.vue'
 
 interface Props {

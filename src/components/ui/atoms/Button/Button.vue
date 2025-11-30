@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Tooltip as ArkTooltip } from '@ark-ui/vue/tooltip'
+import { buttonVariants, type ButtonVariants } from './utils'
+import { cn } from '@/lib/utils'
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
-  size?: 'sm' | 'md' | 'lg' | 'icon'
+  variant?: ButtonVariants['variant']
+  size?: ButtonVariants['size']
+  class?: string
   as?: string
   tooltip?: string
   tooltipOpenDelay?: number
@@ -19,32 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   tooltipCloseDelay: 200,
 })
 
-const buttonClass = computed(() => {
-  const baseClass =
-    'inline-flex items-center cursor-pointer justify-center rounded-lg font-medium transition-all disabled:opacity-50 disabled:pointer-events-none'
-
-  const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-    icon: 'p-2',
-  }
-
-  const variantClasses = {
-    primary:
-      'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 focus-visible:ring-primary-500',
-    secondary:
-      'bg-primary-100 text-primary-700 hover:bg-primary-200 active:bg-primary-300 focus-visible:ring-primary-500',
-    ghost:
-      'bg-transparent hover:bg-neutral-100 active:bg-neutral-200 text-neutral-700 focus-visible:ring-neutral-300',
-    outline:
-      'border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 focus-visible:ring-neutral-300',
-    danger:
-      'bg-error-600 text-white hover:bg-error-700 active:bg-error-800 focus-visible:ring-error-500',
-  }
-
-  return `${baseClass} ${sizeClasses[props.size]} ${variantClasses[props.variant]} focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2`
-})
+const buttonClass = computed(() => buttonVariants({ variant: props.variant, size: props.size }))
 </script>
 
 <template>
@@ -54,7 +32,7 @@ const buttonClass = computed(() => {
     :close-delay="tooltipCloseDelay"
   >
     <ArkTooltip.Trigger as-child>
-      <component :is="as" :class="buttonClass" v-bind="$attrs">
+      <component :is="as" :class="cn(buttonClass, props.class)" v-bind="$attrs">
         <slot />
       </component>
     </ArkTooltip.Trigger>

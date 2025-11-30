@@ -118,9 +118,9 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleToggleActive"
             :disabled="isUpdating"
-            :title="link.active ? 'Deactivate link' : 'Activate link'"
+            :tooltip="link.active ? 'Deactivate link' : 'Activate link'"
           >
-            <Power class="w-4 h-4" :class="{ 'text-success-600': link.active }" />
+            <Power class="size-3" :class="{ 'text-success-600': link.active }" />
           </Button>
 
           <Button
@@ -128,9 +128,9 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleRegenerate"
             :disabled="isRegenerating"
-            title="Regenerate token"
+            tooltip="Regenerate token"
           >
-            <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': isRegenerating }" />
+            <RefreshCw class="size-3" :class="{ 'animate-spin': isRegenerating }" />
           </Button>
 
           <Button
@@ -138,14 +138,14 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleDelete"
             :disabled="isDeleting"
-            title="Delete link"
+            tooltip="Delete link"
           >
-            <Trash2 class="w-4 h-4 text-error-600" />
+            <Trash2 class="size-3 text-error-600" />
           </Button>
         </div>
       </div>
 
-      <div class="text-sm text-neutral-600">Created {{ formatDate(link.created_at) }}</div>
+      <div class="text-xs text-neutral-600">Created {{ formatDate(link.created_at) }}</div>
 
       <Clipboard :value="inviteUrl" />
     </div>

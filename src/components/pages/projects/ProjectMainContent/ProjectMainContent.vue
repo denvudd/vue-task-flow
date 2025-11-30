@@ -3,7 +3,7 @@ import { Card, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui'
 import { TicketsTable } from '@/components/pages/projects/ProjectMainContent/TicketsTable'
 import TicketCreateDialog from './TicketCreateDialog.vue'
 import { useAuth } from '@/composables/useAuth'
-import { useProject } from '@/composables/useProjects'
+import { useProjectContext } from '@/composables/useProjectContext'
 import { useProjectTickets } from '@/composables/useTickets'
 import { useUpdateTicket } from '@/composables/useTickets'
 import { reorderTickets } from '@/api/tickets'
@@ -17,12 +17,7 @@ import type { TicketPriority, TicketStatus, TicketType } from '@/constants/ticke
 import ProjectMainContentLoader from './ProjectMainContentLoader.vue'
 import ProjectMainContentError from './ProjectMainContentError.vue'
 import { ProjectMainContentInfo } from './ProjectMainContentInfo'
-
-interface Props {
-  hasUserAccess: boolean
-}
-
-const props = defineProps<Props>()
+import ProjectMainContentAccessDenied from './ProjectMainContentAccessDenied.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,8 +26,8 @@ const { createToast } = useToast()
 const projectId = computed(() => route.params.id as string)
 const activeTab = ref('table')
 
-const { user, isAuthenticated } = useAuth()
-const { data: project, isLoading, isError, error, refetch: refetchProject } = useProject(projectId)
+const { isAuthenticated } = useAuth()
+const { project, isLoading, isError, error, hasUserAccess, isOwner } = useProjectContext()
 const { data: tickets, isLoading: isLoadingTickets } = useProjectTickets(projectId)
 const { mutateAsync: updateTicket } = useUpdateTicket()
 
@@ -146,11 +141,6 @@ const errorMessage = computed(() => {
   if (!error.value) return null
   return error.value instanceof Error ? error.value.message : 'Failed to load project'
 })
-
-const isOwner = computed(() => {
-  if (!project.value || !user.value) return false
-  return project.value.owner_id === user.value.id
-})
 </script>
 
 <template>
@@ -163,7 +153,6 @@ const isOwner = computed(() => {
       <ProjectMainContentLoader v-if="isLoading" />
       <ProjectMainContentError v-else-if="isError" :error-message="errorMessage" />
       <ProjectMainContentAccessDenied v-else-if="project && !hasUserAccess" />
-
       <div v-else-if="project && hasUserAccess" class="space-y-6">
         <ProjectMainContentInfo
           :project-id="project.id"
