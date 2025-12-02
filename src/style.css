@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'tailwindcss-safe-area';
 
 /* Custom theme for Tailwind v4 */
 @theme {

@@ -140,7 +140,7 @@ const handleOpenChange = (details: { open: boolean }) => {
       >
         <Combobox.Control
           :class="[
-            'w-fit text-sm transition-colors focus-within:outline-none',
+            'text-sm transition-colors focus-within:outline-none',
             'disabled:bg-neutral-100 disabled:cursor-not-allowed',
             'flex',
             invalid
@@ -173,13 +173,13 @@ const handleOpenChange = (details: { open: boolean }) => {
           <Combobox.Positioner>
             <Combobox.Content
               :class="[
-                'z-50 rounded-lg border border-neutral-300 bg-white shadow-lg',
-                'overflow-hidden min-w-fit',
+                'z-120 rounded-lg border border-neutral-300 bg-white shadow-lg',
+                'overflow-hidden w-[calc(100%+20px)]',
               ]"
             >
               <Combobox.ItemGroup v-if="filteredItems.length > 0">
                 <Combobox.Item v-for="item in filteredItems" :key="item.value" :item="item">
-                  <div class="flex items-center gap-2 flex-1">
+                  <div class="flex items-center gap-2 flex-1 w-full">
                     <div
                       v-if="item.icon"
                       :class="[
@@ -192,9 +192,9 @@ const handleOpenChange = (details: { open: boolean }) => {
                     </div>
                     <Combobox.ItemText v-else class="text-sm">{{ item.label }}</Combobox.ItemText>
                   </div>
-                  <Combobox.ItemIndicator class="text-primary-600">
+                  <!-- <Combobox.ItemIndicator class="text-primary-600">
                     <CheckIcon class="size-4" />
-                  </Combobox.ItemIndicator>
+                  </Combobox.ItemIndicator> -->
                 </Combobox.Item>
               </Combobox.ItemGroup>
               <div v-else class="px-3 py-2 text-sm text-neutral-500">No results found</div>
@@ -228,10 +228,14 @@ const handleOpenChange = (details: { open: boolean }) => {
   width: var(--reference-width);
 } */
 
+[data-scope='combobox'][data-part='positioner'] {
+  width: calc(var(--reference-width) + 10px) !important;
+}
+
 [data-scope='combobox'][data-part='content'] {
   border: 1px solid rgb(212 212 216); /* ~ neutral-300 */
   background: #fff;
-  z-index: 50;
+  z-index: 120;
   width: 100%;
   max-height: 320px;
   overflow-y: auto;
@@ -245,7 +249,7 @@ const handleOpenChange = (details: { open: boolean }) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem; 
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
 }
 

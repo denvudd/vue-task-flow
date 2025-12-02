@@ -7,7 +7,6 @@ import {
   Dialog,
   Field,
   FieldInput,
-  FieldTextarea,
   TicketStatusSelect,
   TicketPrioritySelect,
   TicketTypeSelect,
@@ -15,14 +14,16 @@ import {
 } from '@/components/ui'
 import { createTicketSchema } from '@/validation/projects'
 import { TICKET_STATUSES, TICKET_PRIORITIES, TICKET_TYPES } from '@/constants/tickets'
-import { useCreateTicket, useProjectTickets } from '@/composables/useTickets'
+import { useCreateTicket } from '@/composables/useTickets'
 import { useAuth } from '@/composables/useAuth'
 import { Plus } from 'lucide-vue-next'
 import { useUpsertTicketDocument } from '@/composables/useTicketDocumens'
 import { Buffer } from 'buffer'
 import { ROUTES } from '@/lib/routing'
+import type { Tables } from '@/types/supabase'
 
 interface Props {
+  tickets: Tables<'tickets'>[]
   projectId?: string
 }
 
@@ -61,7 +62,13 @@ const handleSubmitForm = handleSubmit(async (values) => {
   }
 
   try {
-    const ticket = await createTicket({
+    const maxOrderIndex =
+      props.tickets && props.tickets.length > 0
+        ? Math.max(...props.tickets.map((t) => t.order_index ?? 0))
+        : -1
+    const newOrderIndex = maxOrderIndex + 1
+
+    const ticketBody = {
       title: values.title,
       status: values.status || TICKET_STATUSES.TODO,
       priority: values.priority || TICKET_PRIORITIES.MEDIUM,
@@ -69,7 +76,10 @@ const handleSubmitForm = handleSubmit(async (values) => {
       due_date: values.due_date ? new Date(values.due_date).toISOString() : null,
       project_id: projectId.value,
       creator_id: user.value.id,
-    })
+      order_index: newOrderIndex,
+    }
+
+    const ticket = await createTicket(ticketBody)
 
     // TODO: handle default editor description to work and sync with ydoc
     // const DEFAULT_PROJECT_DESCRIPTION =

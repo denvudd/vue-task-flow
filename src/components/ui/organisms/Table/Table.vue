@@ -6,6 +6,7 @@ type Density = 'default' | 'comfortable' | 'compact'
 interface Props {
   density?: Density
   stickyHeader?: boolean
+  class?: string
 }
 
 defineOptions({ inheritAttrs: false })
@@ -35,10 +36,9 @@ const tableClass = computed(() => {
 </script>
 
 <template>
-  <div class="relative w-full overflow-x-auto">
+  <div class="relative w-full" :class="props.class">
     <table v-bind="{ ...attrs, class: undefined }" :class="[tableClass, attrs.class]">
       <slot />
     </table>
   </div>
 </template>
-

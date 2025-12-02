@@ -22,7 +22,9 @@ const props = withDefaults(defineProps<Props>(), {
   tooltipCloseDelay: 200,
 })
 
-const buttonClass = computed(() => buttonVariants({ variant: props.variant, size: props.size }))
+const buttonClass = computed(() =>
+  buttonVariants({ variant: props.variant, size: props.size, class: props.class }),
+)
 </script>
 
 <template>
@@ -32,7 +34,7 @@ const buttonClass = computed(() => buttonVariants({ variant: props.variant, size
     :close-delay="tooltipCloseDelay"
   >
     <ArkTooltip.Trigger as-child>
-      <component :is="as" :class="cn(buttonClass, props.class)" v-bind="$attrs">
+      <component :is="as" :class="buttonClass" v-bind="$attrs">
         <slot />
       </component>
     </ArkTooltip.Trigger>
@@ -41,13 +43,13 @@ const buttonClass = computed(() => buttonVariants({ variant: props.variant, size
       <ArkTooltip.Positioner>
         <ArkTooltip.Content
           v-if="$slots.tooltip"
-          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
+          class="tooltip-content z-120 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
         >
           <slot name="tooltip" />
         </ArkTooltip.Content>
         <ArkTooltip.Content
           v-else
-          class="tooltip-content z-50 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
+          class="tooltip-content z-120 rounded-lg bg-neutral-400 p-2 text-xs text-white shadow-lg"
         >
           {{ tooltip }}
         </ArkTooltip.Content>

@@ -19,7 +19,13 @@ const projectId = computed(() => route.params.id as string)
 
 const isProcessingInvite = ref(false)
 
-const { setProject, refetch: refetchProject } = useProjectContext()
+const {
+  setProject,
+  refetch: refetchProject,
+  isSidebarOpen,
+  openSidebar,
+  closeSidebar,
+} = useProjectContext()
 const { mutateAsync: joinProjectViaInvite } = useJoinProjectViaInvite()
 
 const { currentTicketId, openTicket, closeTicket } = useTicketDetails()
@@ -34,8 +40,10 @@ watch(
   (ticketId) => {
     if (ticketId && projectId.value) {
       openTicket(ticketId, projectId.value)
+      openSidebar()
     } else {
       closeTicket()
+      closeSidebar()
     }
   },
   { immediate: true },
@@ -55,15 +63,6 @@ watch(currentTicketId, (ticketId) => {
     router.replace({ query })
   }
 })
-
-const isSidebarOpen = computed(() => !!currentTicketId.value)
-
-const closeSidebar = () => {
-  closeTicket()
-  const query = { ...route.query }
-  delete query.ticket
-  router.push({ query })
-}
 
 watch(
   projectId,
@@ -161,7 +160,7 @@ watch(
 
 <template>
   <div class="min-h-screen bg-neutral-50 flex flex-col">
-    <div class="flex flex-1 overflow-hidden pb-8">
+    <div class="overflow-hidden pb-8">
       <ProjectMainContent />
       <Transition
         enter-active-class="transition-all duration-150 ease-out"
@@ -173,7 +172,7 @@ watch(
       >
         <div
           v-if="isSidebarOpen && currentTicketId"
-          class="w-1/2 border-l border-neutral-200 bg-white overflow-hidden flex flex-col"
+          class="w-1/2 border-l border-neutral-200 bg-white overflow-hidden flex flex-col absolute top-0 right-0 bottom-0 z-109"
         >
           <TicketDetailsSidebar
             :ticket-id="currentTicketId"

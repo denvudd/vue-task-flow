@@ -3,6 +3,7 @@ import { computed, ref, useAttrs } from 'vue'
 
 interface Props {
   hover?: boolean
+  class?: string
 }
 
 defineOptions({ inheritAttrs: false })
@@ -22,6 +23,7 @@ const rowClass = computed(() =>
   [
     'border-b border-neutral-100',
     props.hover ? 'hover:bg-neutral-50 transition-colors' : '',
+    props.class,
   ]
     .filter(Boolean)
     .join(' '),
@@ -33,4 +35,3 @@ const rowClass = computed(() =>
     <slot />
   </tr>
 </template>
-

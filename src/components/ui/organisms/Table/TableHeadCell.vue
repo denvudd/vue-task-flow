@@ -15,7 +15,7 @@ const attrs = useAttrs()
 
 const cellClass = computed(() =>
   [
-    'py-3 px-4 text-sm font-semibold text-neutral-700',
+    'p-2 text-sm font-semibold text-neutral-700',
     props.align === 'center' ? 'text-center' : '',
     props.align === 'right' ? 'text-right' : '',
   ]
@@ -29,4 +29,3 @@ const cellClass = computed(() =>
     <slot />
   </th>
 </template>
-

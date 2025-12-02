@@ -4,6 +4,7 @@ import { computed, useAttrs } from 'vue'
 interface Props {
   align?: 'left' | 'center' | 'right'
   padding?: 'default' | 'none'
+  class?: string
 }
 
 defineOptions({ inheritAttrs: false })
@@ -17,10 +18,12 @@ const attrs = useAttrs()
 
 const cellClass = computed(() =>
   [
-    props.padding === 'default' ? 'py-3 px-4' : '',
+    props.padding === 'default' ? 'p-2' : '',
     'text-sm text-neutral-600',
     props.align === 'center' ? 'text-center' : '',
     props.align === 'right' ? 'text-right' : '',
+    'border-r border-neutral-200 last:border-r-0',
+    props.class,
   ]
     .filter(Boolean)
     .join(' '),
@@ -32,4 +35,3 @@ const cellClass = computed(() =>
     <slot />
   </td>
 </template>
-

@@ -1,17 +1,13 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Tables } from '@/types/supabase'
 
 type Project = Tables<'projects'>
 
-/**
- * Store for managing current project context
- * Contains project ID and access state
- * Actual data fetching is handled in useProject composable
- */
 export const useProjectContextStore = defineStore('projectContext', () => {
   const currentProjectId = ref<string | undefined>(undefined)
   const project = ref<Project | null>(null)
+  const isSidebarOpen = ref(false)
 
   function setProject(projectId: string, projectData: Project | null) {
     currentProjectId.value = projectId
@@ -23,14 +19,22 @@ export const useProjectContextStore = defineStore('projectContext', () => {
     project.value = null
   }
 
+  function openSidebar() {
+    isSidebarOpen.value = true
+  }
+
+  function closeSidebar() {
+    isSidebarOpen.value = false
+  }
+
   return {
-    // State
     currentProjectId,
     project,
+    isSidebarOpen,
 
-    // Methods
     setProject,
     clearProject,
+    openSidebar,
+    closeSidebar,
   }
 })
-

@@ -12,7 +12,7 @@ import {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 px-24">
     <Card>
       <div class="space-y-6">
         <div class="flex flex-col">

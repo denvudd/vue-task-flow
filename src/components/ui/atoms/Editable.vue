@@ -67,7 +67,7 @@ const handleValueCancel = () => {
       <ArkEditable.Input
         :class="[
           inputClass,
-          'w-full bg-neutral-50 focus:outline-none focus:ring-1 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
+          'w-full bg-neutral-50 focus:outline-none placeholder:text-neutral-300 focus:ring-1 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
         ]"
       />
       <ArkEditable.Preview
@@ -76,6 +76,7 @@ const handleValueCancel = () => {
           previewClass,
           {
             'cursor-not-allowed! hover:bg-transparent': disabled,
+            'text-neutral-400!': !editableValue,
           },
         ]"
       />
@@ -108,7 +109,7 @@ const handleValueCancel = () => {
 }
 
 [data-scope='editable'][data-part='preview'] {
-  display: inline-block !important;
+  display: inline-block;
   min-height: 1.5rem;
   width: 100%;
   color: inherit;

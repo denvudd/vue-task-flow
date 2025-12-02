@@ -12,8 +12,10 @@ const handleBack = () => {
 </script>
 
 <template>
-  <Button variant="ghost" size="sm" @click="handleBack" class="my-4">
-    <ArrowLeft class="w-4 h-4 mr-2" />
-    Back to Dashboard
-  </Button>
+  <div class="px-24 mb-4">
+    <Button variant="ghost" size="sm" @click="handleBack">
+      <ArrowLeft class="w-4 h-4 mr-2" />
+      Back to Dashboard
+    </Button>
+  </div>
 </template>

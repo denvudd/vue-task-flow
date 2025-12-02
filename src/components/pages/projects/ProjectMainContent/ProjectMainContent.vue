@@ -18,6 +18,8 @@ import ProjectMainContentLoader from './ProjectMainContentLoader.vue'
 import ProjectMainContentError from './ProjectMainContentError.vue'
 import { ProjectMainContentInfo } from './ProjectMainContentInfo'
 import ProjectMainContentAccessDenied from './ProjectMainContentAccessDenied.vue'
+import ProjectBackToDashboard from './ProjectBackToDashboard.vue'
+import { SquareKanban, Table as TableIcon } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,7 +29,8 @@ const projectId = computed(() => route.params.id as string)
 const activeTab = ref('table')
 
 const { isAuthenticated } = useAuth()
-const { project, isLoading, isError, error, hasUserAccess, isOwner } = useProjectContext()
+const { project, isLoading, isError, error, hasUserAccess, isOwner, isSidebarOpen } =
+  useProjectContext()
 const { data: tickets, isLoading: isLoadingTickets } = useProjectTickets(projectId)
 const { mutateAsync: updateTicket } = useUpdateTicket()
 
@@ -131,12 +134,6 @@ const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
   }
 }
 
-const handleBack = () => {
-  router.push(ROUTES.Dashboard)
-}
-
-const isSidebarOpen = computed(() => !!route.query.ticket)
-
 const errorMessage = computed(() => {
   if (!error.value) return null
   return error.value instanceof Error ? error.value.message : 'Failed to load project'
@@ -145,57 +142,76 @@ const errorMessage = computed(() => {
 
 <template>
   <div
-    class="flex-1 overflow-y-auto transition-all duration-300 p-4"
-    :class="{ 'pr-2': isSidebarOpen }"
+    class="grow-0 shrink flex flex-col z-1 h-full max-h-full relative"
+    :class="{ 'w-1/2': isSidebarOpen }"
   >
-    <ProjectBackToDashboard v-if="isAuthenticated && hasUserAccess" />
-    <div class="mx-auto">
-      <ProjectMainContentLoader v-if="isLoading" />
-      <ProjectMainContentError v-else-if="isError" :error-message="errorMessage" />
-      <ProjectMainContentAccessDenied v-else-if="project && !hasUserAccess" />
-      <div v-else-if="project && hasUserAccess" class="space-y-6">
-        <ProjectMainContentInfo
-          :project-id="project.id"
-          :project-key="project.key"
-          :name="project.name"
-          :description="project.description"
-          :is-owner="isOwner"
-          :owner-id="project.owner_id"
-        />
+    <div class="contents">
+      <div class="z-1 flex flex-col grow relative overflow-auto transition-all duration-300 py-4">
+        <ProjectBackToDashboard v-if="isAuthenticated && hasUserAccess" />
+        <ProjectMainContentLoader v-if="isLoading" />
+        <ProjectMainContentError v-else-if="isError" :error-message="errorMessage" />
+        <ProjectMainContentAccessDenied v-else-if="project && !hasUserAccess" />
+        <template v-else-if="project && hasUserAccess">
+          <ProjectMainContentInfo
+            :project-id="project.id"
+            :project-key="project.key"
+            :name="project.name"
+            :description="project.description"
+            :is-owner="isOwner"
+            :owner-id="project.owner_id"
+          />
 
-        <Card>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-semibold text-neutral-900">Tickets</h2>
-              <TicketCreateDialog v-if="project" :project-id="project.id" />
+          <Tabs v-model:value="activeTab" default-value="table" class="contents">
+            <div
+              class="ps-24 pe-4"
+              :class="{ 'shrink-0 z-86': isSidebarOpen }"
+              :style="{
+                insetInlineStart: isSidebarOpen ? '0' : 'auto',
+                position: isSidebarOpen ? 'sticky' : 'relative',
+              }"
+            >
+              <div
+                class="w-full flex items-center"
+                :style="{
+                  insetInlineStart: isSidebarOpen ? '96px' : 'auto',
+                }"
+              >
+                <div class="flex items-center justify-between w-full">
+                  <TabsList>
+                    <TabsTrigger value="table">
+                      <TableIcon class="size-4" />
+                      Table
+                    </TabsTrigger>
+                    <TabsTrigger value="board">
+                      <SquareKanban class="size-4" />
+                      Board
+                    </TabsTrigger>
+                  </TabsList>
+                  <TicketCreateDialog v-if="project" :tickets="tickets" :project-id="project.id" />
+                </div>
+              </div>
             </div>
 
-            <Tabs v-model:value="activeTab" default-value="table">
-              <TabsList>
-                <TabsTrigger value="table">Table</TabsTrigger>
-                <TabsTrigger value="board">Board</TabsTrigger>
-              </TabsList>
+            <TabsContent value="table" class="grow shrink-0 flex flex-col relative">
+              <TicketsTable
+                :tickets="tickets"
+                :is-loading="isLoadingTickets"
+                :project-id="projectId"
+                @update:title="handleTableTitleUpdate"
+                @update:status="handleTableStatusUpdate"
+                @update:priority="handleTablePriorityUpdate"
+                @update:type="handleTableTypeUpdate"
+                @reorder="handleReorder"
+              />
+            </TabsContent>
 
-              <TabsContent value="table">
-                <TicketsTable
-                  :tickets="tickets"
-                  :is-loading="isLoadingTickets"
-                  @update:title="handleTableTitleUpdate"
-                  @update:status="handleTableStatusUpdate"
-                  @update:priority="handleTablePriorityUpdate"
-                  @update:type="handleTableTypeUpdate"
-                  @reorder="handleReorder"
-                />
-              </TabsContent>
-
-              <TabsContent value="board">
-                <div class="py-16 text-center">
-                  <p class="text-neutral-600">Board view coming soon...</p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </Card>
+            <TabsContent value="board">
+              <div class="py-16 text-center">
+                <p class="text-neutral-600">Board view coming soon...</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </template>
       </div>
     </div>
   </div>

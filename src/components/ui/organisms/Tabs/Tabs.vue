@@ -6,6 +6,7 @@ interface RootProps {
   defaultValue?: string
   value?: string
   orientation?: 'horizontal' | 'vertical'
+  class?: string
 }
 
 const rootProps = defineProps<RootProps>()
@@ -25,6 +26,7 @@ const tabsValue = computed({
     :value="tabsValue"
     :default-value="defaultValue"
     :orientation="orientation"
+    :class="class"
     @value-change="(e) => (tabsValue = e.value)"
   >
     <slot />

@@ -12,9 +12,10 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, GripVertical, PanelsTopLeft } from 'lucide-vue-next'
+import { Calendar, GripVertical, PanelsTopLeft, Plus, SquareCheck } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import TicketRowSelectableMenu from './TicketRowSelectableMenu.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -26,10 +27,12 @@ interface Props {
   rowIndex?: number
   tickets?: Tables<'tickets'>[]
   bodyGroups?: string[]
+  hoveredDragHandle?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   bodyGroups: () => ['tickets-table-body'],
+  hoveredDragHandle: false,
 })
 
 const emit = defineEmits<{
@@ -38,6 +41,7 @@ const emit = defineEmits<{
   (e: 'update:priority', payload: { ticket: Tables<'tickets'>; value: TicketPriority | null }): void
   (e: 'update:type', payload: { ticket: Tables<'tickets'>; value: TicketType | null }): void
   (e: 'delete', payload: { ticket: Tables<'tickets'> }): void
+  (e: 'update:hovered-drag-handle', payload: boolean): void
 }>()
 
 const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
@@ -78,25 +82,33 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
 <template>
   <tr
     ref="elementRef"
-    class="group border-b border-neutral-100 transform-all hover:bg-neutral-50 transition"
+    class="group border-b flex relative border-neutral-200 transform-all hover:bg-neutral-100 transition h-[37px]"
     :class="{
       'opacity-50': isDragging,
       'border-primary-500': isOvered,
     }"
     @click="showUnauthorizedMessage"
   >
-    <TableCell v-if="isAuthenticated" class="w-10">
-      <GripVertical class="size-4 cursor-move" @pointerdown="handleDragStart" />
-    </TableCell>
-    <TableCell class="relative">
+    <TicketRowSelectableMenu
+      :is-dragging="isDragging"
+      :is-overed="isOvered"
+      :hovered-drag-handle="hoveredDragHandle"
+      :handle-drag-start="handleDragStart"
+      @update:hovered-drag-handle="emit('update:hovered-drag-handle', $event)"
+    />
+
+    <TableCell
+      class="relative p-0! overflow-visible w-[421px] flex justify-center flex-col h-[37px]"
+    >
       <Editable
         :value="ticket.title"
-        :placeholder="`Enter title (current: ${ticket.title || 'empty'})`"
+        placeholder="Enter title"
         :with-controls="false"
         :disabled="!isAuthenticated"
         @value-commit="(e) => emit('update:title', { ticket, value: e.value })"
-        preview-class="inline min-w-[200px] w-full h-7"
-        input-class="relative z-20 h-7"
+        root-class=""
+        preview-class="inline w-full h-full"
+        input-class="relative z-20 h-full"
       />
       <div
         v-if="isAuthenticated"
@@ -115,27 +127,27 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         </Button>
       </div>
     </TableCell>
-    <TableCell>
+    <TableCell class="h-full w-[130px]">
       <TicketStatusSelect
         :value="ticket.status"
         @change="(val) => emit('update:status', { ticket, value: val })"
-        root-class="min-w-[120px]"
+        root-class="max-w-full"
         :disabled="!isAuthenticated"
       />
     </TableCell>
-    <TableCell>
+    <TableCell class="h-full w-[105px]">
       <TicketPrioritySelect
         :value="ticket.priority"
         @change="(val) => emit('update:priority', { ticket, value: val })"
-        root-class="min-w-[120px]"
+        root-class="min-w-full"
         :disabled="!isAuthenticated"
       />
     </TableCell>
-    <TableCell>
+    <TableCell class="h-full w-[150px]">
       <TicketTypeSelect
         :value="ticket.type"
         @change="(val) => emit('update:type', { ticket, value: val })"
-        root-class="min-w-[120px]"
+        root-class="min-w-full"
         :disabled="!isAuthenticated"
       />
     </TableCell>
