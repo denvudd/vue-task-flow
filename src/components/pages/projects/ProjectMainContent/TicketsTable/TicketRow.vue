@@ -12,7 +12,7 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, GripVertical, PanelsTopLeft, Plus, SquareCheck } from 'lucide-vue-next'
+import { Calendar, PanelsTopLeft } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import TicketRowSelectableMenu from './TicketRowSelectableMenu.vue'
@@ -28,10 +28,13 @@ interface Props {
   tickets?: Tables<'tickets'>[]
   bodyGroups?: string[]
   hoveredDragHandle?: boolean
+  selected?: boolean
+  selectedTickets?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   bodyGroups: () => ['tickets-table-body'],
+  selectedTickets: () => [],
   hoveredDragHandle: false,
 })
 
@@ -42,6 +45,7 @@ const emit = defineEmits<{
   (e: 'update:type', payload: { ticket: Tables<'tickets'>; value: TicketType | null }): void
   (e: 'delete', payload: { ticket: Tables<'tickets'> }): void
   (e: 'update:hovered-drag-handle', payload: boolean): void
+  (e: 'update:selected', payload: boolean): void
 }>()
 
 const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
@@ -86,6 +90,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     :class="{
       'opacity-50': isDragging,
       'border-primary-500': isOvered,
+      'bg-primary-50': selected,
     }"
     @click="showUnauthorizedMessage"
   >
@@ -94,7 +99,10 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
       :is-overed="isOvered"
       :hovered-drag-handle="hoveredDragHandle"
       :handle-drag-start="handleDragStart"
+      :selected="selected"
+      :selected-tickets="selectedTickets"
       @update:hovered-drag-handle="emit('update:hovered-drag-handle', $event)"
+      @update:selected="(checked) => emit('update:selected', checked)"
     />
 
     <TableCell

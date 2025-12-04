@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
-import { Table, TableHeader, TableRow, TableHeadCell } from '@/components/ui'
+import { Table, TableHeader, TableRow, TableHeadCell, Checkbox } from '@/components/ui'
 import TicketRow from './TicketRow.vue'
 import QuickCreateTicketButton from './QuickCreateTicketButton.vue'
 import { useDeleteTicket } from '@/composables/useTickets'
@@ -10,6 +10,7 @@ import type { TicketStatus, TicketPriority, TicketType } from '@/constants/ticke
 import { useAuth } from '@/composables/useAuth'
 import { Calendar, CaseSensitive, CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
 import { useProjectContext } from '@/composables/useProjectContext'
+import type { CheckboxCheckedState } from '@ark-ui/vue/checkbox'
 
 interface Props {
   tickets: Tables<'tickets'>[] | null | undefined
@@ -28,6 +29,7 @@ const emit = defineEmits<{
 
 const { isSidebarOpen } = useProjectContext()
 const { mutate: deleteTicket } = useDeleteTicket()
+const { isAuthenticated } = useAuth()
 
 const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
   deleteTicket(payload.ticket.id)
@@ -35,16 +37,31 @@ const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
 
 const hasTickets = computed(() => (props.tickets?.length ?? 0) > 0)
 
+const handleTicketSelection = (ticketId: string, checked: boolean) => {
+  if (checked) {
+    if (!selectedTicketIds.value.includes(ticketId)) {
+      selectedTicketIds.value.push(ticketId)
+    }
+  } else {
+    selectedTicketIds.value = selectedTicketIds.value.filter((id) => id !== ticketId)
+  }
+}
+
 const localTickets = ref<Tables<'tickets'>[]>([])
 const hoveredDragHandle = ref<boolean>(false)
+const selectedTicketIds = ref<string[]>([])
 
 watch(
   () => props.tickets,
   (newTickets) => {
     if (newTickets) {
       localTickets.value = [...newTickets]
+      // Remove selected IDs that no longer exist in the tickets list
+      const ticketIds = new Set(newTickets.map((ticket) => ticket.id))
+      selectedTicketIds.value = selectedTicketIds.value.filter((id) => ticketIds.has(id))
     } else {
       localTickets.value = []
+      selectedTicketIds.value = []
     }
   },
   { immediate: true, deep: true },
@@ -74,6 +91,22 @@ const { elementRef: tableBodyRef } = useDroppable({
     },
   },
 })
+
+const handleSelectAllTickets = (checked: CheckboxCheckedState) => {
+  if (checked) {
+    selectedTicketIds.value = localTickets.value.map((ticket) => ticket.id)
+  } else {
+    selectedTicketIds.value = []
+  }
+}
+
+const handleMouseEnter = () => {
+  hoveredDragHandle.value = true
+}
+
+const handleMouseLeave = () => {
+  hoveredDragHandle.value = false
+}
 </script>
 
 <template>
@@ -81,8 +114,8 @@ const { elementRef: tableBodyRef } = useDroppable({
     <div
       class="z-1 grow shrink-0 h-full"
       :style="{
-        position: isSidebarOpen ? 'sticky' : 'relative',
         insetInlineStart: isSidebarOpen ? '0px' : 'auto',
+        position: isSidebarOpen ? 'sticky' : 'relative',
         width: isSidebarOpen ? 'calc(100vw - 96px)' : '100%',
       }"
     >
@@ -97,7 +130,49 @@ const { elementRef: tableBodyRef } = useDroppable({
 
         <Table v-show="!isLoading && hasTickets" class="mb-1 ps-24">
           <TableHeader>
-            <TableRow :hover="false" class="flex">
+            <TableRow
+              :hover="false"
+              class="group border-b flex relative border-neutral-200 transform-all hover:bg-neutral-100 transition h-[37px]"
+            >
+              <div
+                v-if="isAuthenticated"
+                class="sticky z-85 flex"
+                :style="{ insetInlineStart: '36px' }"
+              >
+                <div class="opacity-100 transition-opacity">
+                  <div class="absolute top-0.5" :style="{ insetInlineStart: '-36px' }">
+                    <div
+                      class="h-full opacity-0 group-hover:opacity-100 transition-opacity border-b border-transparent"
+                      :class="
+                        hoveredDragHandle || !!selectedTicketIds?.length
+                          ? 'opacity-100 bg-neutral-100 data-[part=control]:border-primary-600!'
+                          : ''
+                      "
+                      @mouseenter="handleMouseEnter"
+                      @mouseleave="handleMouseLeave"
+                    >
+                      <div class="h-full">
+                        <div class="h-full flex items-center justify-center cursor-pointer z-1">
+                          <div class="size-9 flex items-center justify-center">
+                            <!-- Select All Tickets Checkbox -->
+                            <Checkbox
+                              :checked="selectedTicketIds.length > 0"
+                              @update:checked="handleSelectAllTickets"
+                              :indeterminate="
+                                selectedTicketIds.length > 0 &&
+                                selectedTicketIds.length < localTickets.length
+                              "
+                              control-class="size-4 group-hover:border-primary-600!"
+                              @click.stop
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <TableHeadCell class="w-[421px] px-2">
                 <div class="flex items-center gap-1.5">
                   <CaseSensitive class="size-3.5" />
@@ -140,7 +215,10 @@ const { elementRef: tableBodyRef } = useDroppable({
                 :row-index="index"
                 :tickets="localTickets"
                 :hovered-drag-handle="hoveredDragHandle"
+                :selected="selectedTicketIds.includes(ticket.id)"
+                :selected-tickets="selectedTicketIds"
                 @update:hovered-drag-handle="hoveredDragHandle = $event"
+                @update:selected="(checked) => handleTicketSelection(ticket.id, checked)"
                 @update:title="(payload) => emit('update:title', payload)"
                 @update:status="(payload) => emit('update:status', payload)"
                 @update:priority="(payload) => emit('update:priority', payload)"

@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui'
-import { SquareCheck, GripVertical, Plus } from 'lucide-vue-next'
+import { Button, Checkbox } from '@/components/ui'
+import { GripVertical, Plus } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
+import type { CheckboxCheckedState } from '@ark-ui/vue/checkbox'
 
 interface Props {
   hoveredDragHandle: boolean
   isDragging: boolean
   isOvered: boolean
   handleDragStart: (event: PointerEvent | KeyboardEvent) => void
+  selected?: boolean
+  selectedTickets?: string[]
 }
 
 const props = defineProps<Props>()
@@ -16,6 +19,7 @@ const { isAuthenticated } = useAuth()
 
 const emit = defineEmits<{
   (e: 'update:hovered-drag-handle', payload: boolean): void
+  (e: 'update:selected', payload: boolean): void
 }>()
 
 const handleMouseEnter = () => {
@@ -25,21 +29,38 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   emit('update:hovered-drag-handle', false)
 }
+
+const handleSelectionChange = (checked: CheckboxCheckedState) => {
+  emit('update:selected', checked === true)
+}
 </script>
 
 <template>
   <div v-if="isAuthenticated" class="sticky z-85 flex" :style="{ insetInlineStart: '36px' }">
     <div class="opacity-100 transition-opacity">
-      <div class="absolute top-1.5" :style="{ insetInlineStart: '-30px' }">
+      <div class="absolute top-0.5" :style="{ insetInlineStart: '-36px' }">
         <div
-          class="transition-opacity"
-          :class="hoveredDragHandle ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+          class="h-full opacity-0 group-hover:opacity-100 transition-opacity border-b border-transparent"
+          :class="
+            hoveredDragHandle || !!selectedTickets?.length
+              ? 'opacity-100 bg-neutral-100 data-[part=control]:border-primary-600!'
+              : ''
+          "
           @mouseenter="handleMouseEnter"
           @mouseleave="handleMouseLeave"
         >
-          <Button variant="ghost" size="icon" @pointerdown="handleDragStart" class="p-1!">
-            <SquareCheck class="size-4" />
-          </Button>
+          <div class="h-full">
+            <div class="h-full flex items-center justify-center cursor-pointer z-1">
+              <div class="size-9 flex items-center justify-center">
+                <Checkbox
+                  :checked="selected"
+                  @update:checked="handleSelectionChange"
+                  control-class="size-4 group-hover:border-primary-600!"
+                  @click.stop
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -47,7 +68,7 @@ const handleMouseLeave = () => {
 
   <div v-if="isAuthenticated" class="absolute z-85 flex left-0">
     <div class="opacity-100 transition-opacity">
-      <div class="absolute top-1.5" :style="{ insetInlineStart: '-50px' }">
+      <div class="absolute top-2" :style="{ insetInlineStart: '-56px' }">
         <div class="transition-opacity opacity-0 group-hover:opacity-100">
           <Button
             variant="ghost"
@@ -65,7 +86,7 @@ const handleMouseLeave = () => {
 
   <div v-if="isAuthenticated" class="absolute z-85 flex left-0">
     <div class="opacity-100 transition-opacity">
-      <div class="absolute top-1.5" :style="{ insetInlineStart: '-70px' }">
+      <div class="absolute top-2" :style="{ insetInlineStart: '-76px' }">
         <div class="transition-opacity opacity-0 group-hover:opacity-100">
           <Button
             variant="ghost"
