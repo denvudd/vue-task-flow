@@ -13,7 +13,7 @@ const mainClass = computed(() => {
 
 <template>
   <div class="min-h-screen bg-neutral-50">
-    <AppHeader />
+    <AppHeader v-if="!route.meta.withoutHeader" />
 
     <main :class="mainClass">
       <router-view />

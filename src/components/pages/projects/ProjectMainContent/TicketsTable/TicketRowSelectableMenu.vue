@@ -3,23 +3,30 @@ import { Button, Checkbox } from '@/components/ui'
 import { GripVertical, Plus } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import type { CheckboxCheckedState } from '@ark-ui/vue/checkbox'
+import { useProjectContext } from '@/composables/useProjectContext'
 
 interface Props {
+  ticketId: string
   hoveredDragHandle: boolean
   isDragging: boolean
   isOvered: boolean
   handleDragStart: (event: PointerEvent | KeyboardEvent) => void
-  selected?: boolean
-  selectedTickets?: string[]
 }
 
 const props = defineProps<Props>()
 
 const { isAuthenticated } = useAuth()
+const {
+  selectedTicketIds,
+  selectTicket,
+  deselectTicket,
+  selectAllTickets,
+  clearSelection,
+  cleanupSelection,
+} = useProjectContext()
 
 const emit = defineEmits<{
   (e: 'update:hovered-drag-handle', payload: boolean): void
-  (e: 'update:selected', payload: boolean): void
 }>()
 
 const handleMouseEnter = () => {
@@ -31,7 +38,11 @@ const handleMouseLeave = () => {
 }
 
 const handleSelectionChange = (checked: CheckboxCheckedState) => {
-  emit('update:selected', checked === true)
+  if (checked) {
+    selectTicket(props.ticketId)
+  } else {
+    deselectTicket(props.ticketId)
+  }
 }
 </script>
 
@@ -42,7 +53,7 @@ const handleSelectionChange = (checked: CheckboxCheckedState) => {
         <div
           class="h-full opacity-0 group-hover:opacity-100 transition-opacity border-b border-transparent"
           :class="
-            hoveredDragHandle || !!selectedTickets?.length
+            hoveredDragHandle || !!selectedTicketIds?.length
               ? 'opacity-100 bg-neutral-100 data-[part=control]:border-primary-600!'
               : ''
           "
@@ -53,7 +64,7 @@ const handleSelectionChange = (checked: CheckboxCheckedState) => {
             <div class="h-full flex items-center justify-center cursor-pointer z-1">
               <div class="size-9 flex items-center justify-center">
                 <Checkbox
-                  :checked="selected"
+                  :checked="selectedTicketIds.includes(ticketId)"
                   @update:checked="handleSelectionChange"
                   control-class="size-4 group-hover:border-primary-600!"
                   @click.stop

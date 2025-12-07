@@ -62,8 +62,8 @@ const handleQuickCreateTicket = async () => {
   <div class="flex">
     <div
       v-if="isAuthenticated"
-      class="ps-24 pe-4"
-      :class="{ 'shrink-0 z-86': isSidebarOpen }"
+      class="px-24"
+      :class="{ 'shrink-0 z-86 pe-4': isSidebarOpen }"
       :style="{
         insetInlineStart: isSidebarOpen ? '0' : 'auto',
         position: isSidebarOpen ? 'sticky' : 'relative',

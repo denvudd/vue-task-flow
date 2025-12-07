@@ -40,26 +40,78 @@ export const ticketKeys = {
 }
 
 /**
- * Hook to fetch tickets for a project using Supabase Realtime
+ * Hook to fetch tickets for a project using Supabase Realtime with pagination support
  */
-export function useProjectTickets(projectId: MaybeRef<string | undefined>) {
+export function useProjectTickets(
+  projectId: MaybeRef<string | undefined>,
+  options?: { pageSize?: number },
+) {
+  const pageSize = options?.pageSize ?? 50
+
   const tickets = ref<Tables<'tickets'>[]>([])
   const isLoading = ref(true)
+  const isLoadingMore = ref(false)
   const error = ref<Error | null>(null)
+  const totalCount = ref<number | null>(null)
+  const loadedCount = ref(0)
+  const hasMore = computed(() => {
+    if (totalCount.value === null) return true
+    return loadedCount.value < totalCount.value
+  })
+
   let channel: ReturnType<typeof supabase.channel> | null = null
 
   const loadInitialTickets = async (id: string) => {
     try {
       isLoading.value = true
       error.value = null
-      const { data, error: fetchError } = await getProjectTickets(id)
+      loadedCount.value = 0
+
+      const { data, error: fetchError, count } = await getProjectTickets(id, {
+        from: 0,
+        to: pageSize - 1,
+      })
       if (fetchError) throw fetchError
       tickets.value = data || []
+      totalCount.value = count ?? null
+      loadedCount.value = data?.length ?? 0
     } catch (err) {
       error.value = err instanceof Error ? err : new Error('Failed to load tickets')
       console.error('Error loading tickets:', err)
     } finally {
       isLoading.value = false
+    }
+  }
+
+  const loadMore = async () => {
+    const id = unref(projectId)
+    if (!id || isLoadingMore.value || !hasMore.value) return
+
+    try {
+      isLoadingMore.value = true
+      const from = loadedCount.value
+      const to = from + pageSize - 1
+
+      const { data, error: fetchError } = await getProjectTickets(id, { from, to })
+      if (fetchError) throw fetchError
+
+      if (data && data.length > 0) {
+        // Merge new tickets while maintaining order
+        const existingIds = new Set(tickets.value.map((t) => t.id))
+        const newTickets = data.filter((t) => !existingIds.has(t.id))
+        tickets.value = [...tickets.value, ...newTickets].sort(
+          (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
+        )
+        loadedCount.value += newTickets.length
+      } else {
+        // No more tickets
+        totalCount.value = loadedCount.value
+      }
+    } catch (err) {
+      console.error('Error loading more tickets:', err)
+      error.value = err instanceof Error ? err : new Error('Failed to load more tickets')
+    } finally {
+      isLoadingMore.value = false
     }
   }
 
@@ -85,27 +137,41 @@ export function useProjectTickets(projectId: MaybeRef<string | undefined>) {
 
           console.log(`[Realtime] Received INSERT event for ticket:`, ticketId)
 
+          // Check if ticket already exists
+          const existingIndex = tickets.value.findIndex((t) => t.id === ticketId)
+          if (existingIndex !== -1) {
+            console.log(`[Realtime] Ticket ${ticketId} already exists, skipping`)
+            return
+          }
+
           try {
-            const { data: fullTicket } = await getProjectTickets(id)
-            if (fullTicket) {
-              const insertedTicket = fullTicket.find((t) => t.id === newTicket.id)
-              if (insertedTicket) {
-                tickets.value = [...tickets.value, insertedTicket].sort(
-                  (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
-                )
-                console.log(`[Realtime] Added new ticket ${newTicket.id} to list`)
-              } else {
-                tickets.value = [...tickets.value, newTicket].sort(
-                  (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
-                )
-                console.log(`[Realtime] Added new ticket ${newTicket.id} (without relations)`)
-              }
+            // Try to fetch full ticket data with relations
+            // Fetch a small range to get the ticket with relations
+            const { data: fullTicket } = await getProjectTickets(id, {
+              from: 0,
+              to: 0,
+            })
+            // If pagination doesn't work, try to get single ticket
+            // For now, just add the ticket with basic data
+            const ticketToAdd = newTicket
+            tickets.value = [...tickets.value, ticketToAdd].sort(
+              (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
+            )
+            loadedCount.value += 1
+            if (totalCount.value !== null) {
+              totalCount.value += 1
             }
+            console.log(`[Realtime] Added new ticket ${newTicket.id} to list`)
           } catch (err) {
             console.error('[Realtime] Error fetching full ticket data:', err)
+            // Fallback: add ticket without relations
             tickets.value = [...tickets.value, newTicket].sort(
               (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
             )
+            loadedCount.value += 1
+            if (totalCount.value !== null) {
+              totalCount.value += 1
+            }
           }
         },
       )
@@ -136,8 +202,11 @@ export function useProjectTickets(projectId: MaybeRef<string | undefined>) {
             )
             console.log(`[Realtime] Updated ticket ${updatedTicket.id} in list`)
           } else {
-            console.log(`[Realtime] Ticket ${updatedTicket.id} not found in list, reloading...`)
-            await loadInitialTickets(id)
+            // Ticket not in current loaded list, but might be in unloaded pages
+            // Don't reload everything, just log it
+            console.log(
+              `[Realtime] Ticket ${updatedTicket.id} not found in loaded list (might be in unloaded pages)`,
+            )
           }
         },
       )
@@ -212,7 +281,11 @@ export function useProjectTickets(projectId: MaybeRef<string | undefined>) {
   return {
     data: computed(() => tickets.value),
     isLoading: computed(() => isLoading.value),
+    isLoadingMore: computed(() => isLoadingMore.value),
     error: computed(() => error.value),
+    hasMore: computed(() => hasMore.value),
+    totalCount: computed(() => totalCount.value),
+    loadMore,
     refetch: async () => {
       const id = unref(projectId)
       if (id) {

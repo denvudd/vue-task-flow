@@ -159,28 +159,28 @@ watch(
 </script>
 
 <template>
-  <div class="min-h-screen bg-neutral-50 flex flex-col">
-    <div class="overflow-hidden pb-8">
-      <ProjectMainContent />
-      <Transition
-        enter-active-class="transition-all duration-150 ease-out"
-        enter-from-class="translate-x-full opacity-0"
-        enter-to-class="translate-x-0 opacity-100"
-        leave-active-class="transition-all duration-150 ease-in"
-        leave-from-class="translate-x-0 opacity-100"
-        leave-to-class="translate-x-full opacity-0"
-      >
-        <div
-          v-if="isSidebarOpen && currentTicketId"
-          class="w-1/2 border-l border-neutral-200 bg-white overflow-hidden flex flex-col absolute top-0 right-0 bottom-0 z-109"
+  <div class="h-screen overflow-hidden">
+    <div class="h-full w-screen flex flex-col grow shrink-0">
+        <ProjectMainContent />
+        <Transition
+          enter-active-class="transition-all duration-150 ease-out"
+          enter-from-class="translate-x-full opacity-0"
+          enter-to-class="translate-x-0 opacity-100"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="translate-x-0 opacity-100"
+          leave-to-class="translate-x-full opacity-0"
         >
-          <TicketDetailsSidebar
-            :ticket-id="currentTicketId"
-            :project-id="projectId"
-            @close="closeSidebar"
-          />
-        </div>
-      </Transition>
+          <div
+            v-if="isSidebarOpen && currentTicketId"
+            class="w-1/2 border-l border-neutral-200 bg-white overflow-hidden flex flex-col absolute top-0 right-0 bottom-0 z-109"
+          >
+            <TicketDetailsSidebar
+              :ticket-id="currentTicketId"
+              :project-id="projectId"
+              @close="closeSidebar"
+            />
+          </div>
+        </Transition>
     </div>
   </div>
 </template>

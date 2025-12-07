@@ -21,6 +21,7 @@
     "@hocuspocus/provider": "^3.4.0",
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/vue-query": "^5.90.5",
+    "@tanstack/vue-virtual": "^3.13.12",
     "@tiptap/extension-bubble-menu": "^3.11.0",
     "@tiptap/extension-collaboration": "^3.11.0",
     "@tiptap/extension-collaboration-caret": "^3.11.0",

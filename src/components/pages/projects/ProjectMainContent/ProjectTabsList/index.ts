@@ -1,0 +1,1 @@
+export { default as ProjectTabsList } from './ProjectTabsList.vue'

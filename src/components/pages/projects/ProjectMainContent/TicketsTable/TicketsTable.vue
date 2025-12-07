@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { useVirtualizer } from '@tanstack/vue-virtual'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell, Checkbox } from '@/components/ui'
 import TicketRow from './TicketRow.vue'
 import QuickCreateTicketButton from './QuickCreateTicketButton.vue'
 import { useDeleteTicket } from '@/composables/useTickets'
 import type { Tables } from '@/types/supabase'
-import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
 import { useAuth } from '@/composables/useAuth'
 import { Calendar, CaseSensitive, CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
 import { useProjectContext } from '@/composables/useProjectContext'
@@ -15,19 +15,19 @@ import type { CheckboxCheckedState } from '@ark-ui/vue/checkbox'
 interface Props {
   tickets: Tables<'tickets'>[] | null | undefined
   isLoading: boolean
+  isLoadingMore?: boolean
+  hasMore?: boolean
+  loadMore?: () => Promise<void>
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'update:title', payload: { ticket: Tables<'tickets'>; value: string }): void
-  (e: 'update:status', payload: { ticket: Tables<'tickets'>; value: TicketStatus | null }): void
-  (e: 'update:priority', payload: { ticket: Tables<'tickets'>; value: TicketPriority | null }): void
-  (e: 'update:type', payload: { ticket: Tables<'tickets'>; value: TicketType | null }): void
   (e: 'reorder', payload: { tickets: Tables<'tickets'>[] }): void
 }>()
 
-const { isSidebarOpen } = useProjectContext()
+const { isSidebarOpen, selectedTicketIds, selectAllTickets, clearSelection, cleanupSelection } =
+  useProjectContext()
 const { mutate: deleteTicket } = useDeleteTicket()
 const { isAuthenticated } = useAuth()
 
@@ -37,19 +37,8 @@ const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
 
 const hasTickets = computed(() => (props.tickets?.length ?? 0) > 0)
 
-const handleTicketSelection = (ticketId: string, checked: boolean) => {
-  if (checked) {
-    if (!selectedTicketIds.value.includes(ticketId)) {
-      selectedTicketIds.value.push(ticketId)
-    }
-  } else {
-    selectedTicketIds.value = selectedTicketIds.value.filter((id) => id !== ticketId)
-  }
-}
-
 const localTickets = ref<Tables<'tickets'>[]>([])
 const hoveredDragHandle = ref<boolean>(false)
-const selectedTicketIds = ref<string[]>([])
 
 watch(
   () => props.tickets,
@@ -57,11 +46,10 @@ watch(
     if (newTickets) {
       localTickets.value = [...newTickets]
       // Remove selected IDs that no longer exist in the tickets list
-      const ticketIds = new Set(newTickets.map((ticket) => ticket.id))
-      selectedTicketIds.value = selectedTicketIds.value.filter((id) => ticketIds.has(id))
+      const ticketIds = newTickets.map((ticket) => ticket.id)
+      cleanupSelection(ticketIds)
     } else {
       localTickets.value = []
-      selectedTicketIds.value = []
     }
   },
   { immediate: true, deep: true },
@@ -94,9 +82,10 @@ const { elementRef: tableBodyRef } = useDroppable({
 
 const handleSelectAllTickets = (checked: CheckboxCheckedState) => {
   if (checked) {
-    selectedTicketIds.value = localTickets.value.map((ticket) => ticket.id)
+    const ticketIds = localTickets.value.map((ticket) => ticket.id)
+    selectAllTickets(ticketIds)
   } else {
-    selectedTicketIds.value = []
+    clearSelection()
   }
 }
 
@@ -107,6 +96,55 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   hoveredDragHandle.value = false
 }
+
+// Virtualization setup
+const scrollContainerRef = ref<HTMLElement | null>(null)
+const rowHeight = 37 // Height of each row in pixels
+
+const virtualizerOptions = computed(() => ({
+  count: localTickets.value.length,
+  getScrollElement: () => scrollContainerRef.value,
+  estimateSize: () => rowHeight,
+  overscan: 5,
+}))
+
+const virtualizer = useVirtualizer(virtualizerOptions)
+
+// Computed properties for template
+const virtualItems = computed(() => virtualizer.value.getVirtualItems())
+const totalSize = computed(() => virtualizer.value.getTotalSize())
+
+// Infinite scroll handler
+const handleScroll = () => {
+  if (!props.hasMore || props.isLoadingMore || !props.loadMore) return
+
+  const items = virtualItems.value
+  if (items.length === 0) return
+
+  const lastItem = items[items.length - 1]
+  if (!lastItem) return
+
+  const isNearBottom = lastItem.index >= localTickets.value.length - 5
+
+  if (isNearBottom) {
+    props.loadMore()
+  }
+}
+
+// Watch for scroll events
+onMounted(() => {
+  const container = scrollContainerRef.value
+  if (container) {
+    container.addEventListener('scroll', handleScroll, { passive: true })
+  }
+})
+
+onUnmounted(() => {
+  const container = scrollContainerRef.value
+  if (container) {
+    container.removeEventListener('scroll', handleScroll)
+  }
+})
 </script>
 
 <template>
@@ -119,7 +157,12 @@ const handleMouseLeave = () => {
         width: isSidebarOpen ? 'calc(100vw - 96px)' : '100%',
       }"
     >
-      <div class="relative flex flex-col min-w-full pb-[180px] mt-1">
+      <!-- TODO: fix sticky and overflow conflict -->
+      <div
+        ref="scrollContainerRef"
+        class="relative flex flex-col min-w-full overflow-auto"
+        style="height: calc(100vh - 200px)"
+      >
         <div v-if="isLoading" class="flex justify-center items-center py-16">
           <div class="text-neutral-600">Loading tickets...</div>
         </div>
@@ -128,106 +171,118 @@ const handleMouseLeave = () => {
           <p class="text-neutral-600">No tickets yet. Create your first ticket!</p>
         </div>
 
-        <Table v-show="!isLoading && hasTickets" class="mb-1 ps-24">
-          <TableHeader>
-            <TableRow
-              :hover="false"
-              class="group border-b flex relative border-neutral-200 transform-all hover:bg-neutral-100 transition h-[37px]"
-            >
-              <div
-                v-if="isAuthenticated"
-                class="sticky z-85 flex"
-                :style="{ insetInlineStart: '36px' }"
+        <div v-show="!isLoading && hasTickets" class="relative">
+          <Table class="mb-1 px-24" :class="{ 'pe-4': isSidebarOpen }">
+            <TableHeader class="sticky top-0 z-10">
+              <TableRow
+                :hover="false"
+                class="group border-b flex relative border-neutral-200 transform-all hover:bg-neutral-100 transition h-[37px]"
               >
-                <div class="opacity-100 transition-opacity">
-                  <div class="absolute top-0.5" :style="{ insetInlineStart: '-36px' }">
-                    <div
-                      class="h-full opacity-0 group-hover:opacity-100 transition-opacity border-b border-transparent"
-                      :class="
-                        hoveredDragHandle || !!selectedTicketIds?.length
-                          ? 'opacity-100 bg-neutral-100 data-[part=control]:border-primary-600!'
-                          : ''
-                      "
-                      @mouseenter="handleMouseEnter"
-                      @mouseleave="handleMouseLeave"
-                    >
-                      <div class="h-full">
-                        <div class="h-full flex items-center justify-center cursor-pointer z-1">
-                          <div class="size-9 flex items-center justify-center">
-                            <!-- Select All Tickets Checkbox -->
-                            <Checkbox
-                              :checked="selectedTicketIds.length > 0"
-                              @update:checked="handleSelectAllTickets"
-                              :indeterminate="
-                                selectedTicketIds.length > 0 &&
-                                selectedTicketIds.length < localTickets.length
-                              "
-                              control-class="size-4 group-hover:border-primary-600!"
-                              @click.stop
-                            />
+                <div
+                  v-if="isAuthenticated"
+                  class="sticky z-85 flex"
+                  :style="{ insetInlineStart: '36px' }"
+                >
+                  <div class="opacity-100 transition-opacity">
+                    <div class="absolute top-0.5" :style="{ insetInlineStart: '-36px' }">
+                      <div
+                        class="h-full opacity-0 group-hover:opacity-100 transition-opacity border-b border-transparent"
+                        :class="
+                          hoveredDragHandle || !!selectedTicketIds?.length
+                            ? 'opacity-100 bg-neutral-100 data-[part=control]:border-primary-600!'
+                            : ''
+                        "
+                        @mouseenter="handleMouseEnter"
+                        @mouseleave="handleMouseLeave"
+                      >
+                        <div class="h-full">
+                          <div class="h-full flex items-center justify-center cursor-pointer z-1">
+                            <div class="size-9 flex items-center justify-center">
+                              <!-- Select All Tickets Checkbox -->
+                              <Checkbox
+                                :checked="selectedTicketIds.length > 0"
+                                @update:checked="handleSelectAllTickets"
+                                :indeterminate="
+                                  selectedTicketIds.length > 0 &&
+                                  selectedTicketIds.length < localTickets.length
+                                "
+                                control-class="size-4 group-hover:border-primary-600!"
+                                @click.stop
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <TableHeadCell class="w-[421px] px-2">
-                <div class="flex items-center gap-1.5">
-                  <CaseSensitive class="size-3.5" />
-                  Title
-                </div>
-              </TableHeadCell>
-              <TableHeadCell class="w-[130px] px-2">
-                <div class="flex items-center gap-1.5">
-                  <Loader class="size-3.5" />
-                  Status
-                </div>
-              </TableHeadCell>
-              <TableHeadCell class="w-[105px] px-2">
-                <div class="flex items-center gap-1.5">
-                  <CircleChevronDown class="size-3.5" />
-                  Priority
-                </div>
-              </TableHeadCell>
-              <TableHeadCell class="w-[150px] px-2">
-                <div class="flex items-center gap-1.5">
-                  <Flag class="size-3.5" />
-                  Type
-                </div>
-              </TableHeadCell>
-              <TableHeadCell>
-                <div class="flex items-center gap-1.5">
-                  <Calendar class="size-3.5" />
-                  Due Date
-                </div>
-              </TableHeadCell>
-            </TableRow>
-          </TableHeader>
+                <TableHeadCell class="w-[421px] px-2">
+                  <div class="flex items-center gap-1.5">
+                    <CaseSensitive class="size-3.5" />
+                    Task name
+                  </div>
+                </TableHeadCell>
+                <TableHeadCell class="w-[130px] px-2">
+                  <div class="flex items-center gap-1.5">
+                    <Loader class="size-3.5" />
+                    Status
+                  </div>
+                </TableHeadCell>
+                <TableHeadCell class="w-[105px] px-2">
+                  <div class="flex items-center gap-1.5">
+                    <CircleChevronDown class="size-3.5" />
+                    Priority
+                  </div>
+                </TableHeadCell>
+                <TableHeadCell class="w-[150px] px-2">
+                  <div class="flex items-center gap-1.5">
+                    <Flag class="size-3.5" />
+                    Type
+                  </div>
+                </TableHeadCell>
+                <TableHeadCell>
+                  <div class="flex items-center gap-1.5">
+                    <Calendar class="size-3.5" />
+                    Due Date
+                  </div>
+                </TableHeadCell>
+              </TableRow>
+            </TableHeader>
 
-          <tbody ref="tableBodyRef" class="divide-y divide-neutral-100">
-            <TransitionGroup>
+            <tbody
+              ref="tableBodyRef"
+              class="divide-y divide-neutral-100 relative"
+              :style="{
+                height: `${totalSize}px`,
+              }"
+            >
               <TicketRow
-                v-for="(ticket, index) in localTickets"
-                :key="ticket.id"
-                :ticket="ticket"
-                :row-index="index"
+                v-for="virtualRow in virtualItems"
+                :key="localTickets[virtualRow.index]?.id || String(virtualRow.key)"
+                :ticket="localTickets[virtualRow.index]!"
+                :row-index="virtualRow.index"
                 :tickets="localTickets"
                 :hovered-drag-handle="hoveredDragHandle"
-                :selected="selectedTicketIds.includes(ticket.id)"
-                :selected-tickets="selectedTicketIds"
+                :style="{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }"
                 @update:hovered-drag-handle="hoveredDragHandle = $event"
-                @update:selected="(checked) => handleTicketSelection(ticket.id, checked)"
-                @update:title="(payload) => emit('update:title', payload)"
-                @update:status="(payload) => emit('update:status', payload)"
-                @update:priority="(payload) => emit('update:priority', payload)"
-                @update:type="(payload) => emit('update:type', payload)"
                 @delete="handleDelete"
               />
-            </TransitionGroup>
-          </tbody>
-        </Table>
+            </tbody>
+          </Table>
+
+          <!-- Loading more indicator -->
+          <div v-if="isLoadingMore" class="flex justify-center items-center py-4 text-neutral-600">
+            Loading more tickets...
+          </div>
+        </div>
         <QuickCreateTicketButton v-if="!isLoading && hasTickets" :tickets="localTickets" />
       </div>
     </div>

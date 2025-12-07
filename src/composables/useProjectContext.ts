@@ -11,8 +11,19 @@ import { PROJECT_VISIBILITIES } from '@/constants/projects'
  */
 export function useProjectContext() {
   const projectContextStore = useProjectContextStore()
-  const { currentProjectId, isSidebarOpen } = storeToRefs(projectContextStore)
-  const { setProject, clearProject, openSidebar, closeSidebar } = projectContextStore
+  const { currentProjectId, isSidebarOpen, selectedTicketIds } = storeToRefs(projectContextStore)
+  const {
+    setProject,
+    clearProject,
+    openSidebar,
+    closeSidebar,
+    selectTicket,
+    deselectTicket,
+    toggleTicket,
+    selectAllTickets,
+    clearSelection,
+    cleanupSelection,
+  } = projectContextStore
 
   const { user } = useAuth()
   const projectQuery = useProject(currentProjectId)
@@ -69,6 +80,7 @@ export function useProjectContext() {
   return {
     currentProjectId,
     isSidebarOpen,
+    selectedTicketIds,
     project,
     isLoading,
     isError,
@@ -82,5 +94,11 @@ export function useProjectContext() {
     setProject,
     clearProject,
     refetch: projectQuery.refetch,
+    selectTicket,
+    deselectTicket,
+    toggleTicket,
+    selectAllTickets,
+    clearSelection,
+    cleanupSelection,
   }
 }

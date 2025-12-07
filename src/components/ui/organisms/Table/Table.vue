@@ -6,7 +6,7 @@ type Density = 'default' | 'comfortable' | 'compact'
 interface Props {
   density?: Density
   stickyHeader?: boolean
-  class?: string
+  class?: string | Record<string, boolean>
 }
 
 defineOptions({ inheritAttrs: false })

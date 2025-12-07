@@ -31,7 +31,7 @@ const router = createRouter({
         {
           path: '/projects/:id',
           name: 'Project',
-          meta: { requiresAuth: false, fullWidth: true },
+          meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
           component: () => import('@/pages/app/projects/view/ProjectView.vue'),
         },
       ],

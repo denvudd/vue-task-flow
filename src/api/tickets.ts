@@ -5,14 +5,25 @@ export type TicketInsert = TablesInsert<'tickets'>
 export type TicketUpdate = TablesUpdate<'tickets'>
 
 /**
- * Get all tickets for a project
+ * Get paginated tickets for a project
  */
-export async function getProjectTickets(projectId: string) {
-  return await supabase
+export async function getProjectTickets(
+  projectId: string,
+  options?: { from?: number; to?: number },
+) {
+  let query = supabase
     .from('tickets')
-    .select('*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*)')
+    .select('*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*)', {
+      count: 'exact',
+    })
     .eq('project_id', projectId)
     .order('order_index', { ascending: true })
+
+  if (options?.from !== undefined && options?.to !== undefined) {
+    query = query.range(options.from, options.to)
+  }
+
+  return await query
 }
 
 /**

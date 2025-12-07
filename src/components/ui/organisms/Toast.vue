@@ -68,14 +68,15 @@ const getToastIcon = (type?: string) => {
     <ArkToaster :toaster="toaster" class="fixed z-50 pointer-events-none" v-slot="toast">
       <ArkToast.Root
         :class="[
-          'group relative flex w-full items-start gap-3 rounded-xl border p-4 shadow-lg transition-all pointer-events-auto min-w-[320px] max-w-md',
+          'group relative flex w-full items-start gap-3 rounded-md border p-2 shadow-lg transition-all pointer-events-auto max-w-md',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4 data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           getToastTypeStyles(toast.type).bg,
           getToastTypeStyles(toast.type).border,
         ]"
       >
         <component
           :is="getToastIcon(toast.type)"
-          :class="['h-5 w-5 flex-shrink-0 mt-0.5', getToastTypeStyles(toast.type).icon]"
+          :class="['h-5 w-5 shrink-0 mt-0.5', getToastTypeStyles(toast.type).icon]"
         />
         <div class="flex-1 min-w-0">
           <ArkToast.Title
@@ -86,13 +87,13 @@ const getToastIcon = (type?: string) => {
           </ArkToast.Title>
           <ArkToast.Description
             v-if="toast.description"
-            :class="['text-sm', getToastTypeStyles(toast.type).description]"
+            :class="['text-xs font-medium', getToastTypeStyles(toast.type).description]"
           >
             {{ toast.description }}
           </ArkToast.Description>
         </div>
         <ArkToast.CloseTrigger as-child>
-          <Button variant="ghost" size="sm" class="flex-shrink-0">
+          <Button variant="ghost" size="icon" class="shrink-0">
             <X class="w-4 h-4" />
           </Button>
         </ArkToast.CloseTrigger>
@@ -100,36 +101,3 @@ const getToastIcon = (type?: string) => {
     </ArkToaster>
   </Teleport>
 </template>
-
-<style scoped>
-/* Toast animations */
-[data-scope='toast'][data-part='root'][data-state='open'] {
-  animation: toast-slide-in 0.3s ease-out;
-}
-
-[data-scope='toast'][data-part='root'][data-state='closed'] {
-  animation: toast-slide-out 0.2s ease-in;
-}
-
-@keyframes toast-slide-in {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes toast-slide-out {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
-</style>

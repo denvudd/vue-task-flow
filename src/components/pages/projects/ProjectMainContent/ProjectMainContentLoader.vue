@@ -13,7 +13,7 @@ import {
 
 <template>
   <div class="space-y-6 px-24">
-    <Card>
+    <div>
       <div class="space-y-6">
         <div class="flex flex-col">
           <div class="space-y-2 w-full">
@@ -34,9 +34,9 @@ import {
           </div>
         </div>
       </div>
-    </Card>
+    </div>
 
-    <Card>
+    <div>
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-neutral-900">Tickets</h2>
@@ -44,7 +44,7 @@ import {
         </div>
 
         <div
-          class="inline-flex items-center gap-1 border-b border-neutral-200 bg-white relative w-full"
+          class="inline-flex items-center gap-1 border-b border-neutral-200 relative w-full"
         >
           <div class="px-4 py-2">
             <Skeleton class="w-10 h-4" />
@@ -97,6 +97,6 @@ import {
           </Table>
         </div>
       </div>
-    </Card>
+    </div>
   </div>
 </template>

@@ -15,12 +15,17 @@ import type { TicketStatus, TicketPriority, TicketType } from '@/constants/ticke
 import { Calendar, PanelsTopLeft } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import { useUpdateTicket } from '@/composables/useTickets'
 import TicketRowSelectableMenu from './TicketRowSelectableMenu.vue'
+import { useProjectContext } from '@/composables/useProjectContext'
 
 const route = useRoute()
 const router = useRouter()
+
 const { isAuthenticated } = useAuth()
 const { createToast } = useToast()
+const { selectedTicketIds } = useProjectContext()
+const { mutateAsync: updateTicket } = useUpdateTicket()
 
 interface Props {
   ticket: Tables<'tickets'>
@@ -28,24 +33,16 @@ interface Props {
   tickets?: Tables<'tickets'>[]
   bodyGroups?: string[]
   hoveredDragHandle?: boolean
-  selected?: boolean
-  selectedTickets?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   bodyGroups: () => ['tickets-table-body'],
-  selectedTickets: () => [],
   hoveredDragHandle: false,
 })
 
 const emit = defineEmits<{
-  (e: 'update:title', payload: { ticket: Tables<'tickets'>; value: string }): void
-  (e: 'update:status', payload: { ticket: Tables<'tickets'>; value: TicketStatus | null }): void
-  (e: 'update:priority', payload: { ticket: Tables<'tickets'>; value: TicketPriority | null }): void
-  (e: 'update:type', payload: { ticket: Tables<'tickets'>; value: TicketType | null }): void
   (e: 'delete', payload: { ticket: Tables<'tickets'> }): void
   (e: 'update:hovered-drag-handle', payload: boolean): void
-  (e: 'update:selected', payload: boolean): void
 }>()
 
 const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
@@ -81,6 +78,65 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     query: { ...route.query, ticket: ticket.id },
   })
 }
+
+const handleTitleUpdate = async (newValue: string) => {
+  if (!isAuthenticated.value) {
+    createToast({
+      title: 'You must be logged in to update a ticket',
+      type: 'warning',
+    })
+    return
+  }
+  if (!newValue.trim() || newValue === props.ticket.title) return
+
+  try {
+    await updateTicket({
+      ticketId: props.ticket.id,
+      updates: { title: newValue },
+    })
+  } catch (err) {
+    console.error('Error updating ticket title:', err)
+  }
+}
+
+const handleStatusChange = async (newStatus: TicketStatus | null) => {
+  if (!newStatus || newStatus === props.ticket.status) return
+
+  try {
+    await updateTicket({
+      ticketId: props.ticket.id,
+      updates: { status: newStatus },
+    })
+  } catch (err) {
+    console.error('Error updating ticket status:', err)
+  }
+}
+
+const handlePriorityChange = async (newPriority: TicketPriority | null) => {
+  if (!newPriority || newPriority === props.ticket.priority) return
+
+  try {
+    await updateTicket({
+      ticketId: props.ticket.id,
+      updates: { priority: newPriority },
+    })
+  } catch (err) {
+    console.error('Error updating ticket priority:', err)
+  }
+}
+
+const handleTypeChange = async (newType: TicketType | null) => {
+  if (!newType || newType === props.ticket.type) return
+
+  try {
+    await updateTicket({
+      ticketId: props.ticket.id,
+      updates: { type: newType },
+    })
+  } catch (err) {
+    console.error('Error updating ticket type:', err)
+  }
+}
 </script>
 
 <template>
@@ -90,19 +146,17 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     :class="{
       'opacity-50': isDragging,
       'border-primary-500': isOvered,
-      'bg-primary-50': selected,
+      'bg-primary-50': selectedTicketIds.includes(ticket.id),
     }"
     @click="showUnauthorizedMessage"
   >
     <TicketRowSelectableMenu
+      :ticket-id="ticket.id"
       :is-dragging="isDragging"
       :is-overed="isOvered"
       :hovered-drag-handle="hoveredDragHandle"
       :handle-drag-start="handleDragStart"
-      :selected="selected"
-      :selected-tickets="selectedTickets"
       @update:hovered-drag-handle="emit('update:hovered-drag-handle', $event)"
-      @update:selected="(checked) => emit('update:selected', checked)"
     />
 
     <TableCell
@@ -113,7 +167,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
         placeholder="Enter title"
         :with-controls="false"
         :disabled="!isAuthenticated"
-        @value-commit="(e) => emit('update:title', { ticket, value: e.value })"
+        @value-commit="(e) => handleTitleUpdate(e.value)"
         root-class=""
         preview-class="inline w-full h-full"
         input-class="relative z-20 h-full"
@@ -138,7 +192,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     <TableCell class="h-full w-[130px]">
       <TicketStatusSelect
         :value="ticket.status"
-        @change="(val) => emit('update:status', { ticket, value: val })"
+        @change="handleStatusChange"
         root-class="max-w-full"
         :disabled="!isAuthenticated"
       />
@@ -146,7 +200,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     <TableCell class="h-full w-[105px]">
       <TicketPrioritySelect
         :value="ticket.priority"
-        @change="(val) => emit('update:priority', { ticket, value: val })"
+        @change="handlePriorityChange"
         root-class="min-w-full"
         :disabled="!isAuthenticated"
       />
@@ -154,7 +208,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
     <TableCell class="h-full w-[150px]">
       <TicketTypeSelect
         :value="ticket.type"
-        @change="(val) => emit('update:type', { ticket, value: val })"
+        @change="handleTypeChange"
         root-class="min-w-full"
         :disabled="!isAuthenticated"
       />
