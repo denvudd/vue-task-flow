@@ -9,6 +9,7 @@ interface Props {
   invalid?: boolean
   valid?: boolean
   type?: string
+  inputClass?: string
   modelValue?: string
 }
 
@@ -24,6 +25,7 @@ const emit = defineEmits<{
   <div class="relative">
     <Field.Input
       :class="[
+        inputClass,
         'w-full rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none',
         'border focus:ring-1',
         invalid

@@ -10,6 +10,8 @@ import {
   deleteTicket,
   type TicketInsert,
   type TicketUpdate,
+  type TicketFilters,
+  type TicketSort,
 } from '@/api/tickets'
 import type { Tables } from '@/types/supabase'
 import { useAuth } from '@/composables/useAuth'
@@ -44,9 +46,15 @@ export const ticketKeys = {
  */
 export function useProjectTickets(
   projectId: MaybeRef<string | undefined>,
-  options?: { pageSize?: number },
+  options?: {
+    pageSize?: number
+    filters?: MaybeRef<TicketFilters | undefined>
+    sort?: MaybeRef<TicketSort | undefined>
+  },
 ) {
   const pageSize = options?.pageSize ?? 50
+  const filters = computed(() => unref(options?.filters))
+  const sort = computed(() => unref(options?.sort))
 
   const tickets = ref<Tables<'tickets'>[]>([])
   const isLoading = ref(true)
@@ -67,9 +75,13 @@ export function useProjectTickets(
       error.value = null
       loadedCount.value = 0
 
+      const currentFilters = filters.value
+      const currentSort = sort.value
       const { data, error: fetchError, count } = await getProjectTickets(id, {
         from: 0,
         to: pageSize - 1,
+        filters: currentFilters,
+        sort: currentSort,
       })
       if (fetchError) throw fetchError
       tickets.value = data || []
@@ -91,8 +103,15 @@ export function useProjectTickets(
       isLoadingMore.value = true
       const from = loadedCount.value
       const to = from + pageSize - 1
+      const currentFilters = filters.value
+      const currentSort = sort.value
 
-      const { data, error: fetchError } = await getProjectTickets(id, { from, to })
+      const { data, error: fetchError } = await getProjectTickets(id, {
+        from,
+        to,
+        filters: currentFilters,
+        sort: currentSort,
+      })
       if (fetchError) throw fetchError
 
       if (data && data.length > 0) {
@@ -145,14 +164,7 @@ export function useProjectTickets(
           }
 
           try {
-            // Try to fetch full ticket data with relations
-            // Fetch a small range to get the ticket with relations
-            const { data: fullTicket } = await getProjectTickets(id, {
-              from: 0,
-              to: 0,
-            })
-            // If pagination doesn't work, try to get single ticket
-            // For now, just add the ticket with basic data
+            // Add the ticket with basic data
             const ticketToAdd = newTicket
             tickets.value = [...tickets.value, ticketToAdd].sort(
               (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
@@ -252,8 +264,8 @@ export function useProjectTickets(
   const currentProjectId = computed(() => unref(projectId))
 
   watch(
-    currentProjectId,
-    async (newId) => {
+    [currentProjectId, filters, sort],
+    async ([newId]) => {
       if (!newId) {
         tickets.value = []
         isLoading.value = false
@@ -268,7 +280,7 @@ export function useProjectTickets(
 
       setupRealtimeSubscription(newId)
     },
-    { immediate: true },
+    { immediate: true, deep: true },
   )
 
   onUnmounted(() => {

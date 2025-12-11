@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cn } from '@/lib/utils'
 import { computed } from 'vue'
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   disabled?: boolean
   error?: boolean
   modelValue?: string
+  class?: string
 }
 
 const props = defineProps<Props>()
@@ -21,7 +23,7 @@ const inputClass = computed(() => {
     : 'border border-neutral-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
   const disabledClass = props.disabled ? 'bg-neutral-100 cursor-not-allowed' : 'bg-white'
 
-  return `${baseClass} ${borderClass} ${disabledClass}`
+  return cn(baseClass, borderClass, disabledClass, props.class)
 })
 
 const handleInput = (event: Event) => {

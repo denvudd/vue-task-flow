@@ -8,6 +8,8 @@ interface Props {
   defaultChecked?: CheckboxCheckedState
   disabled?: boolean
   indeterminate?: boolean
+  name?: string
+  value?: string
   class?: string
   rootClass?: string
   controlClass?: string
@@ -35,6 +37,8 @@ const handleCheckedChange = (details: { checked: CheckboxCheckedState }) => {
     :default-checked="defaultChecked"
     :disabled="disabled"
     :indeterminate="indeterminate"
+    :name="name"
+    :value="value"
     :class="cn('inline-flex items-center gap-2', rootClass)"
     @checked-change="handleCheckedChange"
   >

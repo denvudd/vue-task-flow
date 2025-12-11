@@ -4,12 +4,29 @@ import type { TablesInsert, TablesUpdate } from '@/types/supabase'
 export type TicketInsert = TablesInsert<'tickets'>
 export type TicketUpdate = TablesUpdate<'tickets'>
 
+export interface TicketFilters {
+  status?: string[]
+  priority?: string[]
+  type?: string[]
+  taskName?: string
+  dueDate?: string
+}
+
+export interface TicketSortRule {
+  field: string
+  order: 'asc' | 'desc'
+}
+
+export interface TicketSort {
+  rules?: TicketSortRule[]
+}
+
 /**
  * Get paginated tickets for a project
  */
 export async function getProjectTickets(
   projectId: string,
-  options?: { from?: number; to?: number },
+  options?: { from?: number; to?: number; filters?: TicketFilters; sort?: TicketSort },
 ) {
   let query = supabase
     .from('tickets')
@@ -17,7 +34,44 @@ export async function getProjectTickets(
       count: 'exact',
     })
     .eq('project_id', projectId)
-    .order('order_index', { ascending: true })
+
+  // Apply filters
+  if (options?.filters) {
+    const filters = options.filters
+    if (filters.status && filters.status.length > 0) {
+      query = query.in('status', filters.status)
+    }
+    if (filters.priority && filters.priority.length > 0) {
+      query = query.in('priority', filters.priority)
+    }
+    if (filters.type && filters.type.length > 0) {
+      query = query.in('type', filters.type)
+    }
+    if (filters.taskName) {
+      query = query.ilike('title', `%${filters.taskName}%`)
+    }
+    if (filters.dueDate) {
+      // Filter by exact date (assuming due_date is stored as date string)
+      query = query.eq('due_date', filters.dueDate)
+    }
+  }
+
+  // Apply sorting
+  if (options?.sort?.rules && options.sort.rules.length > 0) {
+    // Apply multiple sorting rules
+    options.sort.rules.forEach((rule, index) => {
+      if (index === 0) {
+        // First rule
+        query = query.order(rule.field, { ascending: rule.order === 'asc' })
+      } else {
+        // Additional rules (Supabase supports chaining)
+        query = query.order(rule.field, { ascending: rule.order === 'asc', nullsFirst: false })
+      }
+    })
+  } else {
+    // Default sorting by order_index
+    query = query.order('order_index', { ascending: true })
+  }
 
   if (options?.from !== undefined && options?.to !== undefined) {
     query = query.range(options.from, options.to)

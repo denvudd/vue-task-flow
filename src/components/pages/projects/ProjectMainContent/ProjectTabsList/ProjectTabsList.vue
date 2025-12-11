@@ -2,7 +2,7 @@
 import { TabsList, TabsTrigger } from '@/components/ui'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { SquareKanban, TableIcon } from 'lucide-vue-next'
-import TicketCreateDialog from '../TicketCreateDialog.vue'
+import { ProjectTabsToolbar } from './ProjectTabsToolbar'
 import type { Tables } from '@/types/supabase'
 import { useAuth } from '@/composables/useAuth'
 import ProjectTabsSelecionToolbar from './ProjectTabsSelecionToolbar.vue'
@@ -14,7 +14,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { isAuthenticated } = useAuth()
-const { isSidebarOpen, project, selectedTicketIds } = useProjectContext()
+const { isSidebarOpen, project } = useProjectContext()
 </script>
 
 <template>
@@ -44,7 +44,7 @@ const { isSidebarOpen, project, selectedTicketIds } = useProjectContext()
             Board
           </TabsTrigger>
         </TabsList>
-        <TicketCreateDialog v-if="isAuthenticated" :tickets="tickets" :project-id="project?.id" />
+        <ProjectTabsToolbar :tickets="tickets" />
       </div>
     </div>
   </div>

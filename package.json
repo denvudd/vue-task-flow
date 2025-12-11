@@ -17,7 +17,7 @@
     "supabase:types": "node scripts/generate-types.js"
   },
   "dependencies": {
-    "@ark-ui/vue": "^5.26.2",
+    "@ark-ui/vue": "^5.30.0",
     "@hocuspocus/provider": "^3.4.0",
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/vue-query": "^5.90.5",

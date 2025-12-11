@@ -17,9 +17,6 @@ import { TICKET_STATUSES, TICKET_PRIORITIES, TICKET_TYPES } from '@/constants/ti
 import { useCreateTicket } from '@/composables/useTickets'
 import { useAuth } from '@/composables/useAuth'
 import { Plus } from 'lucide-vue-next'
-import { useUpsertTicketDocument } from '@/composables/useTicketDocumens'
-import { Buffer } from 'buffer'
-import { ROUTES } from '@/lib/routing'
 import type { Tables } from '@/types/supabase'
 
 interface Props {
@@ -37,7 +34,6 @@ const projectId = computed(() => {
 
 const { user } = useAuth()
 const { mutateAsync: createTicket, isPending: isSubmitting } = useCreateTicket()
-const { mutateAsync: upsertTicketDocument, isPending: isUpserting } = useUpsertTicketDocument()
 
 const isOpen = ref(false)
 
@@ -122,7 +118,7 @@ const open = () => {
 </script>
 
 <template>
-  <div>
+  <div class="ml-2">
     <slot name="trigger" :open="open">
       <Button size="sm" @click="open">
         <Plus class="w-4 h-4 mr-1" />

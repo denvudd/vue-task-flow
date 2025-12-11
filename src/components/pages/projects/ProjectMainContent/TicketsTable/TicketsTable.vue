@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
-import { useVirtualizer } from '@tanstack/vue-virtual'
+import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell, Checkbox } from '@/components/ui'
 import TicketRow from './TicketRow.vue'
@@ -45,7 +44,6 @@ watch(
   (newTickets) => {
     if (newTickets) {
       localTickets.value = [...newTickets]
-      // Remove selected IDs that no longer exist in the tickets list
       const ticketIds = newTickets.map((ticket) => ticket.id)
       cleanupSelection(ticketIds)
     } else {
@@ -97,58 +95,58 @@ const handleMouseLeave = () => {
   hoveredDragHandle.value = false
 }
 
-// Virtualization setup
-const scrollContainerRef = ref<HTMLElement | null>(null)
-const rowHeight = 37 // Height of each row in pixels
+const sentinelRef = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
 
-const virtualizerOptions = computed(() => ({
-  count: localTickets.value.length,
-  getScrollElement: () => scrollContainerRef.value,
-  estimateSize: () => rowHeight,
-  overscan: 5,
-}))
+const setupIntersectionObserver = () => {
+  if (!props.loadMore || !props.hasMore) return
 
-const virtualizer = useVirtualizer(virtualizerOptions)
-
-// Computed properties for template
-const virtualItems = computed(() => virtualizer.value.getVirtualItems())
-const totalSize = computed(() => virtualizer.value.getTotalSize())
-
-// Infinite scroll handler
-const handleScroll = () => {
-  if (!props.hasMore || props.isLoadingMore || !props.loadMore) return
-
-  const items = virtualItems.value
-  if (items.length === 0) return
-
-  const lastItem = items[items.length - 1]
-  if (!lastItem) return
-
-  const isNearBottom = lastItem.index >= localTickets.value.length - 5
-
-  if (isNearBottom) {
-    props.loadMore()
+  if (observer) {
+    observer.disconnect()
+    observer = null
   }
+
+  if (!sentinelRef.value) return
+
+  observer = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0]
+      if (entry?.isIntersecting && props.hasMore && !props.isLoadingMore && props.loadMore) {
+        await props.loadMore()
+      }
+    },
+    {
+      rootMargin: '200px', // Start loading 200px before reaching the sentinel
+    },
+  )
+
+  observer.observe(sentinelRef.value)
 }
 
-// Watch for scroll events
-onMounted(() => {
-  const container = scrollContainerRef.value
-  if (container) {
-    container.addEventListener('scroll', handleScroll, { passive: true })
-  }
-})
+watch(
+  [() => props.hasMore, () => sentinelRef.value],
+  async () => {
+    await nextTick()
+    if (sentinelRef.value && props.hasMore) {
+      setupIntersectionObserver()
+    } else if (observer) {
+      observer.disconnect()
+      observer = null
+    }
+  },
+  { immediate: true },
+)
 
 onUnmounted(() => {
-  const container = scrollContainerRef.value
-  if (container) {
-    container.removeEventListener('scroll', handleScroll)
+  if (observer) {
+    observer.disconnect()
+    observer = null
   }
 })
 </script>
 
 <template>
-  <div>
+  <div data-tickets-table>
     <div
       class="z-1 grow shrink-0 h-full"
       :style="{
@@ -157,12 +155,7 @@ onUnmounted(() => {
         width: isSidebarOpen ? 'calc(100vw - 96px)' : '100%',
       }"
     >
-      <!-- TODO: fix sticky and overflow conflict -->
-      <div
-        ref="scrollContainerRef"
-        class="relative flex flex-col min-w-full overflow-auto"
-        style="height: calc(100vh - 200px)"
-      >
+      <div>
         <div v-if="isLoading" class="flex justify-center items-center py-16">
           <div class="text-neutral-600">Loading tickets...</div>
         </div>
@@ -171,7 +164,7 @@ onUnmounted(() => {
           <p class="text-neutral-600">No tickets yet. Create your first ticket!</p>
         </div>
 
-        <div v-show="!isLoading && hasTickets" class="relative">
+        <div v-show="!isLoading && hasTickets" class="relative flex flex-col min-w-full">
           <Table class="mb-1 px-24" :class="{ 'pe-4': isSidebarOpen }">
             <TableHeader class="sticky top-0 z-10">
               <TableRow
@@ -198,7 +191,6 @@ onUnmounted(() => {
                         <div class="h-full">
                           <div class="h-full flex items-center justify-center cursor-pointer z-1">
                             <div class="size-9 flex items-center justify-center">
-                              <!-- Select All Tickets Checkbox -->
                               <Checkbox
                                 :checked="selectedTicketIds.length > 0"
                                 @update:checked="handleSelectAllTickets"
@@ -250,37 +242,32 @@ onUnmounted(() => {
               </TableRow>
             </TableHeader>
 
-            <tbody
-              ref="tableBodyRef"
-              class="divide-y divide-neutral-100 relative"
-              :style="{
-                height: `${totalSize}px`,
-              }"
-            >
+            <tbody ref="tableBodyRef" class="divide-y divide-neutral-100 relative">
               <TicketRow
-                v-for="virtualRow in virtualItems"
-                :key="localTickets[virtualRow.index]?.id || String(virtualRow.key)"
-                :ticket="localTickets[virtualRow.index]!"
-                :row-index="virtualRow.index"
+                v-for="(ticket, index) in localTickets"
+                :key="ticket.id"
+                :ticket="ticket"
+                :row-index="index"
                 :tickets="localTickets"
                 :hovered-drag-handle="hoveredDragHandle"
-                :style="{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                }"
                 @update:hovered-drag-handle="hoveredDragHandle = $event"
                 @delete="handleDelete"
               />
             </tbody>
           </Table>
-
-          <!-- Loading more indicator -->
-          <div v-if="isLoadingMore" class="flex justify-center items-center py-4 text-neutral-600">
-            Loading more tickets...
+        </div>
+        <div
+          v-if="!isLoading && hasTickets && hasMore"
+          ref="sentinelRef"
+          class="h-1"
+        ></div>
+        <div
+          v-if="!isLoading && hasTickets && isLoadingMore"
+          class="flex justify-center items-center py-8"
+        >
+          <div class="text-neutral-600 flex items-center gap-2">
+            <Loader class="size-4 animate-spin" />
+            <span>Loading more tickets...</span>
           </div>
         </div>
         <QuickCreateTicketButton v-if="!isLoading && hasTickets" :tickets="localTickets" />

@@ -5,7 +5,8 @@ import { useAuth } from '@/composables/useAuth'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { useProjectTickets } from '@/composables/useTickets'
 import { reorderTickets } from '@/api/tickets'
-import { useRoute } from 'vue-router'
+import type { TicketFilters, TicketSort, TicketSortRule } from '@/api/tickets'
+import { useRoute, type LocationQueryValue } from 'vue-router'
 import { computed } from 'vue'
 import { ref } from 'vue'
 import type { Tables } from '@/types/supabase'
@@ -21,6 +22,69 @@ const route = useRoute()
 const projectId = computed(() => route.params.id as string)
 const activeTab = ref('table')
 
+// Helper to parse array from query params
+const parseArrayParam = (
+  param: LocationQueryValue | LocationQueryValue[] | undefined,
+): string[] => {
+  if (!param || param === null) return []
+  if (Array.isArray(param)) {
+    return param.filter((p): p is string => p !== null && typeof p === 'string')
+  }
+  if (typeof param === 'string') return [param]
+  return []
+}
+
+// Extract filters from query params
+const filters = computed<TicketFilters | undefined>(() => {
+  const query = route.query
+  const statusArray = parseArrayParam(query.status)
+  const priorityArray = parseArrayParam(query.priority)
+  const typeArray = parseArrayParam(query.type)
+  const hasFilters =
+    statusArray.length > 0 ||
+    priorityArray.length > 0 ||
+    typeArray.length > 0 ||
+    query.taskName ||
+    query.dueDate
+
+  if (!hasFilters) return undefined
+
+  return {
+    status: statusArray.length > 0 ? statusArray : undefined,
+    priority: priorityArray.length > 0 ? priorityArray : undefined,
+    type: typeArray.length > 0 ? typeArray : undefined,
+    taskName: query.taskName as string | undefined,
+    dueDate: query.dueDate as string | undefined,
+  }
+})
+
+// Extract sort from query params
+const sort = computed((): TicketSort | undefined => {
+  const query = route.query
+  const sortByParam = query.sortBy
+  const sortOrderParam = query.sortOrder
+
+  if (!sortByParam) return undefined
+
+  const fields = parseArrayParam(sortByParam)
+  const orders = parseArrayParam(sortOrderParam)
+
+  if (fields.length === 0) return undefined
+
+  const rules: TicketSortRule[] = fields
+    .map((field, index) => ({
+      field,
+      order: (orders[index] || 'asc') as 'asc' | 'desc',
+    }))
+    .filter((rule) => rule.field)
+
+  if (rules.length === 0) return undefined
+
+  return {
+    rules,
+  }
+})
+
 const { isAuthenticated } = useAuth()
 const { project, isLoading, isError, error, hasUserAccess, isOwner, isSidebarOpen } =
   useProjectContext()
@@ -30,7 +94,7 @@ const {
   isLoadingMore,
   hasMore,
   loadMore,
-} = useProjectTickets(projectId, { pageSize: 10 })
+} = useProjectTickets(projectId, { pageSize: 10, filters, sort })
 
 const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
   try {
