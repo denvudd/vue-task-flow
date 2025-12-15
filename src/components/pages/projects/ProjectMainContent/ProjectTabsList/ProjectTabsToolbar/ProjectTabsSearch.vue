@@ -34,8 +34,6 @@ watch(
 
 const updateQueryParams = (value: string) => {
   const query = { ...route.query }
-  delete query.ticket
-
   if (value.trim()) {
     query.taskName = value.trim()
   } else {

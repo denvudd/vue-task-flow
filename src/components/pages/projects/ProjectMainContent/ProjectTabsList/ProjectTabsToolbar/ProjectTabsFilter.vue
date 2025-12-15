@@ -85,9 +85,6 @@ const activeFiltersCount = computed(() => {
 
 const updateQueryParams = () => {
   const query = { ...route.query }
-
-  delete query.ticket
-
   if (filters.value.status.length > 0) {
     query.status = filters.value.status
   } else {

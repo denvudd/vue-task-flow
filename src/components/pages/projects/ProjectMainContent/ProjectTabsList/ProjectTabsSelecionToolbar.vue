@@ -129,7 +129,7 @@ const handleBulkDelete = async () => {
   >
     <div
       v-if="isAuthenticated && selectedTicketIds.length > 0"
-      class="sticky z-999 visible w-fit"
+      class="sticky z-999 top-0 visible w-fit"
       :style="{ insetInlineStart: '94px' }"
     >
       <div class="select-none w-fit absolute top-0 h-8">

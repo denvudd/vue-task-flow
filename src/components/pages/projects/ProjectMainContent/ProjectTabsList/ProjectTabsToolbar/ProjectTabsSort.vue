@@ -91,9 +91,6 @@ const hasActiveSort = computed(() => {
 
 const updateQueryParams = () => {
   const query = { ...route.query }
-
-  delete query.ticket
-
   const activeRules = sortRules.value.filter((rule) => rule.field)
 
   if (activeRules.length > 0) {

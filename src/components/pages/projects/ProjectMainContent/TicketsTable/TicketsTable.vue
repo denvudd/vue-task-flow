@@ -166,7 +166,7 @@ onUnmounted(() => {
 
         <div v-show="!isLoading && hasTickets" class="relative flex flex-col min-w-full">
           <Table class="mb-1 px-24" :class="{ 'pe-4': isSidebarOpen }">
-            <TableHeader class="sticky top-0 z-10">
+            <TableHeader>
               <TableRow
                 :hover="false"
                 class="group border-b flex relative border-neutral-200 transform-all hover:bg-neutral-100 transition h-[37px]"
@@ -243,24 +243,22 @@ onUnmounted(() => {
             </TableHeader>
 
             <tbody ref="tableBodyRef" class="divide-y divide-neutral-100 relative">
-              <TicketRow
-                v-for="(ticket, index) in localTickets"
-                :key="ticket.id"
-                :ticket="ticket"
-                :row-index="index"
-                :tickets="localTickets"
-                :hovered-drag-handle="hoveredDragHandle"
-                @update:hovered-drag-handle="hoveredDragHandle = $event"
-                @delete="handleDelete"
-              />
+              <TransitionGroup name="ticket-row" mode="out-in" class="relative">
+                <template v-for="(ticket, index) in localTickets" :key="ticket.id">
+                  <TicketRow
+                    :ticket="ticket"
+                    :row-index="index"
+                    :tickets="localTickets"
+                    :hovered-drag-handle="hoveredDragHandle"
+                    @update:hovered-drag-handle="hoveredDragHandle = $event"
+                    @delete="handleDelete"
+                  />
+                </template>
+              </TransitionGroup>
             </tbody>
           </Table>
         </div>
-        <div
-          v-if="!isLoading && hasTickets && hasMore"
-          ref="sentinelRef"
-          class="h-1"
-        ></div>
+        <div v-if="!isLoading && hasTickets && hasMore" ref="sentinelRef" class="h-1"></div>
         <div
           v-if="!isLoading && hasTickets && isLoadingMore"
           class="flex justify-center items-center py-8"
