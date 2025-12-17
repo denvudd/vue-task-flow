@@ -15,16 +15,18 @@ const handleDescriptionBlur = async () => {
 </script>
 
 <template>
-  <Field>
-    <RichTextEditor
-      :model-value="description"
-      @update:model-value="handleDescriptionChange"
-      @blur="handleDescriptionBlur"
-      placeholder="Enter ticket description"
-      min-height="200px"
-      :mention-users="mentionUsers"
-      :ticket-id="currentTicketId ?? ''"
-      :collaborative-enabled="true"
-    />
-  </Field>
+  <div class="space-y-6">
+    <Field>
+      <RichTextEditor
+        :model-value="description"
+        @update:model-value="handleDescriptionChange"
+        @blur="handleDescriptionBlur"
+        placeholder="Enter ticket description"
+        min-height="200px"
+        :mention-users="mentionUsers"
+        :ticket-id="currentTicketId ?? ''"
+        :collaborative-enabled="true"
+      />
+    </Field>
+  </div>
 </template>

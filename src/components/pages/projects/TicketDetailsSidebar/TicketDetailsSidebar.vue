@@ -7,6 +7,7 @@ import TicketDetailsSidebarPanel from './TicketDetailsSidebarPanel.vue'
 import TicketDetailsSidebarNotFound from './TicketDetailsSidebarNotFound.vue'
 import TicketDetailsSidebarTitle from './TicketDetailsSidebarTitle.vue'
 import TicketDetailsSidebarContent from './TicketDetailsSidebarContent.vue'
+import TicketComments from './TicketComments.vue'
 
 interface Props {
   ticketId: string
@@ -47,6 +48,7 @@ const handleClose = () => {
         <TicketDetailsSidebarTitle />
         <div class="space-y-6 mt-2.5 animate-in fade-in duration-300">
           <TicketDetailsSidebarPanel />
+          <TicketComments />
           <TicketDetailsSidebarContent />
         </div>
       </template>

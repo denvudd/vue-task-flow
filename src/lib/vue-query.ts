@@ -17,6 +17,7 @@ export const vueQueryOptions: VueQueryPluginOptions = {
       },
     },
   },
+  enableDevtoolsV6Plugin: true,
 }
 
 export { VueQueryPlugin }

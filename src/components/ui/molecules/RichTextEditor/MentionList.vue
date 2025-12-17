@@ -92,7 +92,7 @@ defineExpose({
 @reference "../../../../style.css";
 
 .mention-list {
-  @apply bg-white rounded-lg shadow-lg border border-neutral-200;
+  @apply bg-white rounded-lg shadow-lg border border-neutral-200 animate-in fade-in duration-300 zoom-in-95;
   @apply px-0;
   max-height: 280px;
   overflow-y: auto;

@@ -16,8 +16,9 @@ const handleTitleCommit = async (details: { value: string }) => {
     placeholder="Enter ticket title"
     @value-commit="handleTitleCommit"
     :with-controls="false"
-    preview-class="text-3xl font-semibold w-full flex-1 h-12"
-    input-class="text-3xl font-semibold w-full flex-1 h-12"
-    root-class="w-full flex-1 animate-in fade-in duration-300"
+    preview-class="flex text-3xl font-bold! w-full flex-1 px-0! leading-tight!"
+    input-class="text-3xl relative block font-bold! w-full focus:ring-0! focus:ring-offset-0! px-0! bg-transparent! font-bold leading-tight!"
+    root-class="w-full flex-1 animate-in fade-in duration-300 py-0! font-bold! leading-tight! min-w-0 block"
+    text-area
   />
 </template>

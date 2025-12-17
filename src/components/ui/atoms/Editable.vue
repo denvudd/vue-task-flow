@@ -3,6 +3,7 @@ import { Editable as ArkEditable } from '@ark-ui/vue/editable'
 import { ref, watch } from 'vue'
 import { Button } from './Button'
 import { CheckIcon, XIcon } from 'lucide-vue-next'
+import { useTextareaAutosize } from '@vueuse/core'
 
 interface Props {
   value?: string
@@ -15,10 +16,14 @@ interface Props {
   previewClass?: string
   inputClass?: string
   withControls?: boolean
+  autoResize?: boolean
+  textArea?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   withControls: true,
+  autoResize: false,
+  textArea: false,
 })
 
 const emit = defineEmits<{
@@ -26,6 +31,8 @@ const emit = defineEmits<{
 }>()
 
 const editableValue = ref(props.value ?? '')
+
+const { textarea, input } = useTextareaAutosize()
 
 watch(
   () => props.value,
@@ -58,6 +65,7 @@ const handleValueCancel = () => {
     :disabled="disabled"
     :select-on-focus="false"
     activationMode="click"
+    :auto-resize="autoResize"
     :class="[rootClass]"
     @value-change="handleValueChange"
     @value-commit="handleValueCommit"
@@ -65,6 +73,17 @@ const handleValueCancel = () => {
   >
     <ArkEditable.Area class="text-sm focus:outline-none min-w-[100px]">
       <ArkEditable.Input
+        v-if="textArea"
+        :class="[
+          inputClass,
+          'w-full bg-neutral-50 transition-all focus:outline-none placeholder:text-neutral-300 focus:ring-1 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',
+        ]"
+        as-child
+      >
+        <textarea ref="textarea" :class="[inputClass, '']" />
+      </ArkEditable.Input>
+      <ArkEditable.Input
+        v-else
         :class="[
           inputClass,
           'w-full bg-neutral-50 focus:outline-none placeholder:text-neutral-300 focus:ring-1 rounded px-2 py-1 focus:ring-primary-500 focus:ring-offset-1',

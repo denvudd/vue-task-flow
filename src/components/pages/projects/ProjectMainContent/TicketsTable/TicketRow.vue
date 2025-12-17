@@ -13,7 +13,15 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, PanelsTopLeft, Trash2, CheckSquare, Link, ExternalLink, ArrowUpRight } from 'lucide-vue-next'
+import {
+  Calendar,
+  PanelsTopLeft,
+  Trash2,
+  CheckSquare,
+  Link,
+  ExternalLink,
+  ArrowUpRight,
+} from 'lucide-vue-next'
 import { getUserDisplayName } from '@/lib/utils/get-user-display-name'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -188,7 +196,7 @@ const handleContextMenuSelect = (value: string) => {
     }
     return
   }
-  
+
   const ticketUrl = window.location.origin + ROUTES.Ticket(currentProjectId.value!, props.ticket.id)
 
   if (value === 'open-side-peek') {
@@ -246,9 +254,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
   >
     <template #footer>
       <div class="px-2 py-1.5 text-xs text-neutral-500 space-y-0.5">
-        <div v-if="ticket.updated_at">
-          Last edited {{ formatDateTime(ticket.updated_at) }}
-        </div>
+        <div v-if="ticket.updated_at">Last edited {{ formatDateTime(ticket.updated_at) }}</div>
         <div>
           Created at {{ formatDateTime(ticket.created_at) }}
           <span v-if="ticketCreator"> by {{ creatorDisplayName }}</span>
@@ -290,15 +296,16 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             root-class=""
             preview-class="inline w-full h-full"
             input-class="relative z-20 h-full"
+            auto-resize
           />
           <div
             v-if="isAuthenticated"
             class="opacity-100 lg:opacity-0 z-10 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2"
           >
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              class="flex gap-1 items-center uppercase"
+              class="flex gap-1 items-center uppercase px-2! py-1!"
               @click="openEditDialog(ticket)"
               tooltip="Open in side peek"
               :tooltip-open-delay="500"

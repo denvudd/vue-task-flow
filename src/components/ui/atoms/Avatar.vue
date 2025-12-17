@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cn } from '@/lib/utils'
 import { Avatar as ArkAvatar } from '@ark-ui/vue/avatar'
 import { computed } from 'vue'
 
@@ -7,6 +8,7 @@ interface Props {
   alt?: string
   name?: string | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
+  class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -22,19 +24,27 @@ const sizeClasses = {
 
 const initials = computed(() => {
   if (!props.name) return 'U'
-  
+
   const parts = props.name.trim().split(/\s+/)
+
   if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    return (parts[0]?.charAt(0) || '') + (parts[parts.length - 1]?.charAt(0) || '').toUpperCase()
   }
-  return parts[0][0].toUpperCase()
+  return parts[0]?.charAt(0) || 'U'
 })
 </script>
 
 <template>
-  <ArkAvatar.Root :class="['inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 font-medium overflow-hidden', sizeClasses[size]]">
+  <ArkAvatar.Root
+    :class="
+      cn(
+        'inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 font-medium overflow-hidden',
+        sizeClasses[size],
+        props.class,
+      )
+    "
+  >
     <ArkAvatar.Fallback>{{ initials }}</ArkAvatar.Fallback>
     <ArkAvatar.Image v-if="src" :src="src" :alt="alt || name || 'Avatar'" />
   </ArkAvatar.Root>
 </template>
-

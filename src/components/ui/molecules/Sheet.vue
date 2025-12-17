@@ -120,94 +120,32 @@ const isOpen = computed({
   </ArkDialog.Root>
 </template>
 
-<style>
+<style scoped>
+@reference "../../../style.css";
 /* Sheet animations - slide from right */
 .sheet-content[data-side='right'][data-state='open'] {
-  animation:
-    sheet-fade-in 0.2s ease-out,
-    sheet-slide-in-right 0.2s ease-out;
+  @apply animate-in fade-in duration-300 zoom-in-95 slide-in-from-right-2;
 }
 
 .sheet-content[data-side='right'][data-state='closed'] {
-  animation:
-    sheet-fade-out 0.15s ease-in,
-    sheet-slide-out-right 0.15s ease-in;
+  @apply animate-out fade-out duration-300 zoom-out-95 slide-out-to-right-2;
 }
 
 /* Sheet animations - slide from left */
 .sheet-content[data-side='left'][data-state='open'] {
-  animation:
-    sheet-fade-in 0.2s ease-out,
-    sheet-slide-in-left 0.2s ease-out;
+  @apply animate-in fade-in duration-300 zoom-in-95 slide-in-from-left-2;
 }
 
 .sheet-content[data-side='left'][data-state='closed'] {
-  animation:
-    sheet-fade-out 0.15s ease-in,
-    sheet-slide-out-left 0.15s ease-in;
+  @apply animate-out fade-out duration-300 zoom-out-95 slide-out-to-left-2;
 }
 
 /* Backdrop animations for sheet */
 [data-scope='dialog'][data-part='backdrop'][data-state='open'] {
-  animation: sheet-fade-in 0.2s ease-out;
+  @apply animate-in fade-in duration-300;
 }
 
 [data-scope='dialog'][data-part='backdrop'][data-state='closed'] {
-  animation: sheet-fade-out 0.15s ease-in;
-}
-
-/* Keyframes */
-@keyframes sheet-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes sheet-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes sheet-slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes sheet-slide-out-right {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes sheet-slide-in-left {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes sheet-slide-out-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
+  @apply animate-out fade-out duration-300;
 }
 </style>

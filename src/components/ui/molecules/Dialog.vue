@@ -124,65 +124,22 @@ const isOpen = computed({
   </ArkDialog.Root>
 </template>
 
-<style>
-/* Dialog animations */
+<style scoped>
+@reference "../../../style.css";
+
 .dialog-content[data-state='open'] {
-  animation:
-    dialog-fade-in 0.2s ease-out,
-    dialog-zoom-in 0.2s ease-out;
+  @apply animate-in fade-in duration-300 zoom-in-95;
 }
 
 .dialog-content[data-state='closed'] {
-  animation:
-    dialog-fade-out 0.15s ease-in,
-    dialog-zoom-out 0.15s ease-in;
+  @apply animate-out fade-out duration-300 zoom-out-95;
 }
 
 [data-scope='dialog'][data-part='backdrop'][data-state='open'] {
-  animation: dialog-fade-in 0.2s ease-out;
+  @apply animate-in fade-in duration-300;
 }
 
 [data-scope='dialog'][data-part='backdrop'][data-state='closed'] {
-  animation: dialog-fade-out 0.15s ease-in;
-}
-
-@keyframes dialog-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes dialog-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes dialog-zoom-in {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes dialog-zoom-out {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(0.95);
-    opacity: 0;
-  }
+  @apply animate-out fade-out duration-300;
 }
 </style>

@@ -112,15 +112,21 @@ const handleSuccess = () => {
   resetForm()
 }
 
-const open = () => {
+const handleOpen = () => {
   isOpen.value = true
+
+  router.push({
+    query: {
+      ticket: undefined,
+    },
+  })
 }
 </script>
 
 <template>
   <div class="ml-2">
-    <slot name="trigger" :open="open">
-      <Button size="sm" @click="open">
+    <slot name="trigger" :open="handleOpen">
+      <Button size="sm" @click="handleOpen">
         <Plus class="w-4 h-4 mr-1" />
         New
       </Button>

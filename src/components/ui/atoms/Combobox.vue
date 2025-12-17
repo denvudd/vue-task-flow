@@ -214,13 +214,15 @@ const handleOpenChange = (details: { open: boolean }) => {
   </div>
 </template>
 
-<style>
+<style scoped>
+@reference "../../../style.css";
+
 [data-scope='combobox'][data-part='content'][data-state='open'] {
-  animation: combobox-fade-in 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  @apply animate-in fade-in duration-300 zoom-in-95 slide-in-from-bottom-2;
 }
 
 [data-scope='combobox'][data-part='content'][data-state='closed'] {
-  animation: combobox-fade-out 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  @apply animate-out fade-out duration-300 zoom-out-95 slide-out-to-bottom-2;
 }
 
 /* Positioner stretches to trigger width */
@@ -273,27 +275,5 @@ const handleOpenChange = (details: { open: boolean }) => {
   [data-scope='combobox'][data-part='trigger']
   svg {
   transform: rotate(180deg);
-}
-
-@keyframes combobox-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes combobox-fade-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
 }
 </style>

@@ -1,15 +1,19 @@
 import { supabase } from '@/lib/supabase'
 import type { TablesInsert, TablesUpdate } from '@/types/supabase'
 
-export type CommentInsert = TablesInsert<'comments'>
-export type CommentUpdate = TablesUpdate<'comments'>
+export type TicketCommentInsert = TablesInsert<'ticket_comments'>
+export type TicketCommentUpdate = TablesUpdate<'ticket_comments'>
+
+export type TicketComment = TablesInsert<'ticket_comments'> & {
+  author: TablesInsert<'profiles'>
+}
 
 /**
  * Get all comments for a ticket
  */
 export async function getTicketComments(ticketId: string) {
   return await supabase
-    .from('comments')
+    .from('ticket_comments')
     .select('*, author:profiles!author_id(*)')
     .eq('ticket_id', ticketId)
     .order('created_at', { ascending: true })
@@ -20,7 +24,7 @@ export async function getTicketComments(ticketId: string) {
  */
 export async function getComment(commentId: string) {
   return await supabase
-    .from('comments')
+    .from('ticket_comments')
     .select('*, author:profiles!author_id(*)')
     .eq('id', commentId)
     .single()
@@ -29,8 +33,14 @@ export async function getComment(commentId: string) {
 /**
  * Create a new comment
  */
-export async function createComment(comment: CommentInsert) {
-  return await supabase.from('comments').insert(comment).select().single()
+export async function createComment(comment: TicketCommentInsert) {
+  const { data, error } = await supabase
+    .from('ticket_comments')
+    .insert(comment)
+    .select('*, author:profiles!author_id(*)')
+    .single()
+  if (error) throw error
+  return data
 }
 
 /**
@@ -38,14 +48,13 @@ export async function createComment(comment: CommentInsert) {
  */
 export async function updateComment(commentId: string, content: string) {
   return await supabase
-    .from('comments')
+    .from('ticket_comments')
     .update({
       content,
-      edited: true,
       updated_at: new Date().toISOString(),
     })
     .eq('id', commentId)
-    .select()
+    .select('*, author:profiles!author_id(*)')
     .single()
 }
 
@@ -53,7 +62,7 @@ export async function updateComment(commentId: string, content: string) {
  * Delete a comment
  */
 export async function deleteComment(commentId: string) {
-  return await supabase.from('comments').delete().eq('id', commentId)
+  return await supabase.from('ticket_comments').delete().eq('id', commentId)
 }
 
 /**
@@ -61,16 +70,8 @@ export async function deleteComment(commentId: string) {
  */
 export async function getCommentsByAuthor(authorId: string) {
   return await supabase
-    .from('comments')
+    .from('ticket_comments')
     .select('*, ticket:tickets(*)')
     .eq('author_id', authorId)
     .order('created_at', { ascending: false })
 }
-
-
-
-
-
-
-
-

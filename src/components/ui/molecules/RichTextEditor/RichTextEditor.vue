@@ -6,6 +6,7 @@ import { useRichTextEditor } from './useRichTextEditor'
 import BubbleMenuButtons from './BubbleMenuButtons.vue'
 import FloatingMenuButtons from './FloatingMenuButtons.vue'
 import type { MentionUser } from './suggestions'
+import { cn } from '@/lib/utils'
 
 interface Props {
   modelValue?: string
@@ -18,12 +19,15 @@ interface Props {
   mentionUsers?: MentionUser[]
   ticketId?: string
   collaborativeEnabled?: boolean
+  showFloatingMenu?: boolean
+  class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   minHeight: '200px',
   mentionUsers: () => [],
   collaborativeEnabled: true,
+  showFloatingMenu: true,
 })
 
 const emit = defineEmits<{
@@ -55,14 +59,16 @@ const editor = computed(() => editorRef.value ?? undefined)
 
 <template>
   <div
-    :class="[
-      'rich-text-editor-wrapper',
-      'w-full rounded-lg border transition-colors',
-      invalid
-        ? 'border-error-500 focus-within:border-error-500 focus-within:ring-error-500'
-        : 'border-none',
-      disabled ? 'bg-neutral-100 cursor-not-allowed' : 'bg-transparent',
-    ]"
+    :class="
+      cn(
+        'rich-text-editor-wrapper',
+        'w-full rounded-lg border transition-colors',
+        invalid
+          ? 'border-error-500 focus-within:border-error-500 focus-within:ring-error-500'
+          : 'border-none',
+        props.class,
+      )
+    "
   >
     <EditorContent :editor="editor" :style="{ minHeight }" />
 
@@ -76,7 +82,7 @@ const editor = computed(() => editorRef.value ?? undefined)
     </BubbleMenu>
 
     <FloatingMenu
-      v-if="editor"
+      v-if="editor && showFloatingMenu"
       :editor="editor"
       :options="{ placement: 'bottom' }"
       class="floating-menu-wrapper"
@@ -90,7 +96,6 @@ const editor = computed(() => editorRef.value ?? undefined)
 @reference "../../../../style.css";
 
 :deep(.tiptap) {
-  padding: 12px;
   min-height: v-bind(minHeight);
   outline: none;
 }

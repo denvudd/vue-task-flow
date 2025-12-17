@@ -50,8 +50,10 @@ const handleOpenChange = (details: { open: boolean }) => {
 </template>
 
 <style scoped>
+@reference "../../../style.css";
+
 .tooltip-content {
-  animation: tooltip-fade-in 0.2s ease-out;
+  @apply animate-in fade-in duration-300 zoom-in-95;
 }
 
 .tooltip-arrow {
@@ -62,16 +64,5 @@ const handleOpenChange = (details: { open: boolean }) => {
 .tooltip-arrow-tip {
   border-color: var(--arrow-background);
   border-width: var(--arrow-size);
-}
-
-@keyframes tooltip-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 </style>
