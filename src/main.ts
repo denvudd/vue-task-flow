@@ -7,7 +7,6 @@ import i18n from './lib/i18n'
 import { VueQueryPlugin, vueQueryOptions } from './lib/vue-query'
 import { useAuthStore } from './stores/auth'
 import VueDnDKitPlugin from '@vue-dnd-kit/core'
-import VueDnDKitDevtools from '@vue-dnd-kit/devtools'
 import './style.css'
 
 const app = createApp(App)
@@ -19,7 +18,6 @@ app.use(router)
 app.use(i18n)
 app.use(VueQueryPlugin, vueQueryOptions)
 app.use(VueDnDKitPlugin)
-app.use(VueDnDKitDevtools)
 
 const authStore = useAuthStore()
 

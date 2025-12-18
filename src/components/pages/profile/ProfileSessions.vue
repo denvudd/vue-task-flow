@@ -15,7 +15,6 @@ const signOutDialogOpen = ref(false)
 const isSigningOut = ref(false)
 
 interface SessionInfo {
-  createdAt: Date
   expiresAt: Date
   userAgent: string
   deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown'
@@ -43,7 +42,6 @@ const sessionInfo = computed<SessionInfo | null>(() => {
   }
 
   return {
-    createdAt: new Date(session.value.created_at || Date.now()),
     expiresAt: new Date(session.value.expires_at || Date.now()),
     userAgent,
     deviceType,
@@ -112,9 +110,13 @@ const handleSignOut = async () => {
 
 <template>
   <div>
-    <p class="text-sm font-medium text-neutral-700 mb-3 block">{{ t('profilePage.sessions.label') }}</p>
+    <p class="text-sm font-medium text-neutral-700 mb-3 block">
+      {{ t('profilePage.sessions.label') }}
+    </p>
 
-    <div v-if="!sessionInfo" class="text-sm text-neutral-500">{{ t('profilePage.sessions.noSession') }}</div>
+    <div v-if="!sessionInfo" class="text-sm text-neutral-500">
+      {{ t('profilePage.sessions.noSession') }}
+    </div>
 
     <Card v-else class="border border-neutral-200">
       <div class="space-y-4">
@@ -141,8 +143,12 @@ const handleSignOut = async () => {
                           : t('profilePage.sessions.devices.unknown')
                   }}
                 </p>
-                <Badge v-if="sessionInfo.isCurrent" variant="success" size="sm">{{ t('profilePage.sessions.current') }}</Badge>
-                <Badge v-if="isExpiringSoon" variant="warning" size="sm">{{ t('profilePage.sessions.expiringSoon') }}</Badge>
+                <Badge v-if="sessionInfo.isCurrent" variant="success" size="sm">{{
+                  t('profilePage.sessions.current')
+                }}</Badge>
+                <Badge v-if="isExpiringSoon" variant="warning" size="sm">{{
+                  t('profilePage.sessions.expiringSoon')
+                }}</Badge>
               </div>
               <p class="text-xs text-neutral-500 mt-0.5">
                 {{ sessionInfo.userAgent.substring(0, 60)
@@ -164,13 +170,6 @@ const handleSignOut = async () => {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-neutral-200">
-          <div class="flex items-start gap-2">
-            <Calendar class="w-4 h-4 text-neutral-400 mt-0.5" />
-            <div>
-              <p class="text-xs text-neutral-500 mb-0.5">{{ t('profilePage.sessions.created') }}</p>
-              <p class="text-sm text-neutral-900">{{ formatDate(sessionInfo.createdAt) }}</p>
-            </div>
-          </div>
           <div class="flex items-start gap-2">
             <Clock class="w-4 h-4 text-neutral-400 mt-0.5" />
             <div>
@@ -201,7 +200,11 @@ const handleSignOut = async () => {
             {{ t('profilePage.sessions.signOutDialog.cancel') }}
           </Button>
           <Button type="button" variant="danger" :disabled="isSigningOut" @click="handleSignOut">
-            {{ isSigningOut ? t('profilePage.sessions.signOutDialog.signingOut') : t('profilePage.sessions.signOutDialog.signOut') }}
+            {{
+              isSigningOut
+                ? t('profilePage.sessions.signOutDialog.signingOut')
+                : t('profilePage.sessions.signOutDialog.signOut')
+            }}
           </Button>
         </div>
       </template>
