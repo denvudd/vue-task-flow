@@ -223,168 +223,165 @@ const getSelectedFieldLabel = (field: SortField | '') => {
     </template>
 
     <div class="space-y-2">
-        <TransitionGroup
-          v-if="sortRules.length > 0"
-          name="sort-rules"
-          class="space-y-3"
-          tag="div"
-          enter-active-class="transition-all duration-200 ease-out"
-          enter-from-class="opacity-0 -translate-y-2"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition-all duration-150 ease-in"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 translate-y-2"
-          move-class="transition-transform duration-200 ease-out"
+      <TransitionGroup
+        v-if="sortRules.length > 0"
+        name="sort-rules"
+        class="space-y-3"
+        tag="div"
+        enter-active-class="transition-all duration-200 ease-out"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition-all duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-2"
+        move-class="transition-transform duration-200 ease-out"
+      >
+        <div
+          v-for="(rule, index) in sortRules"
+          :key="rule.id"
+          class="flex items-center gap-2 p-2 min-w-2xs border border-neutral-200 rounded-lg bg-neutral-50"
         >
-          <div
-            v-for="(rule, index) in sortRules"
-            :key="rule.id"
-            class="flex items-center gap-2 p-2 min-w-2xs border border-neutral-200 rounded-lg bg-neutral-50"
-          >
-            <div class="flex-1 space-y-2">
-              <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
-                <component
-                  v-if="getFieldIcon(rule.field)"
-                  :is="getFieldIcon(rule.field)"
-                  class="size-3.5"
-                />
-                <span>{{ t('projectSort.sortLabel', { index: index + 1 }) }}</span>
-              </div>
-              <Field>
-                <div class="relative">
-                  <Select.Root
-                    :collection="
-                      createListCollection({
-                        items: getAvailableFields(rule.id).map((option) => ({
-                          label: option.label,
-                          value: option.key,
-                        })),
-                      })
-                    "
-                    :value="rule.field ? [rule.field] : []"
-                    @value-change="
-                      (details) =>
-                        updateSortRule(rule.id, {
-                          field: (details.value[0] as SortField) || '',
-                        })
-                    "
-                  >
-                    <Select.Trigger
-                      class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
-                    >
-                      <Select.ValueText :placeholder="t('projectSort.selectField')">
-                        <div v-if="rule.field" class="flex items-center gap-1.5">
-                          <component
-                            :is="getFieldIcon(rule.field)"
-                            v-if="getFieldIcon(rule.field)"
-                            class="size-3.5"
-                          />
-                          <span>{{ getSelectedFieldLabel(rule.field) }}</span>
-                        </div>
-                        <span v-else class="text-neutral-400">{{ t('projectSort.selectField') }}</span>
-                      </Select.ValueText>
-                      <Select.Indicator>
-                        <ChevronDownIcon class="size-4" />
-                      </Select.Indicator>
-                    </Select.Trigger>
-
-                    <Teleport to="body">
-                      <Select.Positioner>
-                        <Select.Content
-                          class="z-50 rounded-lg border border-neutral-300 bg-white shadow-lg overflow-hidden min-w-fit"
-                        >
-                          <Select.ItemGroup>
-                            <Select.Item
-                              v-for="option in getAvailableFields(rule.id)"
-                              :key="option.key"
-                              :item="{ label: option.label, value: option.key }"
-                            >
-                              <Select.ItemText class="text-xs flex items-center gap-1.5">
-                                <component :is="option.icon" class="size-3.5" />
-                                <span>{{ option.label }}</span>
-                              </Select.ItemText>
-                              <Select.ItemIndicator class="text-primary-600">
-                                <CheckIcon class="size-4" />
-                              </Select.ItemIndicator>
-                            </Select.Item>
-                          </Select.ItemGroup>
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Teleport>
-
-                    <Select.HiddenSelect />
-                  </Select.Root>
-                </div>
-              </Field>
-              <Field v-if="rule.field">
-                <div class="relative">
-                  <Select.Root
-                    :collection="sortOrderCollection"
-                    :value="[rule.order]"
-                    @value-change="
-                      (details) =>
-                        updateSortRule(rule.id, {
-                          order: (details.value[0] as SortOrder) || 'asc',
-                        })
-                    "
-                  >
-                    <Select.Trigger
-                      class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
-                    >
-                      <Select.ValueText :placeholder="t('projectSort.selectOrder')">
-                        <div class="flex items-center gap-1.5">
-                          <component
-                            :is="getOrderIcon(rule.order)"
-                            v-if="getOrderIcon(rule.order)"
-                            class="size-3.5"
-                          />
-                          <span>{{ getOrderLabel(rule.order) }}</span>
-                        </div>
-                      </Select.ValueText>
-                      <Select.Indicator>
-                        <ChevronDownIcon class="size-4" />
-                      </Select.Indicator>
-                    </Select.Trigger>
-
-                    <Teleport to="body">
-                      <Select.Positioner>
-                        <Select.Content
-                          class="z-50 rounded-lg border border-neutral-300 bg-white shadow-lg overflow-hidden min-w-fit"
-                        >
-                          <Select.ItemGroup>
-                            <Select.Item
-                              v-for="option in sortOrderOptions"
-                              :key="option.value"
-                              :item="{ label: option.label, value: option.value }"
-                            >
-                              <Select.ItemText class="text-xs flex items-center gap-1.5">
-                                <component :is="option.icon" class="size-3.5" />
-                                <span>{{ option.label }}</span>
-                              </Select.ItemText>
-                              <Select.ItemIndicator class="text-primary-600">
-                                <CheckIcon class="size-4" />
-                              </Select.ItemIndicator>
-                            </Select.Item>
-                          </Select.ItemGroup>
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Teleport>
-
-                    <Select.HiddenSelect />
-                  </Select.Root>
-                </div>
-              </Field>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
+              <component
+                v-if="getFieldIcon(rule.field)"
+                :is="getFieldIcon(rule.field)"
+                class="size-3.5"
+              />
+              <span>{{ t('projectSort.sortLabel', { index: index + 1 }) }}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="mt-6 h-8 w-8"
-              @click="removeSortRule(rule.id)"
-            >
-              <X class="w-3 h-3" />
-            </Button>
+            <Field>
+              <div class="relative">
+                <Select.Root
+                  :collection="
+                    createListCollection({
+                      items: getAvailableFields(rule.id).map((option) => ({
+                        label: option.label,
+                        value: option.key,
+                      })),
+                    })
+                  "
+                  :value="rule.field ? [rule.field] : []"
+                  @value-change="
+                    (details) =>
+                      updateSortRule(rule.id, {
+                        field: (details.value[0] as SortField) || '',
+                      })
+                  "
+                >
+                  <Select.Trigger
+                    class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
+                  >
+                    <Select.ValueText :placeholder="t('projectSort.selectField')">
+                      <div v-if="rule.field" class="flex items-center gap-1.5">
+                        <component
+                          :is="getFieldIcon(rule.field)"
+                          v-if="getFieldIcon(rule.field)"
+                          class="size-3.5"
+                        />
+                        <span>{{ getSelectedFieldLabel(rule.field) }}</span>
+                      </div>
+                      <span v-else class="text-neutral-400">{{
+                        t('projectSort.selectField')
+                      }}</span>
+                    </Select.ValueText>
+                    <Select.Indicator>
+                      <ChevronDownIcon class="size-4" />
+                    </Select.Indicator>
+                  </Select.Trigger>
+
+                  <Teleport to="body">
+                    <Select.Positioner>
+                      <Select.Content
+                        class="z-50 rounded-lg border border-neutral-300 bg-white shadow-lg py-1 overflow-hidden min-w-fit"
+                      >
+                        <Select.ItemGroup>
+                          <Select.Item
+                            v-for="option in getAvailableFields(rule.id)"
+                            :key="option.key"
+                            :item="{ label: option.label, value: option.key }"
+                          >
+                            <Select.ItemText class="text-xs flex items-center px-2 py-1 gap-1.5">
+                              <component :is="option.icon" class="size-3.5" />
+                              <span>{{ option.label }}</span>
+                            </Select.ItemText>
+                            <Select.ItemIndicator class="text-primary-600">
+                              <CheckIcon class="size-4" />
+                            </Select.ItemIndicator>
+                          </Select.Item>
+                        </Select.ItemGroup>
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Teleport>
+
+                  <Select.HiddenSelect />
+                </Select.Root>
+              </div>
+            </Field>
+            <Field v-if="rule.field">
+              <div class="relative">
+                <Select.Root
+                  :collection="sortOrderCollection"
+                  :value="[rule.order]"
+                  @value-change="
+                    (details) =>
+                      updateSortRule(rule.id, {
+                        order: (details.value[0] as SortOrder) || 'asc',
+                      })
+                  "
+                >
+                  <Select.Trigger
+                    class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
+                  >
+                    <Select.ValueText :placeholder="t('projectSort.selectOrder')">
+                      <div class="flex items-center gap-1.5">
+                        <component
+                          :is="getOrderIcon(rule.order)"
+                          v-if="getOrderIcon(rule.order)"
+                          class="size-3.5"
+                        />
+                        <span>{{ getOrderLabel(rule.order) }}</span>
+                      </div>
+                    </Select.ValueText>
+                    <Select.Indicator>
+                      <ChevronDownIcon class="size-4" />
+                    </Select.Indicator>
+                  </Select.Trigger>
+
+                  <Teleport to="body">
+                    <Select.Positioner>
+                      <Select.Content
+                        class="z-50 rounded-lg border border-neutral-300 bg-white shadow-lg overflow-hidden min-w-fit"
+                      >
+                        <Select.ItemGroup>
+                          <Select.Item
+                            v-for="option in sortOrderOptions"
+                            :key="option.value"
+                            :item="{ label: option.label, value: option.value }"
+                          >
+                            <Select.ItemText class="text-xs flex items-center px-2 py-1 gap-1.5">
+                              <component :is="option.icon" class="size-3.5" />
+                              <span>{{ option.label }}</span>
+                            </Select.ItemText>
+                            <Select.ItemIndicator class="text-primary-600">
+                              <CheckIcon class="size-4" />
+                            </Select.ItemIndicator>
+                          </Select.Item>
+                        </Select.ItemGroup>
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Teleport>
+
+                  <Select.HiddenSelect />
+                </Select.Root>
+              </div>
+            </Field>
           </div>
-        </TransitionGroup>
+          <Button variant="ghost" size="icon" class="mt-6 h-8 w-8" @click="removeSortRule(rule.id)">
+            <X class="w-3 h-3" />
+          </Button>
+        </div>
+      </TransitionGroup>
       <div v-else>
         <div class="flex flex-col items-center text-center gap-2 px-2 py-1">
           <p class="text-sm text-neutral-500">{{ t('projectSort.noRules') }}</p>
