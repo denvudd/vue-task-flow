@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useUpdateProfile } from '@/composables/useProfile'
+import { useI18n } from 'vue-i18n'
 import { Button, Card, Field, FieldInput } from '@/components/ui'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -19,6 +20,7 @@ const router = useRouter()
 const { user, profile, loading: authLoading, loadProfile } = useAuth()
 const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateProfile()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const error = ref<string | null>(null)
 const avatarPath = ref<string | null>(null)
@@ -64,7 +66,7 @@ const onSubmit = handleSubmit(async (formValues) => {
   error.value = null
 
   if (!user.value?.id) {
-    error.value = 'You must be logged in to update profile'
+    error.value = t('profilePage.errors.notLoggedIn')
     return
   }
 
@@ -85,7 +87,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     }
 
     if (Object.keys(updates).length === 0) {
-      error.value = 'No changes to save'
+      error.value = t('profilePage.errors.noChanges')
       return
     }
 
@@ -97,12 +99,12 @@ const onSubmit = handleSubmit(async (formValues) => {
     await loadProfile(user.value.id)
 
     createToast({
-      title: 'Profile updated',
-      description: 'Your profile has been successfully updated.',
+      title: t('profilePage.success.title'),
+      description: t('profilePage.success.description'),
       type: 'success',
     })
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    error.value = err instanceof Error ? err.message : t('profilePage.errors.unexpected')
   }
 })
 
@@ -113,7 +115,7 @@ const handleBack = () => {
 
 <template>
   <div v-if="authLoading" class="min-h-screen bg-neutral-50 flex justify-center items-center p-4">
-    <div class="text-neutral-600">Loading...</div>
+    <div class="text-neutral-600">{{ t('profilePage.loading') }}</div>
   </div>
 
   <div v-else class="min-h-screen bg-neutral-50 p-4 md:p-8 pt-0 md:pt-0">
@@ -121,14 +123,14 @@ const handleBack = () => {
       <div>
         <Button variant="ghost" size="sm" @click="handleBack">
           <ArrowLeft class="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {{ t('profilePage.backToDashboard') }}
         </Button>
       </div>
 
       <Card>
-        <h1 class="text-3xl font-bold text-neutral-900">Edit Profile</h1>
+        <h1 class="text-3xl font-bold text-neutral-900">{{ t('profilePage.title') }}</h1>
         <p class="text-neutral-600 mt-2 mb-6">
-          Update your profile information below. Changes will be saved to your account.
+          {{ t('profilePage.subtitle') }}
         </p>
 
         <form @submit.prevent="onSubmit" class="space-y-6">
@@ -145,17 +147,15 @@ const handleBack = () => {
           <ProfileChangeEmailDialog />
 
           <Field
-            label="Username"
-            :helper-text="
-              errors.username || 'Your unique username (letters, numbers, underscores only)'
-            "
+            :label="t('profilePage.username')"
+            :helper-text="errors.username || t('profilePage.usernameHelper')"
             :error-text="errors.username"
             :invalid="!!errors.username"
           >
             <FieldInput
               v-model="username"
               type="text"
-              placeholder="john_doe"
+              :placeholder="t('profilePage.usernamePlaceholder')"
               :disabled="isSubmitting"
               :invalid="!!errors.username"
               @blur="usernameAttrs.onBlur"
@@ -163,7 +163,7 @@ const handleBack = () => {
           </Field>
 
           <Field
-            label="Full Name"
+            :label="t('profilePage.fullName')"
             :helper-text="errors.full_name"
             :error-text="errors.full_name"
             :invalid="!!errors.full_name"
@@ -171,7 +171,7 @@ const handleBack = () => {
             <FieldInput
               v-model="fullName"
               type="text"
-              placeholder="John Doe"
+              :placeholder="t('profilePage.fullNamePlaceholder')"
               :disabled="isSubmitting"
               :invalid="!!errors.full_name"
               @blur="fullNameAttrs.onBlur"
@@ -184,10 +184,10 @@ const handleBack = () => {
 
           <div class="flex justify-between items-center gap-3 pt-4">
             <Button type="button" variant="outline" :disabled="isSubmitting" @click="handleBack">
-              Cancel
+              {{ t('profilePage.cancel') }}
             </Button>
             <Button type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+              {{ isSubmitting ? t('profilePage.saving') : t('profilePage.save') }}
             </Button>
           </div>
         </form>

@@ -13,6 +13,7 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-vue-next'
+import type { Component } from 'vue'
 
 /**
  * Ticket statuses
@@ -27,41 +28,55 @@ export const TICKET_STATUSES = {
 
 export type TicketStatus = (typeof TICKET_STATUSES)[keyof typeof TICKET_STATUSES]
 
-export const TICKET_STATUS_OPTIONS = [
+export interface StatusOption {
+  label: string
+  value: TicketStatus
+  icon: Component
+  color: string
+  bgColor: string
+  cardColor: string
+}
+
+export const TICKET_STATUS_OPTIONS: StatusOption[] = [
   {
     label: 'To Do',
     value: TICKET_STATUSES.TODO,
     icon: Circle,
     color: 'text-neutral-700',
-    bgColor: 'bg-neutral-100',
+    bgColor: 'bg-neutral-100/50',
+    cardColor: 'bg-neutral-50',
   },
   {
     label: 'In Progress',
     value: TICKET_STATUSES.IN_PROGRESS,
     icon: CircleDashed,
     color: 'text-info-700',
-    bgColor: 'bg-info-100',
+    bgColor: 'bg-info-50/50',
+    cardColor: 'bg-info-50',
   },
   {
     label: 'Review',
     value: TICKET_STATUSES.REVIEW,
     icon: Eye,
     color: 'text-warning-700',
-    bgColor: 'bg-warning-100',
+    bgColor: 'bg-warning-50/50',
+    cardColor: 'bg-warning-50',
   },
   {
     label: 'Done',
     value: TICKET_STATUSES.DONE,
     icon: CheckCircle2,
     color: 'text-success-700',
-    bgColor: 'bg-success-100',
+    bgColor: 'bg-success-50/50',
+    cardColor: 'bg-success-50',
   },
   {
     label: 'Archived',
     value: TICKET_STATUSES.ARCHIVED,
     icon: Archive,
     color: 'text-neutral-600',
-    bgColor: 'bg-neutral-200',
+    bgColor: 'bg-neutral-50/50',
+    cardColor: 'bg-neutral-50',
   },
 ]
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Field, RichTextEditor } from '@/components/ui'
+import { useI18n } from 'vue-i18n'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 
 const { description, mentionUsers, currentTicketId, setLocalDescription, updateTicketField } =
   useTicketDetails()
+const { t } = useI18n()
 
 const handleDescriptionChange = (value: string) => {
   setLocalDescription(value)
@@ -21,7 +23,7 @@ const handleDescriptionBlur = async () => {
         :model-value="description"
         @update:model-value="handleDescriptionChange"
         @blur="handleDescriptionBlur"
-        placeholder="Enter ticket description"
+        :placeholder="t('ticketDetails.content.placeholder')"
         min-height="200px"
         :mention-users="mentionUsers"
         :ticket-id="currentTicketId ?? ''"

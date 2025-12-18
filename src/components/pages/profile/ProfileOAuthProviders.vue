@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import { useI18n } from 'vue-i18n'
 import { Badge, Button, Dialog } from '@/components/ui'
 import { unlinkIdentity } from '@/api/auth'
 import { useToast } from '@/composables/useToast'
@@ -23,6 +24,7 @@ import type { Component } from 'vue'
 
 const { user, initialize } = useAuth()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 interface OAuthProvider {
   provider: string
@@ -123,16 +125,16 @@ const handleUnlink = async () => {
     await initialize()
 
     createToast({
-      title: 'Provider disconnected',
-      description: `${getProviderName(providerToUnlink.value.provider)} has been successfully disconnected from your account.`,
+      title: t('profilePage.oauth.success.title'),
+      description: t('profilePage.oauth.success.description', { provider: getProviderName(providerToUnlink.value.provider) }),
       type: 'success',
     })
 
     closeUnlinkDialog()
   } catch (err: any) {
     createToast({
-      title: 'Error disconnecting provider',
-      description: err.message || 'Failed to disconnect the provider. Please try again.',
+      title: t('profilePage.oauth.errors.title'),
+      description: err.message || t('profilePage.oauth.errors.description'),
       type: 'error',
     })
   } finally {
@@ -143,9 +145,9 @@ const handleUnlink = async () => {
 
 <template>
   <div>
-    <p class="text-sm font-medium text-neutral-700 mb-3 block">Connected Accounts</p>
+    <p class="text-sm font-medium text-neutral-700 mb-3 block">{{ t('profilePage.oauth.label') }}</p>
     <div v-if="providers.length === 0" class="text-sm text-neutral-500">
-      No OAuth providers connected
+      {{ t('profilePage.oauth.noProviders') }}
     </div>
     <div v-else class="space-y-2">
       <div
@@ -163,11 +165,11 @@ const handleUnlink = async () => {
             <p class="text-sm font-medium text-neutral-900">
               {{ getProviderName(provider.provider) }}
             </p>
-            <p class="text-xs text-neutral-500">Connected via OAuth</p>
+            <p class="text-xs text-neutral-500">{{ t('profilePage.oauth.connectedVia') }}</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <Badge variant="success" size="sm">Connected</Badge>
+          <Badge variant="success" size="sm">{{ t('profilePage.oauth.connected') }}</Badge>
           <Button
             variant="ghost"
             size="sm"
@@ -182,11 +184,9 @@ const handleUnlink = async () => {
     </div>
 
     <Dialog v-model:open="unlinkDialogOpen" size="md">
-      <template #title>Disconnect Provider</template>
+      <template #title>{{ t('profilePage.oauth.disconnectDialog.title') }}</template>
       <template #description>
-        Are you sure you want to disconnect
-        <strong>{{ providerToUnlink ? getProviderName(providerToUnlink.provider) : '' }}</strong>
-        from your account? You will no longer be able to sign in using this provider.
+        <span v-html="t('profilePage.oauth.disconnectDialog.description', { provider: providerToUnlink ? getProviderName(providerToUnlink.provider) : '' })"></span>
       </template>
 
       <template #footer>
@@ -197,10 +197,10 @@ const handleUnlink = async () => {
             :disabled="isUnlinking"
             @click="closeUnlinkDialog"
           >
-            Cancel
+            {{ t('profilePage.oauth.disconnectDialog.cancel') }}
           </Button>
           <Button type="button" variant="danger" :disabled="isUnlinking" @click="handleUnlink">
-            {{ isUnlinking ? 'Disconnecting...' : 'Disconnect' }}
+            {{ isUnlinking ? t('profilePage.oauth.disconnectDialog.disconnecting') : t('profilePage.oauth.disconnectDialog.disconnect') }}
           </Button>
         </div>
       </template>

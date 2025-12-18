@@ -10,4 +10,4 @@ export const ROUTES = {
   EditProject: (projectId: string) => `/projects/${projectId}/edit`,
   Project: (projectId: string) => `/projects/${projectId}`,
   Ticket: (projectId: string, ticketId: string) => `/projects/${projectId}/tickets/${ticketId}`,
-}
+} as const

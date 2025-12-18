@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Avatar, Button, RichTextEditor } from '@/components/ui'
 import {
   useUpdateTicketComment,
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 const { currentTicketId, mentionUsers } = useTicketDetails()
 const { user } = useAuth()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const { mutateAsync: updateComment, isPending: isUpdating } = useUpdateTicketComment()
 const { mutateAsync: deleteComment, isPending: isDeleting } = useDeleteTicketComment()
@@ -76,21 +78,21 @@ const handleUpdateComment = async () => {
     })
     cancelEdit()
     createToast({
-      title: 'Comment updated',
+      title: t('ticketDetails.comments.success.updated'),
       type: 'success',
     })
     emit('updated')
   } catch (err) {
     console.error('Failed to update comment:', err)
     createToast({
-      title: 'Failed to update comment',
+      title: t('ticketDetails.comments.errors.updateFailed'),
       type: 'error',
     })
   }
 }
 
 const handleDeleteComment = async () => {
-  if (!confirm('Are you sure you want to delete this comment?')) {
+  if (!confirm(t('ticketDetails.comments.deleteConfirm'))) {
     return
   }
 
@@ -100,14 +102,14 @@ const handleDeleteComment = async () => {
       ticketId: props.comment.ticket_id,
     })
     createToast({
-      title: 'Comment deleted',
+      title: t('ticketDetails.comments.success.deleted'),
       type: 'success',
     })
     emit('deleted')
   } catch (err) {
     console.error('Failed to delete comment:', err)
     createToast({
-      title: 'Failed to delete comment',
+      title: t('ticketDetails.comments.errors.deleteFailed'),
       type: 'error',
     })
   }
@@ -121,15 +123,15 @@ const handleCopyCommentLink = async () => {
   try {
     await navigator.clipboard.writeText(url.toString())
     createToast({
-      title: 'Link copied',
-      description: 'Comment link has been copied to clipboard',
+      title: t('ticketDetails.comments.success.linkCopied'),
+      description: t('ticketDetails.comments.success.linkCopiedDescription'),
       type: 'success',
     })
     menuOpenState.value = false
   } catch (err) {
     console.error('Failed to copy link:', err)
     createToast({
-      title: 'Failed to copy link',
+      title: t('ticketDetails.comments.errors.copyLinkFailed'),
       type: 'error',
     })
   }
@@ -175,7 +177,7 @@ const handleCopyCommentLink = async () => {
             v-if="comment.updated_at && comment.updated_at !== comment.created_at"
             class="text-xs text-neutral-400"
           >
-            (edited)
+            {{ t('ticketDetails.comments.edited') }}
           </span>
         </div>
 
@@ -199,13 +201,13 @@ const handleCopyCommentLink = async () => {
           <ArkMenu.Item value="copy-link" as-child>
             <button @click="handleCopyCommentLink" class="w-full text-left flex items-center gap-2">
               <Link class="size-3.5" />
-              Copy link
+              {{ t('ticketDetails.comments.copyLink') }}
             </button>
           </ArkMenu.Item>
           <ArkMenu.Item v-if="isCommentAuthor()" value="edit" as-child>
             <button @click="startEdit" class="w-full text-left flex items-center gap-2">
               <Edit2 class="size-3.5" />
-              Edit
+              {{ t('ticketDetails.comments.edit') }}
             </button>
           </ArkMenu.Item>
           <ArkMenu.Item v-if="isCommentAuthor()" value="delete" as-child>
@@ -214,7 +216,7 @@ const handleCopyCommentLink = async () => {
               class="w-full text-left flex items-center gap-2 text-error-600"
             >
               <Trash2 class="size-3.5" />
-              Delete
+              {{ t('ticketDetails.comments.delete') }}
             </button>
           </ArkMenu.Item>
         </Menu>
@@ -229,7 +231,7 @@ const handleCopyCommentLink = async () => {
             <RichTextEditor
               :model-value="editingContent"
               @update:model-value="editingContent = $event"
-              placeholder="Edit your comment..."
+              :placeholder="t('ticketDetails.comments.editPlaceholder')"
               min-height="24px"
               :mention-users="mentionUsers"
               :ticket-id="currentTicketId ?? ''"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -34,6 +35,7 @@ const projectId = computed(() => {
 
 const { user } = useAuth()
 const { mutateAsync: createTicket, isPending: isSubmitting } = useCreateTicket()
+const { t } = useI18n()
 
 const isOpen = ref(false)
 
@@ -128,27 +130,27 @@ const handleOpen = () => {
     <slot name="trigger" :open="handleOpen">
       <Button size="sm" @click="handleOpen">
         <Plus class="w-4 h-4 mr-1" />
-        New
+        {{ t('projectCreateTicket.newButton') }}
       </Button>
     </slot>
 
     <Dialog v-model:open="isOpen" size="lg">
-      <template #title>New ticket</template>
-      <template #description>Fill in the details to create a new ticket</template>
+      <template #title>{{ t('projectCreateTicket.title') }}</template>
+      <template #description>{{ t('projectCreateTicket.description') }}</template>
 
       <form @submit.prevent="handleSubmitForm" class="space-y-4">
-        <Field label="Title" required :invalid="!!errors.title">
+        <Field :label="t('projectCreateTicket.fields.title')" required :invalid="!!errors.title">
           <FieldInput
             v-model="createTitle"
             v-bind="createTitleAttrs"
-            placeholder="Enter ticket title"
+            :placeholder="t('projectCreateTicket.fields.titlePlaceholder')"
             :invalid="!!errors.title"
           />
           <template #errorText>{{ errors.title }}</template>
         </Field>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Field label="Status" :invalid="!!errors.status">
+          <Field :label="t('projectCreateTicket.fields.status')" :invalid="!!errors.status">
             <TicketStatusSelect
               :value="createStatus"
               :invalid="!!errors.status"
@@ -157,7 +159,7 @@ const handleOpen = () => {
             <template #errorText>{{ errors.status }}</template>
           </Field>
 
-          <Field label="Priority" :invalid="!!errors.priority">
+          <Field :label="t('projectCreateTicket.fields.priority')" :invalid="!!errors.priority">
             <TicketPrioritySelect
               :value="createPriority"
               :invalid="!!errors.priority"
@@ -166,7 +168,7 @@ const handleOpen = () => {
             <template #errorText>{{ errors.priority }}</template>
           </Field>
 
-          <Field label="Type" :invalid="!!errors.type">
+          <Field :label="t('projectCreateTicket.fields.type')" :invalid="!!errors.type">
             <TicketTypeSelect
               :value="createType"
               :invalid="!!errors.type"
@@ -176,7 +178,7 @@ const handleOpen = () => {
           </Field>
         </div>
 
-        <Field label="Due Date" :invalid="!!errors.due_date">
+        <Field :label="t('projectCreateTicket.fields.dueDate')" :invalid="!!errors.due_date">
           <FieldInput
             v-model="createDueDate"
             v-bind="createDueDateAttrs"
@@ -189,9 +191,9 @@ const handleOpen = () => {
 
       <template #footer>
         <div class="flex justify-end gap-3">
-          <Button variant="outline" @click="handleCancel"> Cancel </Button>
+          <Button variant="outline" @click="handleCancel">{{ t('projectCreateTicket.cancel') }}</Button>
           <Button type="submit" @click="handleSubmitForm" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Creating...' : 'Create Ticket' }}
+            {{ isSubmitting ? t('projectCreateTicket.creating') : t('projectCreateTicket.create') }}
           </Button>
         </div>
       </template>

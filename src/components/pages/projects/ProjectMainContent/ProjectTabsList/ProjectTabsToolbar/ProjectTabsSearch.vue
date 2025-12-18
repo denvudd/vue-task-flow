@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { Search, X } from 'lucide-vue-next'
 import { Button, Input } from '@/components/ui'
@@ -7,6 +8,7 @@ import { cn } from '@/lib/utils'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const isExpanded = ref(false)
 const searchValue = ref('')
@@ -110,7 +112,7 @@ const hasSearchValue = computed(() => !!searchValue.value.trim())
     <Button
       variant="ghost"
       size="icon"
-      tooltip="Search"
+      :tooltip="t('projectSearch.tooltip')"
       :class="cn(hasSearchValue && 'border-primary-500 bg-primary-50')"
       @click="handleExpand"
     >
@@ -126,7 +128,7 @@ const hasSearchValue = computed(() => !!searchValue.value.trim())
         <div ref="inputRef" class="relative">
           <Input
             v-model="searchValue"
-            placeholder="Type to search..."
+            :placeholder="t('projectSearch.placeholder')"
             :class="
               cn(
                 'px-0 py-1 text-sm border bg-transparent border-none ring-0 outline-none focus:ring-0 focus:ring-transparent focus:border-none',

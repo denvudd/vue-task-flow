@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Dialog, Button, Field, Toggle, buttonVariants } from '@/components/ui'
 import { useProjectInviteLinks, useCreateInviteLink } from '@/composables/useInvites'
 import { Plus, Share2, Eye, LockKeyhole } from 'lucide-vue-next'
@@ -25,6 +26,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { createToast } = useToast()
+const { t } = useI18n()
 const { project, isOwner } = useProjectContext()
 const { mutateAsync: updateProject, isPending: isUpdatingVisibility } = useUpdateProject()
 
@@ -65,7 +67,7 @@ const handleVisibilityChange = async (pressed: boolean) => {
   } catch (err) {
     console.error('Failed to update visibility:', err)
     createToast({
-      title: 'Failed to update visibility',
+      title: t('projectInvite.errors.updateVisibilityFailed'),
       type: 'error',
     })
   }
@@ -78,8 +80,8 @@ const handleCreateLink = async () => {
       role: selectedRole.value,
     })
     createToast({
-      title: 'Invite link created',
-      description: 'You can now share this link with others',
+      title: t('projectInvite.success.linkCreated'),
+      description: t('projectInvite.success.linkCreatedDescription'),
       type: 'success',
     })
     showCreateForm.value = false
@@ -87,7 +89,7 @@ const handleCreateLink = async () => {
   } catch (err) {
     console.error('Failed to create invite link:', err)
     createToast({
-      title: 'Failed to create invite link',
+      title: t('projectInvite.errors.createFailed'),
       type: 'error',
     })
   }
@@ -108,38 +110,38 @@ const open = () => {
     <slot name="trigger" :open="open">
       <Button variant="outline" size="sm" @click="open">
         <Share2 class="w-4 h-4 mr-2" />
-        Share
+        {{ t('projectInvite.triggerButton') }}
       </Button>
     </slot>
 
     <Dialog v-model:open="isOpen" size="xl">
-      <template #title>Share {{ projectName }}</template>
+      <template #title>{{ t('projectInvite.title', { projectName }) }}</template>
 
       <div class="space-y-6">
         <Field v-if="isOwner">
           <div class="flex items-start justify-between w-full gap-3">
             <div class="span-y-1">
-              <p class="text-sm font-medium text-neutral-700">Visibility</p>
+              <p class="text-sm font-medium text-neutral-700">{{ t('projectInvite.visibility.label') }}</p>
               <p class="text-xs text-neutral-600">
                 {{
                   isProjectPrivate
-                    ? 'You can invite members to this project by sharing an invite link.'
-                    : 'Anyone on the web can view this project.'
+                    ? t('projectInvite.visibility.privateDescription')
+                    : t('projectInvite.visibility.publicDescription')
                 }}
               </p>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-medium text-neutral-700">{{
-                isProjectPrivate ? 'Private' : 'Public'
+                isProjectPrivate ? t('projectInvite.visibility.private') : t('projectInvite.visibility.public')
               }}</span>
               <Toggle
                 :pressed="isProjectPrivate"
                 :disabled="isUpdatingVisibility"
                 :class="buttonVariants({ variant: 'outline', size: 'icon' })"
-                :tooltip="isProjectPrivate ? 'Make public' : 'Make private'"
+                :tooltip="isProjectPrivate ? t('projectInvite.visibility.makePublic') : t('projectInvite.visibility.makePrivate')"
                 @pressed-change="handleVisibilityChange"
               >
-                <span class="sr-only">{{ isProjectPrivate ? 'Make public' : 'Make private' }}</span>
+                <span class="sr-only">{{ isProjectPrivate ? t('projectInvite.visibility.makePublic') : t('projectInvite.visibility.makePrivate') }}</span>
                 <Eye v-if="!isProjectPrivate" class="size-4 text-neutral-700" />
                 <LockKeyhole v-else class="size-4 text-neutral-700" />
               </Toggle>
@@ -152,8 +154,8 @@ const open = () => {
           v-if="!isProjectPrivate"
           class="p-4 bg-neutral-50 border border-neutral-200 rounded-lg text-sm text-neutral-600"
         >
-          <p class="font-medium mb-1">Invite links are disabled</p>
-          <p>Make the project private to create and manage invite links.</p>
+          <p class="font-medium mb-1">{{ t('projectInvite.publicInfo.title') }}</p>
+          <p>{{ t('projectInvite.publicInfo.description') }}</p>
         </div>
 
         <!-- Create new link form -->
@@ -161,7 +163,7 @@ const open = () => {
           v-if="showCreateForm && isProjectPrivate"
           class="p-4 bg-neutral-50 rounded-lg border border-neutral-200"
         >
-          <Field label="Anyone on the web with this link" class="mb-4">
+          <Field :label="t('projectInvite.createForm.label')" class="mb-4">
             <div class="space-y-2">
               <label
                 v-for="role in Object.values(PROJECT_ROLES)"
@@ -186,17 +188,17 @@ const open = () => {
 
           <div class="flex justify-end gap-2">
             <Button variant="outline" size="sm" @click="handleCancelCreate" :disabled="isCreating">
-              Cancel
+              {{ t('projectInvite.createForm.cancel') }}
             </Button>
             <Button @click="handleCreateLink" size="sm" :disabled="isCreating">
-              {{ isCreating ? 'Creating...' : 'Create' }}
+              {{ isCreating ? t('projectInvite.createForm.creating') : t('projectInvite.createForm.create') }}
             </Button>
           </div>
         </div>
 
         <div v-if="isProjectPrivate" class="space-y-4">
           <div class="flex items-center justify-between gap-3">
-            <h3 class="font-semibold">Invite Links</h3>
+            <h3 class="font-semibold">{{ t('projectInvite.inviteLinks.title') }}</h3>
             <Button
               v-if="!showCreateForm && isProjectPrivate"
               variant="outline"
@@ -204,16 +206,16 @@ const open = () => {
               size="sm"
             >
               <Plus class="w-4 h-4 mr-1" />
-              New
+              {{ t('projectInvite.inviteLinks.new') }}
             </Button>
           </div>
 
           <div v-if="isLoading" class="text-center py-8 text-neutral-600">
-            Loading invite links...
+            {{ t('projectInvite.inviteLinks.loading') }}
           </div>
 
           <div v-else-if="inviteLinks.length === 0" class="text-center py-8 text-neutral-600">
-            No invite links yet. Create one to invite members to this project.
+            {{ t('projectInvite.inviteLinks.noLinks') }}
           </div>
 
           <div v-else class="space-y-3">

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Avatar, Button, Menu } from '@/components/ui'
 import { Menu as ArkMenu } from '@ark-ui/vue/menu'
 import logo from '/images/logo.png'
@@ -10,6 +11,7 @@ import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 const { profile, signOut } = useAuth()
+const { t, locale } = useI18n()
 
 const menuOpen = ref(false)
 
@@ -44,6 +46,12 @@ const navigateToLogin = () => {
 const navigateToSignUp = () => {
   router.push(ROUTES.SignUp)
 }
+
+const toggleLocale = () => {
+  const newLocale = locale.value === 'uk' ? 'en' : 'uk'
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+}
 </script>
 
 <template>
@@ -60,13 +68,20 @@ const navigateToSignUp = () => {
         </div>
 
         <div v-if="profile" class="flex items-center gap-4">
+          <button
+            @click="toggleLocale"
+            class="px-3 py-1.5 text-sm font-medium text-neutral-700 hover:text-primary-600 transition-colors border border-neutral-300 rounded-md hover:border-primary-500"
+          >
+            {{ locale.toUpperCase() }}
+          </button>
+
           <div class="text-sm text-neutral-600">
             <span class="font-medium">{{ profile.full_name || profile.username }}</span>
             <span
               v-if="profile.role === 'admin'"
               class="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded"
             >
-              Admin
+              {{ t('header.admin') }}
             </span>
           </div>
 
@@ -83,18 +98,33 @@ const navigateToSignUp = () => {
             </template>
 
             <ArkMenu.Item value="profile" as-child>
-              <button @click="navigateToProfile" class="w-full text-left">Edit Profile</button>
+              <button @click="navigateToProfile" class="w-full text-left">
+                {{ t('header.editProfile') }}
+              </button>
             </ArkMenu.Item>
 
             <ArkMenu.Item value="logout" as-child>
-              <button @click="handleSignOut" class="w-full text-left">Logout</button>
+              <button @click="handleSignOut" class="w-full text-left">
+                {{ t('header.logout') }}
+              </button>
             </ArkMenu.Item>
           </Menu>
         </div>
 
         <div v-else class="flex items-center gap-4">
-          <Button variant="outline" @click="navigateToSignUp">Sign Up</Button>
-          <Button variant="primary" @click="navigateToLogin">Login</Button>
+          <button
+            @click="toggleLocale"
+            class="px-3 py-1.5 text-sm font-medium text-neutral-700 hover:text-primary-600 transition-colors border border-neutral-300 rounded-md hover:border-primary-500"
+          >
+            {{ locale.toUpperCase() }}
+          </button>
+
+          <Button variant="outline" @click="navigateToSignUp">
+            {{ t('header.signUp') }}
+          </Button>
+          <Button variant="primary" @click="navigateToLogin">
+            {{ t('header.login') }}
+          </Button>
         </div>
       </div>
     </div>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Editable } from '@/components/ui'
+import { useI18n } from 'vue-i18n'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 
 const { title, setLocalTitle, updateTicketField } = useTicketDetails()
+const { t } = useI18n()
 
 const handleTitleCommit = async (details: { value: string }) => {
   setLocalTitle(details.value)
@@ -13,7 +15,7 @@ const handleTitleCommit = async (details: { value: string }) => {
 <template>
   <Editable
     :value="title"
-    placeholder="Enter ticket title"
+    :placeholder="t('ticketDetails.title.placeholder')"
     @value-commit="handleTitleCommit"
     :with-controls="false"
     preview-class="flex text-3xl font-bold! w-full flex-1 px-0! leading-tight!"

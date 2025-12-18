@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useUserProjects } from '@/composables/useProjects'
+import { useI18n } from 'vue-i18n'
 import { Card } from '@/components/ui'
 import { SquareKanban, Ban, Plus, Pencil } from 'lucide-vue-next'
 import { Button } from '@/components/ui'
@@ -10,6 +11,7 @@ import { ROUTES } from '@/lib/routing'
 
 const { user } = useAuth()
 const router = useRouter()
+const { t } = useI18n()
 
 const {
   data: projects,
@@ -31,7 +33,7 @@ const errorMessage = computed(() => {
   if (!projectsError.value) return null
   return projectsError.value instanceof Error
     ? projectsError.value.message
-    : 'Failed to load projects'
+    : t('projects.errorLoading')
 })
 
 const handleRefreshProjects = () => {
@@ -49,15 +51,15 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
   <Card>
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold text-neutral-900">Projects</h3>
+        <h3 class="text-xl font-semibold text-neutral-900">{{ t('projects.title') }}</h3>
 
         <Button size="sm" variant="outline" @click="router.push(ROUTES.CreateProject)">
-          <Plus class="w-4 h-4 mr-1.5" />New
+          <Plus class="w-4 h-4 mr-1.5" />{{ t('projects.new') }}
         </Button>
       </div>
 
       <div v-if="projectsLoading && !projects" class="flex justify-center items-center py-8">
-        <div class="text-neutral-600">Loading projects...</div>
+        <div class="text-neutral-600">{{ t('projects.loading') }}</div>
       </div>
 
       <div
@@ -66,16 +68,16 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
       >
         <div class="flex items-center flex-col gap-3">
           <Ban class="w-12 h-12 mx-auto text-error-600" />
-          <span class="text-error-800 font-medium">Error loading projects</span>
+          <span class="text-error-800 font-medium">{{ t('projects.errorLoading') }}</span>
         </div>
         <p class="text-error-600 text-sm mt-1 text-center mx-auto">{{ errorMessage }}</p>
-        <Button variant="outline" @click="handleRefreshProjects" class="mt-4">Refresh</Button>
+        <Button variant="outline" @click="handleRefreshProjects" class="mt-4">{{ t('projects.refresh') }}</Button>
       </div>
 
       <div v-else-if="!projects || projects.length === 0" class="text-center py-8">
         <SquareKanban class="w-12 h-12 mx-auto text-neutral-400 mb-3" />
-        <p class="text-neutral-600 mb-2 font-medium">No projects yet</p>
-        <p class="text-neutral-500 text-sm">Create your first project to get started</p>
+        <p class="text-neutral-600 mb-2 font-medium">{{ t('projects.noProjects') }}</p>
+        <p class="text-neutral-500 text-sm">{{ t('projects.noProjectsDescription') }}</p>
       </div>
 
       <div v-else class="space-y-6">
@@ -83,7 +85,7 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
         <div v-if="ownedProjects.length">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
-              Your projects
+              {{ t('projects.yourProjects') }}
             </h4>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -103,7 +105,7 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
                       class="h-7 w-7 p-0"
                       @click="handleEditProject(project.id, $event)"
                       @mousedown.stop
-                      tooltip="Edit"
+                      :tooltip="t('projects.edit')"
                     >
                       <Pencil class="w-3.5 h-3.5" />
                     </Button>
@@ -119,17 +121,17 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
                 </p>
                 <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
                   <span class="text-xs text-neutral-500">
-                    Created
+                    {{ t('projects.created') }}
                     {{
                       project.created_at
                         ? new Date(project.created_at).toLocaleDateString()
-                        : 'Unknown'
+                        : t('profile.unknown')
                     }}
                   </span>
                   <span
                     class="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded"
                   >
-                    Owner
+                    {{ t('projects.owner') }}
                   </span>
                 </div>
               </div>
@@ -141,7 +143,7 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
         <div v-if="sharedProjects.length">
           <div class="flex items-center justify-between mb-2">
             <h4 class="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
-              Shared with you
+              {{ t('projects.sharedWithYou') }}
             </h4>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -167,17 +169,17 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
                 </p>
                 <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
                   <span class="text-xs text-neutral-500">
-                    Created
+                    {{ t('projects.created') }}
                     {{
                       project.created_at
                         ? new Date(project.created_at).toLocaleDateString()
-                        : 'Unknown'
+                        : t('profile.unknown')
                     }}
                   </span>
                   <span
                     class="text-xs font-medium text-neutral-500 bg-neutral-50 px-2 py-1 rounded"
                   >
-                    Member
+                    {{ t('projects.member') }}
                   </span>
                 </div>
               </div>

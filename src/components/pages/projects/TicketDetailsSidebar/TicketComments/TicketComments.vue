@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   useTicketComments,
   useCanComment,
@@ -16,6 +17,7 @@ const route = useRoute()
 const router = useRouter()
 const { currentTicketId } = useTicketDetails()
 const { canComment } = useCanComment()
+const { t } = useI18n()
 
 const { data: comments, isLoading } = useTicketComments(currentTicketId)
 const highlightedCommentId = ref<string | null>(null)
@@ -136,7 +138,7 @@ const handleExpandComments = () => {
 <template>
   <div class="mt-6">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold text-neutral-600 mb-3">Comments</h3>
+      <h3 class="text-sm font-semibold text-neutral-600 mb-3">{{ t('ticketDetails.comments.title') }}</h3>
     </div>
 
     <!-- Comments List -->
@@ -175,7 +177,7 @@ const handleExpandComments = () => {
               @click="handleExpandComments"
               class="text-xs w-full ml-0 justify-start text-neutral-600! hover:text-neutral-900!"
             >
-              Show {{ hiddenCommentsCount }} {{ hiddenCommentsCount === 1 ? 'reply' : 'replies' }}
+              {{ t('ticketDetails.comments.showReplies', hiddenCommentsCount) }}
             </Button>
           </div>
         </template>
@@ -186,7 +188,7 @@ const handleExpandComments = () => {
     <TicketCommentForm v-if="canComment" />
 
     <div v-else class="text-center py-4 text-sm text-neutral-500 border-t border-neutral-200">
-      <p>You don't have permission to comment on this ticket.</p>
+      <p>{{ t('ticketDetails.comments.noPermission') }}</p>
     </div>
   </div>
 </template>

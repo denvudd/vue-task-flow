@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button, Badge } from '@/components/ui'
 import { RefreshCw, Trash2, Power } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
@@ -21,6 +22,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { createToast } = useToast()
+const { t } = useI18n()
 const { mutateAsync: revokeLink, isPending: isRevoking } = useRevokeInviteLink()
 const { mutateAsync: regenerateToken, isPending: isRegenerating } = useRegenerateInviteLinkToken()
 const { mutateAsync: deleteLink, isPending: isDeleting } = useDeleteInviteLink()
@@ -35,55 +37,55 @@ const handleToggleActive = async () => {
       updates: { active: !props.link.active },
     })
     createToast({
-      title: props.link.active ? 'Link deactivated' : 'Link activated',
-      description: props.link.active ? 'This link will no longer work' : 'This link is now active',
+      title: props.link.active ? t('inviteLink.success.deactivated') : t('inviteLink.success.activated'),
+      description: props.link.active ? t('inviteLink.success.deactivatedDescription') : t('inviteLink.success.activatedDescription'),
       type: 'success',
     })
   } catch (err) {
     console.error('Failed to toggle link:', err)
     createToast({
-      title: 'Failed to update link',
+      title: t('inviteLink.errors.updateFailed'),
       type: 'error',
     })
   }
 }
 
 const handleRegenerate = async () => {
-  if (!confirm('Are you sure you want to regenerate this link? The old link will stop working.')) {
+  if (!confirm(t('inviteLink.confirmRegenerate'))) {
     return
   }
 
   try {
     await regenerateToken(props.link.id)
     createToast({
-      title: 'Link regenerated',
-      description: 'A new invite link has been generated',
+      title: t('inviteLink.success.regenerated'),
+      description: t('inviteLink.success.regeneratedDescription'),
       type: 'success',
     })
   } catch (err) {
     console.error('Failed to regenerate:', err)
     createToast({
-      title: 'Failed to regenerate link',
+      title: t('inviteLink.errors.regenerateFailed'),
       type: 'error',
     })
   }
 }
 
 const handleDelete = async () => {
-  if (!confirm('Are you sure you want to delete this invite link?')) {
+  if (!confirm(t('inviteLink.confirmDelete'))) {
     return
   }
 
   try {
     await deleteLink(props.link.id)
     createToast({
-      title: 'Link deleted',
+      title: t('inviteLink.success.deleted'),
       type: 'success',
     })
   } catch (err) {
     console.error('Failed to delete:', err)
     createToast({
-      title: 'Failed to delete link',
+      title: t('inviteLink.errors.deleteFailed'),
       type: 'error',
     })
   }
@@ -109,8 +111,8 @@ const formatDate = (dateString: string) => {
           <Badge variant="secondary">
             {{ PROJECT_ROLE_LABELS[link.role as keyof typeof PROJECT_ROLE_LABELS] }}
           </Badge>
-          <Badge v-if="link.active" variant="success">Active</Badge>
-          <Badge v-else variant="default">Inactive</Badge>
+          <Badge v-if="link.active" variant="success">{{ t('inviteLink.status.active') }}</Badge>
+          <Badge v-else variant="default">{{ t('inviteLink.status.inactive') }}</Badge>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <Button
@@ -118,7 +120,7 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleToggleActive"
             :disabled="isUpdating"
-            :tooltip="link.active ? 'Deactivate link' : 'Activate link'"
+            :tooltip="link.active ? t('inviteLink.tooltips.deactivate') : t('inviteLink.tooltips.activate')"
           >
             <Power class="size-3" :class="{ 'text-success-600': link.active }" />
           </Button>
@@ -128,7 +130,7 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleRegenerate"
             :disabled="isRegenerating"
-            tooltip="Regenerate token"
+            :tooltip="t('inviteLink.tooltips.regenerate')"
           >
             <RefreshCw class="size-3" :class="{ 'animate-spin': isRegenerating }" />
           </Button>
@@ -138,14 +140,14 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleDelete"
             :disabled="isDeleting"
-            tooltip="Delete link"
+            :tooltip="t('inviteLink.tooltips.delete')"
           >
             <Trash2 class="size-3 text-error-600" />
           </Button>
         </div>
       </div>
 
-      <div class="text-xs text-neutral-600">Created {{ formatDate(link.created_at) }}</div>
+      <div class="text-xs text-neutral-600">{{ t('inviteLink.created') }} {{ formatDate(link.created_at) }}</div>
 
       <Clipboard :value="inviteUrl" />
     </div>

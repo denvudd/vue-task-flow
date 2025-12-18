@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Skeleton } from '@/components/ui'
+import { useI18n } from 'vue-i18n'
 import { CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -11,7 +14,7 @@ import { CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
       <div class="flex flex-col gap-1 items-start">
         <div class="flex items-center gap-1 text-sm font-medium text-neutral-700">
           <Loader class="size-3.5" />
-          Status
+          {{ t('ticketDetails.panel.status') }}
         </div>
         <Skeleton class="w-[180px] h-5" />
       </div>
@@ -19,7 +22,7 @@ import { CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
       <div class="flex flex-col gap-1 items-start">
         <div class="flex items-center gap-1 text-sm font-medium text-neutral-700">
           <CircleChevronDown class="size-3.5" />
-          Priority
+          {{ t('ticketDetails.panel.priority') }}
         </div>
         <Skeleton class="w-[180px] h-5" />
       </div>
@@ -27,7 +30,7 @@ import { CircleChevronDown, Flag, Loader } from 'lucide-vue-next'
       <div class="flex flex-col gap-1 items-start">
         <div class="flex items-center gap-1 text-sm font-medium text-neutral-700">
           <Flag class="size-3.5" />
-          Type
+          {{ t('ticketDetails.panel.type') }}
         </div>
         <Skeleton class="w-[180px] h-5" />
       </div>

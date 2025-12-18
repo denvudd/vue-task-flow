@@ -34,6 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (!initialized.value) {
         authApi.onAuthStateChange(async (_event, newSession) => {
+          // https://github.com/supabase/supabase-js/issues/1441
           setTimeout(async () => {
             console.log('fired')
             session.value = newSession

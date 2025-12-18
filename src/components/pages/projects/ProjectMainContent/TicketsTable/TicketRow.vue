@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useDraggable } from '@vue-dnd-kit/core'
 import {
@@ -37,6 +38,7 @@ const { isAuthenticated } = useAuth()
 const { createToast } = useToast()
 const { selectedTicketIds, selectTicket, deselectTicket } = useProjectContext()
 const { mutateAsync: updateTicket } = useUpdateTicket()
+const { t } = useI18n()
 
 interface Props {
   ticket: Tables<'tickets'>
@@ -76,18 +78,18 @@ const showUnauthorizedMessage = () => {
   }
 
   createToast({
-    title: 'You must be logged in to update a ticket',
+    title: t('ticketRow.mustBeLoggedIn'),
     type: 'warning',
   })
 }
 
 const formatDate = (dateString: string | null) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return t('ticketRow.na')
   return new Date(dateString).toLocaleDateString()
 }
 
 const formatDateTime = (dateString: string | null) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return t('ticketRow.na')
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
@@ -103,7 +105,7 @@ const ticketCreator = computed(() => {
 })
 
 const creatorDisplayName = computed(() => {
-  if (!ticketCreator.value) return 'Unknown User'
+  if (!ticketCreator.value) return t('ticketRow.unknownUser')
   return getUserDisplayName({
     full_name: ticketCreator.value.full_name,
     username: ticketCreator.value.username,
@@ -119,7 +121,7 @@ const openEditDialog = (ticket: Tables<'tickets'>) => {
 const handleTitleUpdate = async (newValue: string) => {
   if (!isAuthenticated.value) {
     createToast({
-      title: 'You must be logged in to update a ticket',
+      title: t('ticketRow.mustBeLoggedIn'),
       type: 'warning',
     })
     return
@@ -212,7 +214,7 @@ const handleContextMenuSelect = (value: string) => {
   if (value === 'copy-link') {
     navigator.clipboard.writeText(ticketUrl)
     createToast({
-      title: 'Link copied to clipboard',
+      title: t('ticketRow.linkCopied'),
       type: 'success',
     })
     return
@@ -237,27 +239,26 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
   <ContextMenu
     :items="[
       {
-        label: 'Open in...',
+        label: t('ticketRow.contextMenu.openIn'),
         value: 'open-in',
         icon: ArrowUpRight,
         submenu: [
-          { label: 'New tab', value: 'open-new-tab', icon: ArrowUpRight },
-          { label: 'Side peek', value: 'open-side-peek', icon: PanelsTopLeft },
+          { label: t('ticketRow.contextMenu.newTab'), value: 'open-new-tab', icon: ArrowUpRight },
+          { label: t('ticketRow.contextMenu.sidePeek'), value: 'open-side-peek', icon: PanelsTopLeft },
         ],
       },
       { type: 'separator' },
-      { label: 'Copy link', value: 'copy-link', icon: Link },
-      { label: 'Delete', value: 'delete', danger: true, icon: Trash2 },
+      { label: t('ticketRow.contextMenu.copyLink'), value: 'copy-link', icon: Link },
+      { label: t('ticketRow.contextMenu.delete'), value: 'delete', danger: true, icon: Trash2 },
     ]"
     @select="handleContextMenuSelect"
     class="max-w-[265px]"
   >
     <template #footer>
       <div class="px-2 py-1.5 text-xs text-neutral-500 space-y-0.5">
-        <div v-if="ticket.updated_at">Last edited {{ formatDateTime(ticket.updated_at) }}</div>
+        <div v-if="ticket.updated_at">{{ t('ticketRow.lastEdited', { datetime: formatDateTime(ticket.updated_at) }) }}</div>
         <div>
-          Created at {{ formatDateTime(ticket.created_at) }}
-          <span v-if="ticketCreator"> by {{ creatorDisplayName }}</span>
+          {{ t('ticketRow.createdAt', { datetime: formatDateTime(ticket.created_at) }) }}<span v-if="ticketCreator">{{ t('ticketRow.createdBy', { creator: creatorDisplayName }) }}</span>
         </div>
       </div>
     </template>
@@ -289,7 +290,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
         >
           <Editable
             :value="ticket.title"
-            placeholder="Enter title"
+            :placeholder="t('ticketRow.enterTitle')"
             :with-controls="false"
             :disabled="!isAuthenticated"
             @value-commit="(e) => handleTitleUpdate(e.value)"
@@ -307,11 +308,11 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
               size="sm"
               class="flex gap-1 items-center uppercase px-2! py-1!"
               @click="openEditDialog(ticket)"
-              tooltip="Open in side peek"
+              :tooltip="t('ticketRow.openInSidePeek')"
               :tooltip-open-delay="500"
             >
               <PanelsTopLeft class="size-3" />
-              Open
+              {{ t('ticketRow.open') }}
             </Button>
           </div>
         </TableCell>

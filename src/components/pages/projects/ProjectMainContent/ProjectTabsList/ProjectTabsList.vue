@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { TabsList, TabsTrigger } from '@/components/ui'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { SquareKanban, TableIcon } from 'lucide-vue-next'
@@ -8,13 +9,16 @@ import { useAuth } from '@/composables/useAuth'
 import ProjectTabsSelecionToolbar from './ProjectTabsSelecionToolbar.vue'
 
 interface Props {
-  tickets: Tables<'tickets'>[]
+  tickets: Tables<'tickets'>[] | null | undefined
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  tickets: () => [],
+})
 
 const { isAuthenticated } = useAuth()
 const { isSidebarOpen, project } = useProjectContext()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -37,14 +41,14 @@ const { isSidebarOpen, project } = useProjectContext()
         <TabsList>
           <TabsTrigger value="table">
             <TableIcon class="size-4" />
-            Table
+            {{ t('projectTabs.table') }}
           </TabsTrigger>
           <TabsTrigger value="board">
             <SquareKanban class="size-4" />
-            Board
+            {{ t('projectTabs.board') }}
           </TabsTrigger>
         </TabsList>
-        <ProjectTabsToolbar :tickets="tickets" />
+        <ProjectTabsToolbar :tickets="tickets || []" />
       </div>
     </div>
   </div>

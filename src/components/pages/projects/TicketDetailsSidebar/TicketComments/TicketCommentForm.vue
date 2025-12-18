@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Avatar, Button, RichTextEditor } from '@/components/ui'
 import { useCreateTicketComment } from '@/composables/useTicketComments'
 import { useTicketDetails } from '@/composables/useTicketDetails'
@@ -12,6 +13,7 @@ import { ArrowUp } from 'lucide-vue-next'
 const { currentTicketId, mentionUsers } = useTicketDetails()
 const { user, profile } = useAuth()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const { mutateAsync: createComment, isPending: isCreating } = useCreateTicketComment()
 
@@ -30,13 +32,13 @@ const handleCreateComment = async () => {
     })
     newCommentContent.value = ''
     createToast({
-      title: 'Comment added',
+      title: t('ticketDetails.comments.success.added'),
       type: 'success',
     })
   } catch (err) {
     console.error('Failed to create comment:', err)
     createToast({
-      title: 'Failed to add comment',
+      title: t('ticketDetails.comments.errors.addFailed'),
       type: 'error',
     })
   }
@@ -62,7 +64,7 @@ const handleCreateComment = async () => {
         <div class="grow flex min-w-6">
           <RichTextEditor
             v-model="newCommentContent"
-            placeholder="Add a comment..."
+            :placeholder="t('ticketDetails.comments.addPlaceholder')"
             min-height="24px"
             :mention-users="mentionUsers"
             :ticket-id="currentTicketId ?? ''"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { Select, createListCollection } from '@ark-ui/vue/select'
 import { Popover, Field, FieldInput, FieldSelect, Button } from '@/components/ui'
@@ -22,6 +23,7 @@ import { cn } from '@/lib/utils'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const isOpen = ref(false)
 
@@ -35,20 +37,20 @@ interface SortRule {
   order: SortOrder
 }
 
-const sortOptions = [
-  { key: 'title', label: 'Task Name', icon: CaseSensitive },
-  { key: 'status', label: 'Status', icon: Loader },
-  { key: 'priority', label: 'Priority', icon: CircleChevronDown },
-  { key: 'type', label: 'Type', icon: Flag },
-  { key: 'due_date', label: 'Due Date', icon: Calendar },
-  { key: 'created_at', label: 'Created At', icon: Clock },
-  { key: 'updated_at', label: 'Updated At', icon: Clock },
-]
+const sortOptions = computed(() => [
+  { key: 'title', label: t('projectSort.fields.title'), icon: CaseSensitive },
+  { key: 'status', label: t('projectSort.fields.status'), icon: Loader },
+  { key: 'priority', label: t('projectSort.fields.priority'), icon: CircleChevronDown },
+  { key: 'type', label: t('projectSort.fields.type'), icon: Flag },
+  { key: 'due_date', label: t('projectSort.fields.dueDate'), icon: Calendar },
+  { key: 'created_at', label: t('projectSort.fields.createdAt'), icon: Clock },
+  { key: 'updated_at', label: t('projectSort.fields.updatedAt'), icon: Clock },
+])
 
-const sortOrderOptions = [
-  { label: 'Ascending', value: 'asc', icon: ArrowUp },
-  { label: 'Descending', value: 'desc', icon: ArrowDown },
-]
+const sortOrderOptions = computed(() => [
+  { label: t('projectSort.orders.asc'), value: 'asc', icon: ArrowUp },
+  { label: t('projectSort.orders.desc'), value: 'desc', icon: ArrowDown },
+])
 
 const sortRules = ref<SortRule[]>([])
 
@@ -69,7 +71,7 @@ const initializeSort = () => {
         field: field as SortField,
         order: (orders[index] || 'asc') as SortOrder,
       }))
-      .filter((rule) => rule.field && sortOptions.some((opt) => opt.key === rule.field))
+      .filter((rule) => rule.field && sortOptions.value.some((opt) => opt.key === rule.field))
   } else {
     sortRules.value = []
   }
@@ -142,7 +144,7 @@ watch(
 )
 
 const sortOrderSelectItems = computed(() => {
-  return sortOrderOptions.map((option) => ({
+  return sortOrderOptions.value.map((option) => ({
     label: option.label,
     value: option.value,
   }))
@@ -150,7 +152,7 @@ const sortOrderSelectItems = computed(() => {
 
 const sortOrderCollection = computed(() => {
   return createListCollection({
-    items: sortOrderOptions.map((option) => ({
+    items: sortOrderOptions.value.map((option) => ({
       label: option.label,
       value: option.value,
     })),
@@ -158,12 +160,12 @@ const sortOrderCollection = computed(() => {
 })
 
 const getOrderIcon = (order: SortOrder) => {
-  const option = sortOrderOptions.find((opt) => opt.value === order)
+  const option = sortOrderOptions.value.find((opt) => opt.value === order)
   return option?.icon || null
 }
 
 const getOrderLabel = (order: SortOrder) => {
-  const option = sortOrderOptions.find((opt) => opt.value === order)
+  const option = sortOrderOptions.value.find((opt) => opt.value === order)
   return option?.label || ''
 }
 
@@ -172,18 +174,18 @@ const getAvailableFields = (currentRuleId: string) => {
     .filter((rule) => rule.id !== currentRuleId && rule.field)
     .map((rule) => rule.field)
 
-  return sortOptions.filter((option) => !usedFields.includes(option.key as SortField))
+  return sortOptions.value.filter((option) => !usedFields.includes(option.key as SortField))
 }
 
 const getFieldIcon = (field: SortField | '') => {
   if (!field) return null
-  const option = sortOptions.find((opt) => opt.key === field)
+  const option = sortOptions.value.find((opt) => opt.key === field)
   return option?.icon || null
 }
 
 const getSelectedFieldLabel = (field: SortField | '') => {
   if (!field) return ''
-  const option = sortOptions.find((opt) => opt.key === field)
+  const option = sortOptions.value.find((opt) => opt.key === field)
   return option?.label || ''
 }
 </script>
@@ -200,7 +202,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
       <Button
         variant="ghost"
         size="icon"
-        tooltip="Sort"
+        :tooltip="t('projectSort.tooltip')"
         :class="cn(hasActiveSort && 'border-primary-500 bg-primary-50 relative')"
       >
         <ArrowUpDown class="size-3.5" />
@@ -246,7 +248,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
                   :is="getFieldIcon(rule.field)"
                   class="size-3.5"
                 />
-                <span>Sort {{ index + 1 }}</span>
+                <span>{{ t('projectSort.sortLabel', { index: index + 1 }) }}</span>
               </div>
               <Field>
                 <div class="relative">
@@ -270,7 +272,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
                     <Select.Trigger
                       class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
                     >
-                      <Select.ValueText placeholder="Select field...">
+                      <Select.ValueText :placeholder="t('projectSort.selectField')">
                         <div v-if="rule.field" class="flex items-center gap-1.5">
                           <component
                             :is="getFieldIcon(rule.field)"
@@ -279,7 +281,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
                           />
                           <span>{{ getSelectedFieldLabel(rule.field) }}</span>
                         </div>
-                        <span v-else class="text-neutral-400">Select field...</span>
+                        <span v-else class="text-neutral-400">{{ t('projectSort.selectField') }}</span>
                       </Select.ValueText>
                       <Select.Indicator>
                         <ChevronDownIcon class="size-4" />
@@ -329,7 +331,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
                     <Select.Trigger
                       class="w-full text-xs transition-colors focus:outline-none flex items-center justify-between gap-2 border border-neutral-200 rounded-md px-2 py-1"
                     >
-                      <Select.ValueText placeholder="Select order...">
+                      <Select.ValueText :placeholder="t('projectSort.selectOrder')">
                         <div class="flex items-center gap-1.5">
                           <component
                             :is="getOrderIcon(rule.order)"
@@ -385,10 +387,10 @@ const getSelectedFieldLabel = (field: SortField | '') => {
         </TransitionGroup>
       <div v-else>
         <div class="flex flex-col items-center text-center gap-2 px-2 py-1">
-          <p class="text-sm text-neutral-500">No sort rules added</p>
+          <p class="text-sm text-neutral-500">{{ t('projectSort.noRules') }}</p>
           <Button variant="ghost" size="sm" @click="addSortRule">
             <Plus class="w-4 h-4 mr-1" />
-            Add Rule
+            {{ t('projectSort.addRule') }}
           </Button>
         </div>
       </div>
@@ -397,7 +399,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
     <template #footer v-if="!!sortRules.length">
       <div class="flex justify-between items-center w-full">
         <Button v-if="hasActiveSort" variant="ghost" size="sm" @click="clearSort">
-          Clear All
+          {{ t('projectSort.clearAll') }}
         </Button>
         <Button
           v-if="sortRules.length < sortOptions.length"
@@ -406,7 +408,7 @@ const getSelectedFieldLabel = (field: SortField | '') => {
           @click="addSortRule"
         >
           <Plus class="w-4 h-4 mr-1" />
-          Add Rule
+          {{ t('projectSort.addRule') }}
         </Button>
       </div>
     </template>

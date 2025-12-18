@@ -1,6 +1,551 @@
 {
   "welcome": "Welcome",
   "hello": "Hello",
+  "header": {
+    "editProfile": "Edit Profile",
+    "logout": "Logout",
+    "signUp": "Sign Up",
+    "login": "Login",
+    "admin": "Admin"
+  },
+  "dashboard": {
+    "loading": "Loading...",
+    "welcomeTitle": "Welcome, {name}!",
+    "welcomeSubtitle": "We're glad to have you here."
+  },
+  "profile": {
+    "title": "Your Profile",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "email": "Email",
+    "username": "Username",
+    "fullName": "Full Name",
+    "memberSince": "Member Since",
+    "notSet": "Not set",
+    "unknown": "Unknown"
+  },
+  "projects": {
+    "title": "Projects",
+    "new": "New",
+    "loading": "Loading projects...",
+    "errorLoading": "Error loading projects",
+    "refresh": "Refresh",
+    "noProjects": "No projects yet",
+    "noProjectsDescription": "Create your first project to get started",
+    "yourProjects": "Your projects",
+    "sharedWithYou": "Shared with you",
+    "created": "Created",
+    "owner": "Owner",
+    "member": "Member",
+    "edit": "Edit"
+  },
+  "profilePage": {
+    "loading": "Loading...",
+    "backToDashboard": "Back to Dashboard",
+    "title": "Edit Profile",
+    "subtitle": "Update your profile information below. Changes will be saved to your account.",
+    "username": "Username",
+    "usernameHelper": "Your unique username (letters, numbers, underscores only)",
+    "usernamePlaceholder": "john_doe",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "errors": {
+      "notLoggedIn": "You must be logged in to update profile",
+      "noChanges": "No changes to save",
+      "unexpected": "An unexpected error occurred"
+    },
+    "success": {
+      "title": "Profile updated",
+      "description": "Your profile has been successfully updated."
+    },
+    "avatar": {
+      "label": "Avatar",
+      "changeButton": "Change avatar",
+      "helper": "Upload your profile picture. You can drag and drop an image or click to select.",
+      "userNotFound": "User not found",
+      "uploadFailed": "Failed to upload avatar",
+      "cropDialog": {
+        "title": "Edit Avatar",
+        "description": "Adjust the image to your liking. You can move and resize the selection area.",
+        "cancel": "Cancel",
+        "apply": "Apply"
+      },
+      "changeAvatar": "Change Avatar",
+      "remove": "Remove",
+      "dropOrClick": "Drop an image here or click to upload",
+      "fileTypes": "PNG, JPG, GIF up to 5MB",
+      "altPreview": "Avatar preview",
+      "errors": {
+        "invalidFile": "Please select a valid image file",
+        "sizeTooLarge": "Image size must be less than 5MB"
+      }
+    },
+    "email": {
+      "label": "Email",
+      "changeButton": "Change email",
+      "dialogTitle": "Change Email",
+      "dialogDescription": "Enter your new email address. A confirmation email will be sent to the new address.",
+      "currentEmail": "Current Email",
+      "currentEmailHelper": "Your current email address",
+      "newEmail": "New Email",
+      "newEmailHelper": "Enter your new email address",
+      "newEmailPlaceholder": "new.email@example.com",
+      "cancel": "Cancel",
+      "submit": "Change Email",
+      "sending": "Sending...",
+      "errors": {
+        "invalidEmail": "Invalid email address",
+        "currentNotFound": "Current email not found",
+        "mustBeDifferent": "New email must be different from current email",
+        "updateFailed": "Failed to update email",
+        "unexpected": "An unexpected error occurred"
+      },
+      "success": {
+        "title": "Email change requested",
+        "description": "A confirmation email has been sent to {email}. Please check your inbox and click the confirmation link to complete the email change."
+      }
+    },
+    "oauth": {
+      "label": "Connected Accounts",
+      "noProviders": "No OAuth providers connected",
+      "connectedVia": "Connected via OAuth",
+      "connected": "Connected",
+      "disconnectDialog": {
+        "title": "Disconnect Provider",
+        "description": "Are you sure you want to disconnect <strong>{provider}</strong> from your account? You will no longer be able to sign in using this provider.",
+        "cancel": "Cancel",
+        "disconnect": "Disconnect",
+        "disconnecting": "Disconnecting..."
+      },
+      "success": {
+        "title": "Provider disconnected",
+        "description": "{provider} has been successfully disconnected from your account."
+      },
+      "errors": {
+        "title": "Error disconnecting provider",
+        "description": "Failed to disconnect the provider. Please try again."
+      }
+    },
+    "sessions": {
+      "label": "Active Sessions",
+      "noSession": "No active session found",
+      "current": "Current",
+      "expiringSoon": "Expiring Soon",
+      "signOut": "Sign Out",
+      "created": "Created",
+      "expires": "Expires",
+      "devices": {
+        "desktop": "Desktop",
+        "mobile": "Mobile",
+        "tablet": "Tablet",
+        "unknown": "Unknown Device"
+      },
+      "signOutDialog": {
+        "title": "Sign Out",
+        "description": "Are you sure you want to sign out? You will need to sign in again to access your account.",
+        "cancel": "Cancel",
+        "signOut": "Sign Out",
+        "signingOut": "Signing out..."
+      },
+      "success": {
+        "title": "Signed out",
+        "description": "You have been successfully signed out."
+      },
+      "errors": {
+        "title": "Error signing out",
+        "description": "Failed to sign out. Please try again."
+      }
+    }
+  },
+  "createProject": {
+    "backToDashboard": "Back to Dashboard",
+    "title": "Create New Project",
+    "subtitle": "Fill in the details below to create a new project",
+    "projectName": "Project Name",
+    "projectNameHelper": "Enter a descriptive name for your project",
+    "projectNamePlaceholder": "My Awesome Project",
+    "projectKey": "Project Key",
+    "projectKeyHelper": "Short identifier (3-10 uppercase letters/numbers, e.g., PROJ, DEV)",
+    "projectKeyPlaceholder": "PROJ",
+    "description": "Description",
+    "descriptionHelper": "Describe what this project is about (optional)",
+    "descriptionPlaceholder": "This project aims to...",
+    "cancel": "Cancel",
+    "create": "Create Project",
+    "creating": "Creating...",
+    "success": "✓ Project created successfully! Redirecting...",
+    "errors": {
+      "notLoggedIn": "You must be logged in to create a project",
+      "createFailed": "Failed to create project"
+    }
+  },
+  "editProject": {
+    "backToDashboard": "Back to Dashboard",
+    "loading": "Loading project...",
+    "title": "Edit Project",
+    "subtitle": "Update the project details below",
+    "projectName": "Project Name",
+    "projectNameHelper": "Enter a descriptive name for your project",
+    "projectNamePlaceholder": "My Awesome Project",
+    "projectKey": "Project Key",
+    "projectKeyHelper": "Short identifier (3-10 uppercase letters/numbers, e.g., PROJ, DEV)",
+    "projectKeyPlaceholder": "PROJ",
+    "description": "Description",
+    "descriptionHelper": "Describe what this project is about (optional)",
+    "descriptionPlaceholder": "This project aims to...",
+    "cancel": "Cancel",
+    "update": "Update Project",
+    "updating": "Updating...",
+    "success": "✓ Project updated successfully! Redirecting...",
+    "notFound": "Project not found",
+    "loadFailed": "Failed to load project",
+    "errors": {
+      "notLoggedIn": "You must be logged in to update a project",
+      "notFound": "Project not found",
+      "noPermission": "You do not have permission to edit this project",
+      "updateFailed": "Failed to update project"
+    }
+  },
+  "ticketDetails": {
+    "header": {
+      "close": "Close",
+      "backToProject": "Back to project",
+      "openInFullPage": "Open in full page",
+      "share": "Share",
+      "urlCopied": "Ticket URL copied to clipboard",
+      "urlCopiedDescription": "You can now share the ticket with others"
+    },
+    "title": {
+      "placeholder": "Enter ticket title"
+    },
+    "content": {
+      "placeholder": "Enter ticket description"
+    },
+    "panel": {
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type"
+    },
+    "notFound": {
+      "title": "Ticket not found",
+      "description": "The ticket you are looking for does not exist.",
+      "message": "Ticket not found"
+    },
+    "comments": {
+      "title": "Comments",
+      "showReplies": "Show {count} reply | Show {count} replies",
+      "noPermission": "You don't have permission to comment on this ticket.",
+      "addPlaceholder": "Add a comment...",
+      "editPlaceholder": "Edit your comment...",
+      "edited": "(edited)",
+      "copyLink": "Copy link",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this comment?",
+      "success": {
+        "added": "Comment added",
+        "updated": "Comment updated",
+        "deleted": "Comment deleted",
+        "linkCopied": "Link copied",
+        "linkCopiedDescription": "Comment link has been copied to clipboard"
+      },
+      "errors": {
+        "addFailed": "Failed to add comment",
+        "updateFailed": "Failed to update comment",
+        "deleteFailed": "Failed to delete comment",
+        "copyLinkFailed": "Failed to copy link"
+      }
+    }
+  },
+  "projectMainContent": {
+    "backToDashboard": "Back to Dashboard",
+    "loading": {
+      "tickets": "Tickets"
+    },
+    "error": {
+      "title": "Error loading project",
+      "message": "Failed to load project",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "message": "This project is not public and you are not a member or owner of this project.",
+      "goToDashboard": "Go to Dashboard"
+    }
+  },
+  "projectMembers": {
+    "title": "Members of {projectName}",
+    "description": "Manage project members and their roles. Only the owner can add or remove members.",
+    "triggerButton": "Members",
+    "loading": "Loading members...",
+    "ownerSection": "Owner",
+    "membersSection": "Members ({count})",
+    "noMembers": "No members in this project yet.",
+    "removeConfirm": "Are you sure you want to remove this member from the project?",
+    "owner": "Owner",
+    "you": "You",
+    "joined": "Joined {date}",
+    "removeMember": "Remove member",
+    "selectRole": "Select role",
+    "save": "Save",
+    "cancel": "Cancel",
+    "success": {
+      "memberRemoved": "Member removed",
+      "memberRemovedDescription": "The member has been removed from the project",
+      "roleUpdated": "Role updated",
+      "roleUpdatedDescription": "Role changed to \"{role}\""
+    },
+    "errors": {
+      "removeFailed": "Failed to remove member",
+      "updateRoleFailed": "Failed to update role"
+    }
+  },
+  "inviteLink": {
+    "label": "Anyone on the web with this link",
+    "copy": "Copy",
+    "delete": "Delete",
+    "created": "Created",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "tooltips": {
+      "activate": "Activate link",
+      "deactivate": "Deactivate link",
+      "regenerate": "Regenerate token",
+      "delete": "Delete link"
+    },
+    "confirmRegenerate": "Are you sure you want to regenerate this link? The old link will stop working.",
+    "confirmDelete": "Are you sure you want to delete this invite link?",
+    "success": {
+      "activated": "Link activated",
+      "activatedDescription": "This link is now active",
+      "deactivated": "Link deactivated",
+      "deactivatedDescription": "This link will no longer work",
+      "regenerated": "Link regenerated",
+      "regeneratedDescription": "A new invite link has been generated",
+      "deleted": "Link deleted",
+      "copied": "Invite link copied to clipboard",
+      "copiedDescription": "You can now share this link with others"
+    },
+    "errors": {
+      "updateFailed": "Failed to update link",
+      "regenerateFailed": "Failed to regenerate link",
+      "deleteFailed": "Failed to delete link",
+      "copyFailed": "Failed to copy invite link"
+    }
+  },
+  "projectInvite": {
+    "title": "Share {projectName}",
+    "triggerButton": "Share",
+    "visibility": {
+      "label": "Visibility",
+      "private": "Private",
+      "public": "Public",
+      "privateDescription": "You can invite members to this project by sharing an invite link.",
+      "publicDescription": "Anyone on the web can view this project.",
+      "makePublic": "Make public",
+      "makePrivate": "Make private"
+    },
+    "publicInfo": {
+      "title": "Invite links are disabled",
+      "description": "Make the project private to create and manage invite links."
+    },
+    "createForm": {
+      "label": "Anyone on the web with this link",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating..."
+    },
+    "inviteLinks": {
+      "title": "Invite Links",
+      "new": "New",
+      "loading": "Loading invite links...",
+      "noLinks": "No invite links yet. Create one to invite members to this project.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "created": "Created {date}",
+      "deactivateLink": "Deactivate link",
+      "activateLink": "Activate link",
+      "regenerateToken": "Regenerate token",
+      "deleteLink": "Delete link",
+      "regenerateConfirm": "Are you sure you want to regenerate this link? The old link will stop working.",
+      "deleteConfirm": "Are you sure you want to delete this invite link?"
+    },
+    "success": {
+      "linkCreated": "Invite link created",
+      "linkCreatedDescription": "You can now share this link with others",
+      "linkDeactivated": "Link deactivated",
+      "linkDeactivatedDescription": "This link will no longer work",
+      "linkActivated": "Link activated",
+      "linkActivatedDescription": "This link is now active",
+      "linkRegenerated": "Link regenerated",
+      "linkRegeneratedDescription": "A new invite link has been generated",
+      "linkDeleted": "Link deleted"
+    },
+    "errors": {
+      "createFailed": "Failed to create invite link",
+      "updateVisibilityFailed": "Failed to update visibility",
+      "updateLinkFailed": "Failed to update link",
+      "regenerateFailed": "Failed to regenerate link",
+      "deleteFailed": "Failed to delete link"
+    }
+  },
+  "projectTabs": {
+    "table": "Table",
+    "board": "Board"
+  },
+  "projectSelection": {
+    "selected": "{count} selected",
+    "status": "Status",
+    "priority": "Priority",
+    "type": "Type",
+    "deleteTooltip": "Delete",
+    "confirmDelete": "Are you sure you want to delete {count} ticket(s)?",
+    "success": {
+      "movedToTrash": "Moved to trash"
+    },
+    "errors": {
+      "updateStatusFailed": "Failed to update tickets status",
+      "updatePriorityFailed": "Failed to update tickets priority",
+      "updateTypeFailed": "Failed to update tickets type",
+      "deleteFailed": "Failed to delete tickets"
+    }
+  },
+  "projectCreateTicket": {
+    "newButton": "New",
+    "title": "New ticket",
+    "description": "Fill in the details to create a new ticket",
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Enter ticket title",
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type",
+      "dueDate": "Due Date"
+    },
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "create": "Create Ticket"
+  },
+  "projectFilter": {
+    "tooltip": "Filter",
+    "searchPlaceholder": "Filter by...",
+    "labels": {
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type",
+      "taskName": "Task Name",
+      "dueDate": "Due Date"
+    },
+    "placeholders": {
+      "taskName": "Search by task name...",
+      "dueDate": "Select due date"
+    },
+    "noResults": "No filters found matching \"{query}\"",
+    "clearAll": "Clear All"
+  },
+  "projectSearch": {
+    "tooltip": "Search",
+    "placeholder": "Type to search..."
+  },
+  "projectSort": {
+    "tooltip": "Sort",
+    "fields": {
+      "title": "Task Name",
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type",
+      "dueDate": "Due Date",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "orders": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "sortLabel": "Sort {index}",
+    "selectField": "Select field...",
+    "selectOrder": "Select order...",
+    "noRules": "No sort rules added",
+    "addRule": "Add Rule",
+    "clearAll": "Clear All"
+  },
+  "ticketsTable": {
+    "loading": "Loading tickets...",
+    "loadingMore": "Loading more tickets...",
+    "noTickets": "No tickets yet. Create your first ticket!",
+    "headers": {
+      "taskName": "Task name",
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type",
+      "dueDate": "Due Date"
+    }
+  },
+  "ticketRow": {
+    "enterTitle": "Enter title",
+    "open": "Open",
+    "openInSidePeek": "Open in side peek",
+    "na": "N/A",
+    "unknownUser": "Unknown User",
+    "lastEdited": "Last edited {datetime}",
+    "createdAt": "Created at {datetime}",
+    "createdBy": " by {creator}",
+    "contextMenu": {
+      "openIn": "Open in...",
+      "newTab": "New tab",
+      "sidePeek": "Side peek",
+      "copyLink": "Copy link",
+      "delete": "Delete"
+    },
+    "linkCopied": "Link copied to clipboard",
+    "mustBeLoggedIn": "You must be logged in to update a ticket"
+  },
+  "ticketRowMenu": {
+    "mustBeLoggedInToCreate": "You must be logged in to create a ticket",
+    "projectNotSelected": "Project is not selected",
+    "createFailed": "Failed to create ticket",
+    "dragToMove": "Drag to move",
+    "clickToAddBelow": "Click to add below"
+  },
+  "quickCreateTicket": {
+    "mustBeLoggedIn": "You must be logged in to create a ticket",
+    "createFailed": "Failed to create ticket",
+    "creating": "Creating...",
+    "newTask": "New task"
+  },
+  "ticketsBoard": {
+    "loading": "Loading tickets...",
+    "loadingMore": "Loading more tickets...",
+    "noTickets": "No tickets yet. Create your first ticket!"
+  },
+  "boardColumn": {
+    "loading": "Loading...",
+    "noTickets": "No tickets"
+  },
+  "boardTicketCard": {
+    "mustBeLoggedIn": "You must be logged in to update a ticket",
+    "na": "N/A",
+    "unknownUser": "Unknown User",
+    "assignee": "Assignee",
+    "lastEdited": "Last edited {datetime}",
+    "createdAt": "Created at {datetime}",
+    "createdBy": " by {creator}",
+    "openInSidePeek": "Open in side peek",
+    "dragToMove": "Drag to move",
+    "contextMenu": {
+      "openIn": "Open in...",
+      "newTab": "New tab",
+      "sidePeek": "Side peek",
+      "copyLink": "Copy link",
+      "delete": "Delete"
+    },
+    "linkCopied": "Link copied to clipboard"
+  },
   "auth": {
     "login": {
       "title": "Sign In",

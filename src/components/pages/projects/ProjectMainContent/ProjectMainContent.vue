@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Tabs, TabsContent } from '@/components/ui'
 import { TicketsTable } from '@/components/pages/projects/ProjectMainContent/TicketsTable'
+import { TicketsBoard } from '@/components/pages/projects/ProjectMainContent/TicketsBoard'
 import { useAuth } from '@/composables/useAuth'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { useProjectTickets } from '@/composables/useTickets'
+import { useI18n } from 'vue-i18n'
 import { reorderTickets } from '@/api/tickets'
 import type { TicketFilters, TicketSort, TicketSortRule } from '@/api/tickets'
 import { useRoute, type LocationQueryValue } from 'vue-router'
@@ -18,6 +20,7 @@ import ProjectBackToDashboard from './ProjectBackToDashboard.vue'
 import { ProjectTabsList } from './ProjectTabsList'
 
 const route = useRoute()
+const { t } = useI18n()
 
 const projectId = computed(() => route.params.id as string)
 const activeTab = ref('table')
@@ -111,7 +114,7 @@ const handleReorder = async (payload: { tickets: Tables<'tickets'>[] }) => {
 
 const errorMessage = computed(() => {
   if (!error.value) return null
-  return error.value instanceof Error ? error.value.message : 'Failed to load project'
+  return error.value instanceof Error ? error.value.message : t('projectMainContent.error.message')
 })
 </script>
 
@@ -137,11 +140,11 @@ const errorMessage = computed(() => {
           />
 
           <Tabs v-model:value="activeTab" default-value="table" class="contents">
-            <ProjectTabsList v-if="project" :tickets="tickets" />
+            <ProjectTabsList v-if="project" :tickets="tickets || []" />
 
             <TabsContent value="table" class="grow shrink-0 flex flex-col relative">
               <TicketsTable
-                :tickets="tickets"
+                :tickets="tickets || []"
                 :is-loading="isLoadingTickets"
                 :is-loading-more="isLoadingMore"
                 :has-more="hasMore"
@@ -150,10 +153,15 @@ const errorMessage = computed(() => {
               />
             </TabsContent>
 
-            <TabsContent value="board">
-              <div class="py-16 text-center">
-                <p class="text-neutral-600">Board view coming soon...</p>
-              </div>
+            <TabsContent value="board" class="grow shrink-0 flex flex-col relative h-full">
+              <TicketsBoard
+                :tickets="tickets || []"
+                :is-loading="isLoadingTickets"
+                :is-loading-more="isLoadingMore"
+                :has-more="hasMore"
+                :load-more="loadMore"
+                @reorder="handleReorder"
+              />
             </TabsContent>
           </Tabs>
         </template>

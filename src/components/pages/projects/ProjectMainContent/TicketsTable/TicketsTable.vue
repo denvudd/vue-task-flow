@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { DnDOperations, useDroppable } from '@vue-dnd-kit/core'
 import { Table, TableHeader, TableRow, TableHeadCell, Checkbox } from '@/components/ui'
 import TicketRow from './TicketRow.vue'
@@ -29,6 +30,7 @@ const { isSidebarOpen, selectedTicketIds, selectAllTickets, clearSelection, clea
   useProjectContext()
 const { mutate: deleteTicket } = useDeleteTicket()
 const { isAuthenticated } = useAuth()
+const { t } = useI18n()
 
 const handleDelete = (payload: { ticket: Tables<'tickets'> }) => {
   deleteTicket(payload.ticket.id)
@@ -157,11 +159,11 @@ onUnmounted(() => {
     >
       <div>
         <div v-if="isLoading" class="flex justify-center items-center py-16">
-          <div class="text-neutral-600">Loading tickets...</div>
+          <div class="text-neutral-600">{{ t('ticketsTable.loading') }}</div>
         </div>
 
         <div v-if="!isLoading && !hasTickets" class="py-16 text-center">
-          <p class="text-neutral-600">No tickets yet. Create your first ticket!</p>
+          <p class="text-neutral-600">{{ t('ticketsTable.noTickets') }}</p>
         </div>
 
         <div v-show="!isLoading && hasTickets" class="relative flex flex-col min-w-full">
@@ -211,32 +213,32 @@ onUnmounted(() => {
 
                 <TableHeadCell class="w-[421px] px-2">
                   <div class="flex items-center gap-1.5">
-                    <CaseSensitive class="size-3.5" />
-                    Task name
+                    <CaseSensitive class="size-3.5 shrink-0" />
+                    {{ t('ticketsTable.headers.taskName') }}
                   </div>
                 </TableHeadCell>
                 <TableHeadCell class="w-[130px] px-2">
                   <div class="flex items-center gap-1.5">
-                    <Loader class="size-3.5" />
-                    Status
+                    <Loader class="size-3.5 shrink-0" />
+                    {{ t('ticketsTable.headers.status') }}
                   </div>
                 </TableHeadCell>
                 <TableHeadCell class="w-[105px] px-2">
                   <div class="flex items-center gap-1.5">
-                    <CircleChevronDown class="size-3.5" />
-                    Priority
+                    <CircleChevronDown class="size-3.5 shrink-0" />
+                    {{ t('ticketsTable.headers.priority') }}
                   </div>
                 </TableHeadCell>
                 <TableHeadCell class="w-[150px] px-2">
                   <div class="flex items-center gap-1.5">
-                    <Flag class="size-3.5" />
-                    Type
+                    <Flag class="size-3.5 shrink-0" />
+                    {{ t('ticketsTable.headers.type') }}
                   </div>
                 </TableHeadCell>
-                <TableHeadCell>
+                <TableHeadCell class="w-[180px] px-2">
                   <div class="flex items-center gap-1.5">
-                    <Calendar class="size-3.5" />
-                    Due Date
+                    <Calendar class="size-3.5 shrink-0" />
+                    {{ t('ticketsTable.headers.dueDate') }}
                   </div>
                 </TableHeadCell>
               </TableRow>
@@ -265,7 +267,7 @@ onUnmounted(() => {
         >
           <div class="text-neutral-600 flex items-center gap-2">
             <Loader class="size-4 animate-spin" />
-            <span>Loading more tickets...</span>
+            <span>{{ t('ticketsTable.loadingMore') }}</span>
           </div>
         </div>
         <QuickCreateTicketButton v-if="!isLoading && hasTickets" :tickets="localTickets" />

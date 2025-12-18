@@ -9,6 +9,9 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -39,7 +42,7 @@ import {
     <div>
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-neutral-900">Tickets</h2>
+          <h2 class="text-xl font-semibold text-neutral-900">{{ t('projectMainContent.loading.tickets') }}</h2>
           <Skeleton class="w-16 h-7" />
         </div>
 

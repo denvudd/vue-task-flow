@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { Button, Checkbox } from '@/components/ui'
 import { GripVertical, Plus } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
@@ -34,6 +35,7 @@ const {
 } = useProjectContext()
 const { mutateAsync: createTicket, isPending: isCreatingTicket } = useCreateTicket()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const emit = defineEmits<{
   (e: 'update:hovered-drag-handle', payload: boolean): void
@@ -58,7 +60,7 @@ const handleSelectionChange = (checked: CheckboxCheckedState) => {
 const handleAddTicketBelow = async () => {
   if (!isAuthenticated.value || !user.value) {
     createToast({
-      title: 'You must be logged in to create a ticket',
+      title: t('ticketRowMenu.mustBeLoggedInToCreate'),
       type: 'warning',
     })
     return
@@ -66,7 +68,7 @@ const handleAddTicketBelow = async () => {
 
   if (!currentProjectId.value) {
     createToast({
-      title: 'Project is not selected',
+      title: t('ticketRowMenu.projectNotSelected'),
       type: 'error',
     })
     return
@@ -122,7 +124,7 @@ const handleAddTicketBelow = async () => {
   } catch (err) {
     console.error('Error creating ticket below:', err)
     createToast({
-      title: 'Failed to create ticket',
+      title: t('ticketRowMenu.createFailed'),
       type: 'error',
     })
   }
@@ -169,7 +171,7 @@ const handleAddTicketBelow = async () => {
             size="icon"
             @pointerdown.stop="handleDragStart"
             class="cursor-grab! p-1!"
-            :tooltip="isDragging || isOvered ? undefined : 'Drag to move'"
+            :tooltip="isDragging || isOvered ? undefined : t('ticketRowMenu.dragToMove')"
           >
             <GripVertical class="size-4" />
           </Button>
@@ -188,7 +190,7 @@ const handleAddTicketBelow = async () => {
             class="p-1!"
             :disabled="isCreatingTicket"
             @click.stop="handleAddTicketBelow"
-            :tooltip="isDragging || isOvered ? undefined : 'Click to add below'"
+            :tooltip="isDragging || isOvered ? undefined : t('ticketRowMenu.clickToAddBelow')"
           >
             <Plus class="size-4" />
           </Button>

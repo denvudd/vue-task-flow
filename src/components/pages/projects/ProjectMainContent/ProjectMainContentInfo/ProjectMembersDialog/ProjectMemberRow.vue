@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Button, Avatar, Badge, FieldSelect } from '@/components/ui'
 import type { SelectItem } from '@/components/ui/atoms/FieldSelect.vue'
 import { Trash2, Check, X, Edit } from 'lucide-vue-next'
@@ -18,6 +19,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { createToast } = useToast()
+const { t } = useI18n()
 const { mutateAsync: removeMember, isPending: isRemoving } = useRemoveProjectMember()
 const { mutateAsync: updateRole, isPending: isUpdatingRole } = useUpdateProjectMemberRole()
 
@@ -37,7 +39,7 @@ const roleItems = computed<SelectItem[]>(() =>
 const selectedRoleValue = computed(() => [selectedRole.value])
 
 const handleRemove = async () => {
-  if (!confirm('Are you sure you want to remove this member from the project?')) {
+  if (!confirm(t('projectMembers.removeConfirm'))) {
     return
   }
 
@@ -47,14 +49,14 @@ const handleRemove = async () => {
       userId: props.member.user_id,
     })
     createToast({
-      title: 'Member removed',
-      description: 'The member has been removed from the project',
+      title: t('projectMembers.success.memberRemoved'),
+      description: t('projectMembers.success.memberRemovedDescription'),
       type: 'success',
     })
   } catch (err) {
     console.error('Failed to remove member:', err)
     createToast({
-      title: 'Failed to remove member',
+      title: t('projectMembers.errors.removeFailed'),
       type: 'error',
     })
   }
@@ -83,15 +85,15 @@ const saveRole = async () => {
       role: selectedRole.value,
     })
     createToast({
-      title: 'Role updated',
-      description: `Role changed to "${PROJECT_ROLE_LABELS[selectedRole.value]}"`,
+      title: t('projectMembers.success.roleUpdated'),
+      description: t('projectMembers.success.roleUpdatedDescription', { role: PROJECT_ROLE_LABELS[selectedRole.value] }),
       type: 'success',
     })
     isEditingRole.value = false
   } catch (err) {
     console.error('Failed to update role:', err)
     createToast({
-      title: 'Failed to update role',
+      title: t('projectMembers.errors.updateRoleFailed'),
       type: 'error',
     })
   }
@@ -118,11 +120,11 @@ const formatDate = (dateString: string) => {
           <div class="font-medium text-neutral-900 truncate">
             {{ member.user?.full_name || member.user?.username || 'Unknown User' }}
           </div>
-          <Badge v-if="isOwner" variant="primary" size="sm">Owner</Badge>
-          <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">You</Badge>
+          <Badge v-if="isOwner" variant="primary" size="sm">{{ t('projectMembers.owner') }}</Badge>
+          <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">{{ t('projectMembers.you') }}</Badge>
         </div>
         <div v-if="member.joined_at" class="text-xs text-neutral-600">
-          Joined {{ formatDate(member.joined_at) }}
+          {{ t('projectMembers.joined', { date: formatDate(member.joined_at) }) }}
         </div>
       </div>
     </div>
@@ -156,7 +158,7 @@ const formatDate = (dateString: string) => {
                 }
               }
             "
-            placeholder="Select role"
+            :placeholder="t('projectMembers.selectRole')"
           />
         </div>
         <Button
@@ -164,7 +166,7 @@ const formatDate = (dateString: string) => {
           size="icon"
           @click="saveRole"
           :disabled="isUpdatingRole"
-          title="Save"
+          :title="t('projectMembers.save')"
         >
           <Check class="w-4 h-4 text-success-600" />
         </Button>
@@ -173,7 +175,7 @@ const formatDate = (dateString: string) => {
           size="icon"
           @click="cancelEditRole"
           :disabled="isUpdatingRole"
-          title="Cancel"
+          :title="t('projectMembers.cancel')"
         >
           <X class="w-4 h-4 text-neutral-600" />
         </Button>
@@ -185,7 +187,7 @@ const formatDate = (dateString: string) => {
         size="icon"
         @click="handleRemove"
         :disabled="isRemoving || isEditingRole"
-        title="Remove member"
+        :title="t('projectMembers.removeMember')"
       >
         <Trash2 class="w-4 h-4 text-error-600" />
       </Button>

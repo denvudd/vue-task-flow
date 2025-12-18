@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUpdateProject, useProject } from '@/composables/useProjects'
+import { useI18n } from 'vue-i18n'
 import { Button, Card, Field, FieldInput, FieldTextarea } from '@/components/ui'
 import { createProjectSchema } from '@/validation/projects'
 import { useForm } from 'vee-validate'
@@ -13,6 +14,7 @@ import { ArrowLeft } from 'lucide-vue-next'
 const router = useRouter()
 const route = useRoute()
 const { user } = useAuth()
+const { t } = useI18n()
 
 const projectId = computed(() => route.params.id as string)
 
@@ -83,17 +85,17 @@ const onSubmit = handleSubmit(async (formValues) => {
   error.value = null
 
   if (!user.value?.id) {
-    error.value = 'You must be logged in to update a project'
+    error.value = t('editProject.errors.notLoggedIn')
     return
   }
 
   if (!project.value) {
-    error.value = 'Project not found'
+    error.value = t('editProject.errors.notFound')
     return
   }
 
   if (project.value.owner_id !== user.value.id) {
-    error.value = 'You do not have permission to edit this project'
+    error.value = t('editProject.errors.noPermission')
     return
   }
 
@@ -113,7 +115,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       router.push(ROUTES.Dashboard)
     }, 1500)
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to update project'
+    error.value = err instanceof Error ? err.message : t('editProject.errors.updateFailed')
   }
 })
 
@@ -128,13 +130,13 @@ const handleBack = () => {
       <div>
         <Button variant="ghost" size="sm" @click="handleBack" class="mb-4">
           <ArrowLeft class="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {{ t('editProject.backToDashboard') }}
         </Button>
       </div>
 
       <Card>
         <div v-if="projectLoading" class="flex justify-center items-center py-8">
-          <div class="text-neutral-600">Loading project...</div>
+          <div class="text-neutral-600">{{ t('editProject.loading') }}</div>
         </div>
 
         <div
@@ -142,23 +144,27 @@ const handleBack = () => {
           class="text-center py-8 bg-error-50 border border-error-200 rounded-lg"
         >
           <p class="text-error-600">
-            {{ projectError instanceof Error ? projectError.message : 'Failed to load project' }}
+            {{ projectError instanceof Error ? projectError.message : t('editProject.loadFailed') }}
           </p>
-          <Button variant="outline" @click="handleBack" class="mt-4">Back to Dashboard</Button>
+          <Button variant="outline" @click="handleBack" class="mt-4">{{
+            t('editProject.backToDashboard')
+          }}</Button>
         </div>
 
         <div v-else-if="!project" class="text-center py-8">
-          <p class="text-neutral-600">Project not found</p>
-          <Button variant="outline" @click="handleBack" class="mt-4">Back to Dashboard</Button>
+          <p class="text-neutral-600">{{ t('editProject.notFound') }}</p>
+          <Button variant="outline" @click="handleBack" class="mt-4">{{
+            t('editProject.backToDashboard')
+          }}</Button>
         </div>
 
         <template v-else>
-          <h1 class="text-3xl font-bold text-neutral-900">Edit Project</h1>
-          <p class="text-neutral-600 mt-2 mb-6">Update the project details below</p>
+          <h1 class="text-3xl font-bold text-neutral-900">{{ t('editProject.title') }}</h1>
+          <p class="text-neutral-600 mt-2 mb-6">{{ t('editProject.subtitle') }}</p>
           <form @submit.prevent="onSubmit" class="space-y-6">
             <div v-if="success" class="p-4 rounded-lg bg-success-50 border border-success-200">
               <p class="text-sm text-success-700 font-medium">
-                ✓ Project updated successfully! Redirecting...
+                {{ t('editProject.success') }}
               </p>
             </div>
 
@@ -167,8 +173,8 @@ const handleBack = () => {
             </div>
 
             <Field
-              label="Project Name"
-              :helper-text="errors.name || 'Enter a descriptive name for your project'"
+              :label="t('editProject.projectName')"
+              :helper-text="errors.name || t('editProject.projectNameHelper')"
               :error-text="errors.name"
               :invalid="!!errors.name"
               required
@@ -176,7 +182,7 @@ const handleBack = () => {
               <FieldInput
                 v-model="name"
                 type="text"
-                placeholder="My Awesome Project"
+                :placeholder="t('editProject.projectNamePlaceholder')"
                 :disabled="isUpdating || success"
                 :invalid="!!errors.name"
                 :valid="nameValid"
@@ -185,17 +191,15 @@ const handleBack = () => {
             </Field>
 
             <Field
-              label="Project Key"
-              :helper-text="
-                errors.key || 'Short identifier (3-10 uppercase letters/numbers, e.g., PROJ, DEV)'
-              "
+              :label="t('editProject.projectKey')"
+              :helper-text="errors.key || t('editProject.projectKeyHelper')"
               :error-text="errors.key"
               :invalid="!!errors.key"
             >
               <FieldInput
                 v-model="key"
                 type="text"
-                placeholder="PROJ"
+                :placeholder="t('editProject.projectKeyPlaceholder')"
                 :disabled="isUpdating || success"
                 :invalid="!!errors.key"
                 :valid="keyValid"
@@ -207,14 +211,14 @@ const handleBack = () => {
             </Field>
 
             <Field
-              label="Description"
-              :helper-text="errors.description || 'Describe what this project is about (optional)'"
+              :label="t('editProject.description')"
+              :helper-text="errors.description || t('editProject.descriptionHelper')"
               :error-text="errors.description"
               :invalid="!!errors.description"
             >
               <FieldTextarea
                 v-model="description"
-                placeholder="This project aims to..."
+                :placeholder="t('editProject.descriptionPlaceholder')"
                 :disabled="isUpdating || success"
                 :invalid="!!errors.description"
                 :valid="descriptionValid"
@@ -229,10 +233,10 @@ const handleBack = () => {
                 :disabled="isUpdating || success"
                 @click="handleBack"
               >
-                Cancel
+                {{ t('editProject.cancel') }}
               </Button>
               <Button type="submit" :disabled="isUpdating || success">
-                {{ isUpdating ? 'Updating...' : 'Update Project' }}
+                {{ isUpdating ? t('editProject.updating') : t('editProject.update') }}
               </Button>
             </div>
           </form>
@@ -241,4 +245,3 @@ const handleBack = () => {
     </div>
   </div>
 </template>
-

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import { useI18n } from 'vue-i18n'
 import { Field, AvatarUpload } from '@/components/ui'
 import { uploadAvatar, deleteAvatar } from '@/api/profiles'
 import { supabase } from '@/lib/supabase'
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const { profile } = useAuth()
+const { t } = useI18n()
 const avatarFile = ref<File | null>(null)
 const avatarError = ref<string | null>(null)
 const uploadingAvatar = ref(false)
@@ -45,7 +47,7 @@ const handleAvatarChange = async () => {
 
   const userId = profile.value?.id
   if (!userId) {
-    handleError('User not found')
+    handleError(t('profilePage.avatar.userNotFound'))
     return
   }
 
@@ -66,7 +68,7 @@ const handleAvatarChange = async () => {
     const { path } = await uploadAvatar(userId, avatarFile.value)
 
     if (!path) {
-      handleError('Failed to upload avatar')
+      handleError(t('profilePage.avatar.uploadFailed'))
       return
     }
 
@@ -75,7 +77,7 @@ const handleAvatarChange = async () => {
     avatarError.value = null
     emit('uploaded', path)
   } catch (err: any) {
-    handleError(err.message || 'Failed to upload avatar')
+    handleError(err.message || t('profilePage.avatar.uploadFailed'))
   } finally {
     uploadingAvatar.value = false
   }
@@ -99,11 +101,8 @@ watch(
 
 <template>
   <Field
-    label="Avatar"
-    :helper-text="
-      avatarError ||
-      'Upload your profile picture. You can drag and drop an image or click to select.'
-    "
+    :label="t('profilePage.avatar.label')"
+    :helper-text="avatarError || t('profilePage.avatar.helper')"
     :error-text="avatarError || undefined"
     :invalid="!!avatarError"
   >

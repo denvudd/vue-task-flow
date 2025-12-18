@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Button, TableCell } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { useCreateTicket } from '@/composables/useTickets'
 import type { Tables } from '@/types/supabase'
 import { useAuth } from '@/composables/useAuth'
@@ -64,7 +64,7 @@ const handleQuickCreateTicket = async () => {
   <div class="flex">
     <div
       v-if="isAuthenticated"
-      class="px-24"
+      class="px-24 mt-4"
       :class="{ 'shrink-0 z-86 pe-4': isSidebarOpen }"
       :style="{
         insetInlineStart: isSidebarOpen ? '0' : 'auto',
@@ -74,14 +74,14 @@ const handleQuickCreateTicket = async () => {
       <div
         class="w-full flex items-center"
         :style="{
-          insetInlineStart: isSidebarOpen ? '94px' : 'auto',
+          insetInlineStart: isSidebarOpen ? '0px' : 'auto',
         }"
       >
         <div class="w-full">
           <Button
             variant="ghost"
             size="sm"
-            class="justify-start"
+            class="justify-start w-fit"
             :disabled="isCreatingTicket"
             @click="handleQuickCreateTicket"
           >
@@ -93,3 +93,4 @@ const handleQuickCreateTicket = async () => {
     </div>
   </div>
 </template>
+

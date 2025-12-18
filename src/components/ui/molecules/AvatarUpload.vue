@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import { Upload, X, Edit2 } from 'lucide-vue-next'
@@ -23,6 +24,7 @@ const emit = defineEmits<{
   error: [message: string]
 }>()
 
+const { t } = useI18n()
 const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 const previewUrl = ref<string | null>(null)
@@ -52,13 +54,13 @@ const handleFileSelect = (file: File | null) => {
 
   if (!file.type.startsWith('image/')) {
     emit('update:modelValue', null)
-    emit('error', 'Please select a valid image file')
+    emit('error', t('profilePage.avatar.errors.invalidFile'))
     return
   }
 
   if (file.size > 5 * 1024 * 1024) {
     emit('update:modelValue', null)
-    emit('error', 'Image size must be less than 5MB')
+    emit('error', t('profilePage.avatar.errors.sizeTooLarge'))
     return
   }
 
@@ -179,9 +181,9 @@ const handleCancelCrop = () => {
 <template>
   <div class="space-y-4">
     <Dialog v-model:open="showCropper" :lazy-mount="true" :unmount-on-exit="true" size="2xl">
-      <template #title>Edit Avatar</template>
+      <template #title>{{ t('profilePage.avatar.cropDialog.title') }}</template>
       <template #description>
-        Adjust the image to your liking. You can move and resize the selection area.
+        {{ t('profilePage.avatar.cropDialog.description') }}
       </template>
       <div style="height: 400px" class="mb-4">
         <Cropper
@@ -197,8 +199,10 @@ const handleCancelCrop = () => {
         />
       </div>
       <template #footer>
-        <Button variant="outline" @click="handleCancelCrop">Cancel</Button>
-        <Button @click="handleCrop">Apply</Button>
+        <Button variant="outline" @click="handleCancelCrop">{{
+          t('profilePage.avatar.cropDialog.cancel')
+        }}</Button>
+        <Button @click="handleCrop">{{ t('profilePage.avatar.cropDialog.apply') }}</Button>
       </template>
     </Dialog>
 
@@ -234,7 +238,7 @@ const handleCancelCrop = () => {
           <div class="relative">
             <img
               :src="displayPreview"
-              alt="Avatar preview"
+              :alt="t('profilePage.avatar.altPreview')"
               class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
             />
           </div>
@@ -247,7 +251,7 @@ const handleCancelCrop = () => {
               @click.stop="handleEdit"
             >
               <Edit2 class="w-4 h-4 mr-2" />
-              Change Avatar
+              {{ t('profilePage.avatar.changeAvatar') }}
             </Button>
             <Button
               v-if="previewUrl && !disabled"
@@ -257,7 +261,7 @@ const handleCancelCrop = () => {
               @click.stop="handleRemove"
             >
               <X class="w-4 h-4 mr-2" />
-              Remove
+              {{ t('profilePage.avatar.remove') }}
             </Button>
           </div>
         </div>
@@ -268,9 +272,9 @@ const handleCancelCrop = () => {
           </div>
           <div class="text-center">
             <p class="text-sm font-medium text-neutral-700">
-              Drop an image here or click to upload
+              {{ t('profilePage.avatar.dropOrClick') }}
             </p>
-            <p class="text-xs text-neutral-500 mt-1">PNG, JPG, GIF up to 5MB</p>
+            <p class="text-xs text-neutral-500 mt-1">{{ t('profilePage.avatar.fileTypes') }}</p>
           </div>
         </div>
       </div>

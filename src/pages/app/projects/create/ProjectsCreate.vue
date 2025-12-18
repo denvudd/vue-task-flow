@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useCreateProject } from '@/composables/useProjects'
+import { useI18n } from 'vue-i18n'
 import { Button, Card, Field, FieldInput, FieldTextarea } from '@/components/ui'
 import { createProjectSchema } from '@/validation/projects'
 import { useForm } from 'vee-validate'
@@ -12,6 +13,7 @@ import { ArrowLeft } from 'lucide-vue-next'
 
 const router = useRouter()
 const { user } = useAuth()
+const { t } = useI18n()
 
 const { mutateAsync: createProject, isPending: isCreating } = useCreateProject()
 
@@ -59,7 +61,7 @@ const onSubmit = handleSubmit(async (formValues) => {
   error.value = null
 
   if (!user.value?.id) {
-    error.value = 'You must be logged in to create a project'
+    error.value = t('createProject.errors.notLoggedIn')
     return
   }
 
@@ -77,7 +79,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       router.push(ROUTES.Dashboard)
     }, 1500)
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to create project'
+    error.value = err instanceof Error ? err.message : t('createProject.errors.createFailed')
   }
 })
 
@@ -92,17 +94,17 @@ const handleBack = () => {
       <div>
         <Button variant="ghost" size="sm" @click="handleBack" class="mb-4">
           <ArrowLeft class="w-4 h-4 mr-2" />
-          Back to Dashboard
+          {{ t('createProject.backToDashboard') }}
         </Button>
       </div>
 
       <Card>
-        <h1 class="text-3xl font-bold text-neutral-900">Create New Project</h1>
-        <p class="text-neutral-600 mt-2 mb-6">Fill in the details below to create a new project</p>
+        <h1 class="text-3xl font-bold text-neutral-900">{{ t('createProject.title') }}</h1>
+        <p class="text-neutral-600 mt-2 mb-6">{{ t('createProject.subtitle') }}</p>
         <form @submit.prevent="onSubmit" class="space-y-6">
           <div v-if="success" class="p-4 rounded-lg bg-success-50 border border-success-200">
             <p class="text-sm text-success-700 font-medium">
-              ✓ Project created successfully! Redirecting...
+              {{ t('createProject.success') }}
             </p>
           </div>
 
@@ -111,8 +113,8 @@ const handleBack = () => {
           </div>
 
           <Field
-            label="Project Name"
-            :helper-text="errors.name || 'Enter a descriptive name for your project'"
+            :label="t('createProject.projectName')"
+            :helper-text="errors.name || t('createProject.projectNameHelper')"
             :error-text="errors.name"
             :invalid="!!errors.name"
             required
@@ -120,7 +122,7 @@ const handleBack = () => {
             <FieldInput
               v-model="name"
               type="text"
-              placeholder="My Awesome Project"
+              :placeholder="t('createProject.projectNamePlaceholder')"
               :disabled="isCreating || success"
               :invalid="!!errors.name"
               :valid="nameValid"
@@ -129,17 +131,15 @@ const handleBack = () => {
           </Field>
 
           <Field
-            label="Project Key"
-            :helper-text="
-              errors.key || 'Short identifier (3-10 uppercase letters/numbers, e.g., PROJ, DEV)'
-            "
+            :label="t('createProject.projectKey')"
+            :helper-text="errors.key || t('createProject.projectKeyHelper')"
             :error-text="errors.key"
             :invalid="!!errors.key"
           >
             <FieldInput
               v-model="key"
               type="text"
-              placeholder="PROJ"
+              :placeholder="t('createProject.projectKeyPlaceholder')"
               :disabled="isCreating || success"
               :invalid="!!errors.key"
               :valid="keyValid"
@@ -151,14 +151,14 @@ const handleBack = () => {
           </Field>
 
           <Field
-            label="Description"
-            :helper-text="errors.description || 'Describe what this project is about (optional)'"
+            :label="t('createProject.description')"
+            :helper-text="errors.description || t('createProject.descriptionHelper')"
             :error-text="errors.description"
             :invalid="!!errors.description"
           >
             <FieldTextarea
               v-model="description"
-              placeholder="This project aims to..."
+              :placeholder="t('createProject.descriptionPlaceholder')"
               :disabled="isCreating || success"
               :invalid="!!errors.description"
               :valid="descriptionValid"
@@ -173,10 +173,10 @@ const handleBack = () => {
               :disabled="isCreating || success"
               @click="handleBack"
             >
-              Cancel
+              {{ t('createProject.cancel') }}
             </Button>
             <Button type="submit" :disabled="isCreating || success">
-              {{ isCreating ? 'Creating...' : 'Create Project' }}
+              {{ isCreating ? t('createProject.creating') : t('createProject.create') }}
             </Button>
           </div>
         </form>

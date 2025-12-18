@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Field, TicketStatusSelect, TicketPrioritySelect, TicketTypeSelect } from '@/components/ui'
+import { useI18n } from 'vue-i18n'
 import { Loader, CircleChevronDown, Flag } from 'lucide-vue-next'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
 import { useTicketDetails } from '@/composables/useTicketDetails'
+
+const { t } = useI18n()
 
 const {
   status,
@@ -39,27 +42,27 @@ const handleTypeChange = async (newType: TicketType | null) => {
       <template #label>
         <div class="flex items-center gap-1">
           <Loader class="size-3.5" />
-          Status
+          {{ t('ticketDetails.panel.status') }}
         </div>
       </template>
       <TicketStatusSelect :value="status" @change="handleStatusChange" />
     </Field>
 
-    <Field label="Priority" root-class="flex flex-col items-start">
+    <Field :label="t('ticketDetails.panel.priority')" root-class="flex flex-col items-start">
       <template #label>
         <div class="flex items-center gap-1">
           <CircleChevronDown class="size-3.5" />
-          Priority
+          {{ t('ticketDetails.panel.priority') }}
         </div>
       </template>
       <TicketPrioritySelect :value="priority" @change="handlePriorityChange" />
     </Field>
 
-    <Field label="Type" root-class="flex flex-col items-start">
+    <Field :label="t('ticketDetails.panel.type')" root-class="flex flex-col items-start">
       <template #label>
         <div class="flex items-center gap-1">
           <Flag class="size-3.5" />
-          Type
+          {{ t('ticketDetails.panel.type') }}
         </div>
       </template>
       <TicketTypeSelect :value="type" @change="handleTypeChange" />

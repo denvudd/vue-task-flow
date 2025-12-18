@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { Button, TicketStatusSelect, TicketPrioritySelect, TicketTypeSelect } from '@/components/ui'
 import { Transition } from 'vue'
@@ -14,6 +15,7 @@ const { selectedTicketIds, clearSelection } = useProjectContext()
 const { mutateAsync: updateTicket } = useUpdateTicket()
 const { mutateAsync: deleteTicket } = useDeleteTicket()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const isUpdating = ref(false)
 const isDeleting = ref(false)
@@ -32,8 +34,7 @@ const handleBulkStatusChange = async (status: TicketStatus | null) => {
   } catch (error) {
     console.error('Error updating ticket status:', error)
     createToast({
-      title: 'Error',
-      description: 'Failed to update tickets status',
+      title: t('projectSelection.errors.updateStatusFailed'),
       type: 'error',
     })
   } finally {
@@ -55,8 +56,7 @@ const handleBulkPriorityChange = async (priority: TicketPriority | null) => {
   } catch (error) {
     console.error('Error updating ticket priority:', error)
     createToast({
-      title: 'Error',
-      description: 'Failed to update tickets priority',
+      title: t('projectSelection.errors.updatePriorityFailed'),
       type: 'error',
     })
   } finally {
@@ -78,8 +78,7 @@ const handleBulkTypeChange = async (type: TicketType | null) => {
   } catch (error) {
     console.error('Error updating ticket priority:', error)
     createToast({
-      title: 'Error',
-      description: 'Failed to update tickets type',
+      title: t('projectSelection.errors.updateTypeFailed'),
       type: 'error',
     })
   } finally {
@@ -90,7 +89,7 @@ const handleBulkTypeChange = async (type: TicketType | null) => {
 const handleBulkDelete = async () => {
   if (selectedTicketIds.value.length === 0) return
 
-  if (!confirm(`Are you sure you want to delete ${selectedTicketIds.value.length} ticket(s)?`)) {
+  if (!confirm(t('projectSelection.confirmDelete', { count: selectedTicketIds.value.length }))) {
     return
   }
 
@@ -100,7 +99,7 @@ const handleBulkDelete = async () => {
     await Promise.all(promises)
 
     createToast({
-      title: 'Moved to trash',
+      title: t('projectSelection.success.movedToTrash'),
       type: 'success',
     })
 
@@ -108,8 +107,7 @@ const handleBulkDelete = async () => {
   } catch (error) {
     console.error('Error deleting tickets:', error)
     createToast({
-      title: 'Error',
-      description: 'Failed to delete tickets',
+      title: t('projectSelection.errors.deleteFailed'),
       type: 'error',
     })
   } finally {
@@ -142,14 +140,14 @@ const handleBulkDelete = async () => {
             class="h-full shrink-0 px-[10px] text-primary-700 rounded-none"
             @click="clearSelection"
           >
-            {{ selectedTicketIds.length }} selected
+            {{ t('projectSelection.selected', { count: selectedTicketIds.length }) }}
           </Button>
 
           <div class="flex items-center gap-1 h-full shrink-0 divide-x divide-neutral-300 pl-1">
             <div class="flex items-center fit-content w-[70px] overflow-x-auto scroll-hidden">
               <Loader class="size-3.5 shrink-0" />
               <TicketStatusSelect
-                placeholder="Status"
+                :placeholder="t('projectSelection.status')"
                 root-class="!space-y-0 h-full"
                 :disabled="isUpdating || isDeleting"
                 @change="handleBulkStatusChange"
@@ -159,7 +157,7 @@ const handleBulkDelete = async () => {
             <div class="flex items-center fit-content w-[70px] overflow-x-auto scroll-hidden">
               <CircleChevronDown class="size-3.5 shrink-0" />
               <TicketPrioritySelect
-                placeholder="Priority"
+                :placeholder="t('projectSelection.priority')"
                 root-class="!space-y-0 h-full"
                 :disabled="isUpdating || isDeleting"
                 @change="handleBulkPriorityChange"
@@ -169,7 +167,7 @@ const handleBulkDelete = async () => {
             <div class="flex items-center fit-content w-[70px] overflow-x-auto scroll-hidden">
               <Flag class="size-3.5 shrink-0" />
               <TicketTypeSelect
-                placeholder="Type"
+                :placeholder="t('projectSelection.type')"
                 root-class="!space-y-0 h-full"
                 :disabled="isUpdating || isDeleting"
                 @change="handleBulkTypeChange"
@@ -181,7 +179,7 @@ const handleBulkDelete = async () => {
             size="icon"
             :disabled="isUpdating || isDeleting"
             @click="handleBulkDelete"
-            tooltip="Delete"
+            :tooltip="t('projectSelection.deleteTooltip')"
             class="shrink-0 h-full rounded-none hover:text-error-500"
           >
             <Trash2 class="size-4" />

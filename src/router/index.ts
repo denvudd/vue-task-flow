@@ -40,6 +40,12 @@ const router = createRouter({
           meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
           component: () => import('@/pages/app/projects/view/ProjectView.vue'),
         },
+        {
+          path: '/projects/:projectId/tickets/:ticketId',
+          name: 'Ticket',
+          meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
+          component: () => import('@/pages/app/projects/view/TicketView.vue'),
+        },
       ],
     },
     {
