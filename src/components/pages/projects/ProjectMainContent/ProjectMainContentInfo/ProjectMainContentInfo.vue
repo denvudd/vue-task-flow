@@ -46,7 +46,7 @@ const projectColor = computed(() =>
     >
       <div class="w-full">
         <div class="flex items-start justify-between">
-          <div class="space-y-2">
+          <div class="space-y-1">
             <div class="flex items-center gap-3">
               <h1 class="text-3xl font-bold text-neutral-900">{{ name }}</h1>
               <span
@@ -62,7 +62,7 @@ const projectColor = computed(() =>
                 {{ projectKey }}
               </span>
             </div>
-            <p v-if="description" class="text-neutral-600 text-lg">
+            <p v-if="description" class="text-neutral-600 mb-1">
               {{ description }}
             </p>
           </div>

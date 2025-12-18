@@ -38,13 +38,18 @@ const initials = computed(() => {
   <ArkAvatar.Root
     :class="
       cn(
-        'inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 font-medium overflow-hidden',
+        'inline-flex items-center justify-center border border-neutral-200 relative rounded-full bg-primary-50 text-primary-700 font-medium overflow-hidden',
         sizeClasses[size],
         props.class,
       )
     "
   >
     <ArkAvatar.Fallback>{{ initials }}</ArkAvatar.Fallback>
-    <ArkAvatar.Image v-if="src" :src="src" :alt="alt || name || 'Avatar'" />
+    <ArkAvatar.Image
+      v-if="src"
+      :src="src"
+      :alt="alt || name || 'Avatar'"
+      class="size-full shrink-0"
+    />
   </ArkAvatar.Root>
 </template>

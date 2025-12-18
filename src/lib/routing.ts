@@ -7,6 +7,7 @@ export const ROUTES = {
   ResetPassword: '/reset-password',
   AuthCallback: '/auth/callback',
   CreateProject: '/projects/create',
+  EditProject: (projectId: string) => `/projects/${projectId}/edit`,
   Project: (projectId: string) => `/projects/${projectId}`,
   Ticket: (projectId: string, ticketId: string) => `/projects/${projectId}/tickets/${ticketId}`,
 }

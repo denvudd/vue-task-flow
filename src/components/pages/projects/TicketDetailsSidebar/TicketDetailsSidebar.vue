@@ -7,7 +7,7 @@ import TicketDetailsSidebarPanel from './TicketDetailsSidebarPanel.vue'
 import TicketDetailsSidebarNotFound from './TicketDetailsSidebarNotFound.vue'
 import TicketDetailsSidebarTitle from './TicketDetailsSidebarTitle.vue'
 import TicketDetailsSidebarContent from './TicketDetailsSidebarContent.vue'
-import TicketComments from './TicketComments.vue'
+import { TicketComments } from './TicketComments'
 
 interface Props {
   ticketId: string

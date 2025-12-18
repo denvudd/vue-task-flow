@@ -29,6 +29,12 @@ const router = createRouter({
           component: () => import('@/pages/app/projects/create/ProjectsCreate.vue'),
         },
         {
+          path: '/projects/:id/edit',
+          name: 'EditProject',
+          meta: { requiresAuth: true },
+          component: () => import('@/pages/app/projects/edit/ProjectsEdit.vue'),
+        },
+        {
           path: '/projects/:id',
           name: 'Project',
           meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },

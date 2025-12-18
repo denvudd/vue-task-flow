@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useUserProjects } from '@/composables/useProjects'
 import { Card } from '@/components/ui'
-import { SquareKanban, Ban, Plus } from 'lucide-vue-next'
+import { SquareKanban, Ban, Plus, Pencil } from 'lucide-vue-next'
 import { Button } from '@/components/ui'
 import { useRouter, RouterLink } from 'vue-router'
 import { ROUTES } from '@/lib/routing'
@@ -19,6 +19,14 @@ const {
   refetch: refetchProjects,
 } = useUserProjects(computed(() => user.value?.id))
 
+const ownedProjects = computed(() =>
+  (projects.value || []).filter((project) => project.owner_id === user.value?.id),
+)
+
+const sharedProjects = computed(() =>
+  (projects.value || []).filter((project) => project.owner_id !== user.value?.id),
+)
+
 const errorMessage = computed(() => {
   if (!projectsError.value) return null
   return projectsError.value instanceof Error
@@ -29,6 +37,12 @@ const errorMessage = computed(() => {
 const handleRefreshProjects = () => {
   refetchProjects()
 }
+
+const handleEditProject = (projectId: string, event: MouseEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  router.push(ROUTES.EditProject(projectId))
+}
 </script>
 
 <template>
@@ -38,7 +52,7 @@ const handleRefreshProjects = () => {
         <h3 class="text-xl font-semibold text-neutral-900">Projects</h3>
 
         <Button size="sm" variant="outline" @click="router.push(ROUTES.CreateProject)">
-          <Plus class="w-4 h-4 mr-2" />Create
+          <Plus class="w-4 h-4 mr-1.5" />New
         </Button>
       </div>
 
@@ -64,39 +78,112 @@ const handleRefreshProjects = () => {
         <p class="text-neutral-500 text-sm">Create your first project to get started</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <RouterLink
-          v-for="project in projects"
-          :to="ROUTES.Project(project.id)"
-          :key="project.id"
-          class="p-4 border border-neutral-200 rounded-lg hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer"
-        >
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <h4 class="font-semibold text-neutral-900 text-lg">{{ project.name }}</h4>
-              <span class="text-xs text-neutral-500 bg-primary-50 px-2 py-1 rounded font-medium">
-                {{ project.key }}
-              </span>
-            </div>
-            <p v-if="project.description" class="text-neutral-600 text-sm line-clamp-2">
-              {{ project.description }}
-            </p>
-            <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
-              <span class="text-xs text-neutral-500">
-                Created
-                {{
-                  project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Unknown'
-                }}
-              </span>
-              <span
-                v-if="project.owner_id === user?.id"
-                class="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded"
-              >
-                Owner
-              </span>
-            </div>
+      <div v-else class="space-y-6">
+        <!-- Own projects -->
+        <div v-if="ownedProjects.length">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
+              Your projects
+            </h4>
           </div>
-        </RouterLink>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RouterLink
+              v-for="project in ownedProjects"
+              :to="ROUTES.Project(project.id)"
+              :key="project.id"
+              class="p-4 border border-neutral-200 rounded-lg hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer relative"
+            >
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-semibold text-neutral-900 text-lg">{{ project.name }}</h4>
+                  <div class="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      class="h-7 w-7 p-0"
+                      @click="handleEditProject(project.id, $event)"
+                      @mousedown.stop
+                      tooltip="Edit"
+                    >
+                      <Pencil class="w-3.5 h-3.5" />
+                    </Button>
+                    <span
+                      class="text-xs text-neutral-500 bg-primary-50 px-2 py-1 rounded font-medium"
+                    >
+                      {{ project.key }}
+                    </span>
+                  </div>
+                </div>
+                <p v-if="project.description" class="text-neutral-600 text-sm line-clamp-2">
+                  {{ project.description }}
+                </p>
+                <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+                  <span class="text-xs text-neutral-500">
+                    Created
+                    {{
+                      project.created_at
+                        ? new Date(project.created_at).toLocaleDateString()
+                        : 'Unknown'
+                    }}
+                  </span>
+                  <span
+                    class="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded"
+                  >
+                    Owner
+                  </span>
+                </div>
+              </div>
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- Shared projects -->
+        <div v-if="sharedProjects.length">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-semibold text-neutral-700 uppercase tracking-wide">
+              Shared with you
+            </h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RouterLink
+              v-for="project in sharedProjects"
+              :to="ROUTES.Project(project.id)"
+              :key="project.id"
+              class="p-4 border border-neutral-200 rounded-lg hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer relative"
+            >
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-semibold text-neutral-900 text-lg">{{ project.name }}</h4>
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="text-xs text-neutral-500 bg-primary-50 px-2 py-1 rounded font-medium"
+                    >
+                      {{ project.key }}
+                    </span>
+                  </div>
+                </div>
+                <p v-if="project.description" class="text-neutral-600 text-sm line-clamp-2">
+                  {{ project.description }}
+                </p>
+                <div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+                  <span class="text-xs text-neutral-500">
+                    Created
+                    {{
+                      project.created_at
+                        ? new Date(project.created_at).toLocaleDateString()
+                        : 'Unknown'
+                    }}
+                  </span>
+                  <span
+                    class="text-xs font-medium text-neutral-500 bg-neutral-50 px-2 py-1 rounded"
+                  >
+                    Member
+                  </span>
+                </div>
+              </div>
+            </RouterLink>
+          </div>
+        </div>
       </div>
     </div>
   </Card>

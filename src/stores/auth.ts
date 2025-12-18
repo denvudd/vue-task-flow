@@ -34,14 +34,17 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (!initialized.value) {
         authApi.onAuthStateChange(async (_event, newSession) => {
-          session.value = newSession
-          user.value = newSession?.user ?? null
+          setTimeout(async () => {
+            console.log('fired')
+            session.value = newSession
+            user.value = newSession?.user ?? null
 
-          if (newSession?.user) {
-            await loadProfile(newSession.user.id)
-          } else {
-            profile.value = null
-          }
+            if (newSession?.user) {
+              await loadProfile(newSession.user.id)
+            } else {
+              profile.value = null
+            }
+          }, 0)
         })
         initialized.value = true
       }

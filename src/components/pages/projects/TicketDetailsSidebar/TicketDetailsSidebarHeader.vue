@@ -76,7 +76,6 @@ const remainingCount = computed(() =>
                 :src="getAvatarUrl(user.profile.avatar_url)"
                 :name="getUserDisplayName(user.profile)"
                 size="sm"
-                class="border-2 border-white"
               />
             </Transition>
           </Button>
