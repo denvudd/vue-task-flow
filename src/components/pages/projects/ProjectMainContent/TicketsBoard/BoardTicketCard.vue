@@ -12,7 +12,14 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { StatusOption, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, PanelsTopLeft, Trash2, Link, ArrowUpRight, GripVertical } from 'lucide-vue-next'
+import {
+  PanelsTopLeft,
+  Trash2,
+  Link,
+  ArrowUpRight,
+  GripVertical,
+  MessageSquareMore,
+} from 'lucide-vue-next'
 import { getUserDisplayName } from '@/lib/utils/get-user-display-name'
 import { getAvatarUrl } from '@/lib/utils/get-avatar-url'
 import { useAuth } from '@/composables/useAuth'
@@ -27,7 +34,8 @@ const router = useRouter()
 
 const { isAuthenticated } = useAuth()
 const { createToast } = useToast()
-const { selectTicket, deselectTicket, selectedTicketIds, currentProjectId } = useProjectContext()
+const { selectTicket, deselectTicket, selectedTicketIds, currentProjectId, isUserEditor } =
+  useProjectContext()
 const { mutateAsync: updateTicket } = useUpdateTicket()
 const { t } = useI18n()
 
@@ -134,6 +142,13 @@ const avatarUrl = computed(() => {
   return getAvatarUrl(ticketAssignee.value.avatar_url)
 })
 
+const commentsCount = computed(() => {
+  const ticket = props.ticket as any
+  const comments = ticket.ticket_comments
+  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0
+  return comments[0]?.count ?? 0
+})
+
 const openEditDialog = (ticket: Tables<'tickets'>) => {
   router.push({
     query: { ...route.query, ticket: ticket.id },
@@ -232,22 +247,40 @@ const handleCardContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEv
         value: 'open-in',
         icon: ArrowUpRight,
         submenu: [
-          { label: t('boardTicketCard.contextMenu.newTab'), value: 'open-new-tab', icon: ArrowUpRight },
-          { label: t('boardTicketCard.contextMenu.sidePeek'), value: 'open-side-peek', icon: PanelsTopLeft },
+          {
+            label: t('boardTicketCard.contextMenu.newTab'),
+            value: 'open-new-tab',
+            icon: ArrowUpRight,
+          },
+          {
+            label: t('boardTicketCard.contextMenu.sidePeek'),
+            value: 'open-side-peek',
+            icon: PanelsTopLeft,
+          },
         ],
       },
       { type: 'separator' },
       { label: t('boardTicketCard.contextMenu.copyLink'), value: 'copy-link', icon: Link },
-      { label: t('boardTicketCard.contextMenu.delete'), value: 'delete', danger: true, icon: Trash2 },
+      {
+        label: t('boardTicketCard.contextMenu.delete'),
+        value: 'delete',
+        danger: true,
+        icon: Trash2,
+      },
     ]"
     @select="handleContextMenuSelect"
     :class="cn('max-w-[260px]')"
   >
     <template #footer>
       <div class="px-2 py-1.5 text-xs text-neutral-500 space-y-0.5">
-        <div v-if="ticket.updated_at">{{ t('boardTicketCard.lastEdited', { datetime: formatDateTime(ticket.updated_at) }) }}</div>
+        <div v-if="ticket.updated_at">
+          {{ t('boardTicketCard.lastEdited', { datetime: formatDateTime(ticket.updated_at) }) }}
+        </div>
         <div>
-          {{ t('boardTicketCard.createdAt', { datetime: formatDateTime(ticket.created_at) }) }}<span v-if="ticketCreator">{{ t('boardTicketCard.createdBy', { creator: creatorDisplayName }) }}</span>
+          {{ t('boardTicketCard.createdAt', { datetime: formatDateTime(ticket.created_at) })
+          }}<span v-if="ticketCreator">{{
+            t('boardTicketCard.createdBy', { creator: creatorDisplayName })
+          }}</span>
         </div>
       </div>
     </template>
@@ -269,7 +302,12 @@ const handleCardContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEv
         @contextmenu="(e) => handleCardContextMenu(e, onContextMenu)"
       >
         <div
-          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center"
+          :class="
+            cn(
+              'absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center',
+              columnStatus.cardColor,
+            )
+          "
         >
           <Button
             v-if="isAuthenticated"
@@ -283,7 +321,7 @@ const handleCardContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEv
             <PanelsTopLeft class="size-4" />
           </Button>
           <Button
-            v-if="isAuthenticated"
+            v-if="isAuthenticated && isUserEditor"
             type="button"
             variant="ghost"
             size="icon"
@@ -320,7 +358,7 @@ const handleCardContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEv
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <!-- Due Date -->
           <div v-if="ticket.due_date" class="flex items-center gap-1 text-xs text-neutral-600">
             {{
@@ -334,6 +372,16 @@ const handleCardContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEv
             }}
           </div>
           <div v-else class="flex-1"></div>
+
+          <!-- Comments Count -->
+          <div
+            v-if="commentsCount > 0"
+            class="flex items-center gap-1 h-4 text-neutral-600 text-xs bg-neutral-50 pl-2 py-1"
+            :title="t('boardTicketCard.commentsCount', { count: commentsCount })"
+          >
+            <MessageSquareMore class="size-3" />
+            <span class="font-medium">{{ commentsCount }}</span>
+          </div>
 
           <!-- Assignee Avatar -->
           <Avatar

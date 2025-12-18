@@ -30,7 +30,7 @@ export async function getProjectTickets(
 ) {
   let query = supabase
     .from('tickets')
-    .select('*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*)', {
+    .select('*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*), ticket_comments(count)', {
       count: 'exact',
     })
     .eq('project_id', projectId)
@@ -87,7 +87,7 @@ export async function getTicket(ticketId: string) {
   return await supabase
     .from('tickets')
     .select(
-      '*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*), project:projects(*)',
+      '*, creator:profiles!creator_id(*), assignee:profiles!assignee_id(*), project:projects(*), ticket_comments(count)',
     )
     .eq('id', ticketId)
     .single()

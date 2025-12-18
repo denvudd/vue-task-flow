@@ -164,8 +164,11 @@ export function useProjectTickets(
           }
 
           try {
-            // Add the ticket with basic data
-            const ticketToAdd = newTicket
+            // Add the ticket with basic data and initialize comment count
+            const ticketToAdd = {
+              ...newTicket,
+              ticket_comments: [{ count: 0 }],
+            } as any
             tickets.value = [...tickets.value, ticketToAdd].sort(
               (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
             )
@@ -176,10 +179,11 @@ export function useProjectTickets(
             console.log(`[Realtime] Added new ticket ${newTicket.id} to list`)
           } catch (err) {
             console.error('[Realtime] Error fetching full ticket data:', err)
-            // Fallback: add ticket without relations
-            tickets.value = [...tickets.value, newTicket].sort(
-              (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0),
-            )
+            // Fallback: add ticket without relations and initialize comment count
+            tickets.value = [
+              ...tickets.value,
+              { ...newTicket, ticket_comments: [{ count: 0 }] } as any,
+            ].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
             loadedCount.value += 1
             if (totalCount.value !== null) {
               totalCount.value += 1
@@ -243,6 +247,60 @@ export function useProjectTickets(
             console.log(
               `[Realtime] Ignoring DELETE event for ticket ${ticketId} (not in current project list)`,
             )
+          }
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ticket_comments',
+        },
+        async (payload) => {
+          const newComment = payload.new as any
+          const ticketId = newComment?.ticket_id
+
+          console.log(`[Realtime] Received INSERT event for comment on ticket:`, ticketId)
+
+          const index = tickets.value.findIndex((t) => t.id === ticketId)
+          if (index !== -1 && tickets.value[index]) {
+            const ticket = tickets.value[index] as any
+            const currentComments = ticket.ticket_comments || []
+            const currentCount = currentComments[0]?.count ?? 0
+            
+            tickets.value[index] = {
+              ...ticket,
+              ticket_comments: [{ count: currentCount + 1 }],
+            }
+            console.log(`[Realtime] Updated comment count for ticket ${ticketId}`)
+          }
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'ticket_comments',
+        },
+        async (payload) => {
+          const deletedComment = payload.old as any
+          const ticketId = deletedComment?.ticket_id
+
+          console.log(`[Realtime] Received DELETE event for comment on ticket:`, ticketId)
+
+          const index = tickets.value.findIndex((t) => t.id === ticketId)
+          if (index !== -1 && tickets.value[index]) {
+            const ticket = tickets.value[index] as any
+            const currentComments = ticket.ticket_comments || []
+            const currentCount = currentComments[0]?.count ?? 0
+            
+            tickets.value[index] = {
+              ...ticket,
+              ticket_comments: [{ count: Math.max(0, currentCount - 1) }],
+            }
+            console.log(`[Realtime] Updated comment count for ticket ${ticketId}`)
           }
         },
       )

@@ -15,7 +15,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { currentProjectId, isSidebarOpen } = useProjectContext()
+const { currentProjectId, isSidebarOpen, isUserEditor } = useProjectContext()
 const { mutateAsync: createTicket, isPending: isCreatingTicket } = useCreateTicket()
 const { user, isAuthenticated } = useAuth()
 const { createToast } = useToast()
@@ -63,7 +63,7 @@ const handleQuickCreateTicket = async () => {
 <template>
   <div class="flex">
     <div
-      v-if="isAuthenticated"
+      v-if="isAuthenticated && isUserEditor"
       class="px-4 sm:px-8 lg:px-24"
       :class="{ 'shrink-0 z-86 pe-4': isSidebarOpen }"
       :style="{

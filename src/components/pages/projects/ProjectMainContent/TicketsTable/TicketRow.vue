@@ -14,7 +14,14 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import { Calendar, PanelsTopLeft, Trash2, Link, ArrowUpRight } from 'lucide-vue-next'
+import {
+  Calendar,
+  PanelsTopLeft,
+  Trash2,
+  Link,
+  ArrowUpRight,
+  MessageSquareMore,
+} from 'lucide-vue-next'
 import { getUserDisplayName } from '@/lib/utils/get-user-display-name'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -104,6 +111,13 @@ const creatorDisplayName = computed(() => {
     full_name: ticketCreator.value.full_name,
     username: ticketCreator.value.username,
   })
+})
+
+const commentsCount = computed(() => {
+  const ticket = props.ticket as any
+  const comments = ticket.ticket_comments
+  if (!comments || !Array.isArray(comments) || comments.length === 0) return 0
+  return comments[0]?.count ?? 0
 })
 
 const openEditDialog = (ticket: Tables<'tickets'>) => {
@@ -316,14 +330,25 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             input-class="relative z-20 h-full"
             auto-resize
           />
+          <div class="z-5 absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2">
+            <div
+              v-if="commentsCount > 0"
+              class="flex items-center gap-1 h-4 text-neutral-600 text-xs bg-neutral-50 pl-2 py-1"
+              :title="t('ticketRow.commentsCount', { count: commentsCount })"
+            >
+              <MessageSquareMore class="size-3" />
+              <span class="font-medium">{{ commentsCount }}</span>
+            </div>
+          </div>
+
           <div
             v-if="isAuthenticated"
-            class="opacity-100 lg:opacity-0 z-10 group-hover:opacity-100 transition-opacity absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2"
+            class="z-10 absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-2"
           >
             <Button
               variant="outline"
               size="sm"
-              class="flex gap-1 items-center uppercase px-2! py-1!"
+              class="opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 items-center uppercase px-2! py-1!"
               @click="openEditDialog(ticket)"
               :tooltip="t('ticketRow.openInSidePeek')"
               :tooltip-open-delay="500"

@@ -495,6 +495,7 @@
     "lastEdited": "Остання зміна {datetime}",
     "createdAt": "Створено {datetime}",
     "createdBy": " користувачем {creator}",
+    "commentsCount": "{count} коментар | {count} коментарі | {count} коментарів",
     "contextMenu": {
       "openIn": "Відкрити в...",
       "newTab": "Новій вкладці",
@@ -535,6 +536,7 @@
     "lastEdited": "Остання зміна {datetime}",
     "createdAt": "Створено {datetime}",
     "createdBy": " користувачем {creator}",
+    "commentsCount": "{count} коментар | {count} коментарі | {count} коментарів",
     "openInSidePeek": "Відкрити в бічній панелі",
     "dragToMove": "Перетягніть для переміщення",
     "contextMenu": {
