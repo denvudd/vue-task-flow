@@ -5,15 +5,25 @@ import { ROUTES } from '@/lib/routing'
 import SplitText from './animations/SplitText.vue'
 import GradientText from './animations/GradientText.vue'
 import FadeContent from './animations/FadeContent.vue'
-
+import { useAuth } from '@/composables/useAuth'
 const router = useRouter()
 
+const { isAuthenticated } = useAuth()
+
 const navigateToSignUp = () => {
-  router.push(ROUTES.SignUp)
+  if (isAuthenticated.value) {
+    router.push(ROUTES.Dashboard)
+  } else {
+    router.push(ROUTES.SignUp)
+  }
 }
 
 const navigateToLogin = () => {
-  router.push(ROUTES.Login)
+  if (isAuthenticated.value) {
+    router.push(ROUTES.Dashboard)
+  } else {
+    router.push(ROUTES.Login)
+  }
 }
 </script>
 
