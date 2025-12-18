@@ -167,7 +167,7 @@ onUnmounted(() => {
         </div>
 
         <div v-show="!isLoading && hasTickets" class="relative flex flex-col min-w-full">
-          <Table class="mb-1 px-24" :class="{ 'pe-4': isSidebarOpen }">
+          <Table class="mb-1 px-4 sm:px-8 lg:px-24" :class="{ 'pe-4': isSidebarOpen }">
             <TableHeader>
               <TableRow
                 :hover="false"

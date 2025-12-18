@@ -14,15 +14,7 @@ import {
 } from '@/components/ui'
 import type { Tables } from '@/types/supabase'
 import type { TicketStatus, TicketPriority, TicketType } from '@/constants/tickets'
-import {
-  Calendar,
-  PanelsTopLeft,
-  Trash2,
-  CheckSquare,
-  Link,
-  ExternalLink,
-  ArrowUpRight,
-} from 'lucide-vue-next'
+import { Calendar, PanelsTopLeft, Trash2, Link, ArrowUpRight } from 'lucide-vue-next'
 import { getUserDisplayName } from '@/lib/utils/get-user-display-name'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -30,6 +22,7 @@ import { useUpdateTicket } from '@/composables/useTickets'
 import TicketRowSelectableMenu from './TicketRowSelectableMenu.vue'
 import { useProjectContext } from '@/composables/useProjectContext'
 import { ROUTES } from '@/lib/routing'
+import { useMediaQuery } from '@vueuse/core'
 
 const route = useRoute()
 const router = useRouter()
@@ -58,7 +51,8 @@ const emit = defineEmits<{
   (e: 'update:hovered-drag-handle', payload: boolean): void
 }>()
 
-const { currentProjectId } = useProjectContext()
+const { currentProjectId, isUserEditor } = useProjectContext()
+const isDesktop = useMediaQuery('(min-width: 1024px)')
 
 const { isDragging, elementRef, handleDragStart, isOvered } = useDraggable({
   groups: props.bodyGroups,
@@ -113,9 +107,13 @@ const creatorDisplayName = computed(() => {
 })
 
 const openEditDialog = (ticket: Tables<'tickets'>) => {
-  router.push({
-    query: { ...route.query, ticket: ticket.id },
-  })
+  if (isDesktop.value) {
+    router.push({
+      query: { ...route.query, ticket: ticket.id },
+    })
+  } else {
+    window.open(window.location.origin + ROUTES.Ticket(currentProjectId.value!, ticket.id))
+  }
 }
 
 const handleTitleUpdate = async (newValue: string) => {
@@ -178,7 +176,7 @@ const handleTypeChange = async (newType: TicketType | null) => {
 }
 
 const handleContextMenuSelect = (value: string) => {
-  if (!isAuthenticated.value) {
+  if (!isAuthenticated.value || !isUserEditor.value) {
     showUnauthorizedMessage()
     return
   }
@@ -202,7 +200,11 @@ const handleContextMenuSelect = (value: string) => {
   const ticketUrl = window.location.origin + ROUTES.Ticket(currentProjectId.value!, props.ticket.id)
 
   if (value === 'open-side-peek') {
-    openEditDialog(props.ticket)
+    if (isDesktop.value) {
+      openEditDialog(props.ticket)
+    } else {
+      window.open(ticketUrl)
+    }
     return
   }
 
@@ -227,6 +229,10 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
     return
   }
 
+  if (!isUserEditor.value) {
+    return
+  }
+
   if (!selectedTicketIds.value?.includes(props.ticket.id)) {
     selectTicket(props.ticket.id)
   }
@@ -244,7 +250,11 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
         icon: ArrowUpRight,
         submenu: [
           { label: t('ticketRow.contextMenu.newTab'), value: 'open-new-tab', icon: ArrowUpRight },
-          { label: t('ticketRow.contextMenu.sidePeek'), value: 'open-side-peek', icon: PanelsTopLeft },
+          {
+            label: t('ticketRow.contextMenu.sidePeek'),
+            value: 'open-side-peek',
+            icon: PanelsTopLeft,
+          },
         ],
       },
       { type: 'separator' },
@@ -252,13 +262,19 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
       { label: t('ticketRow.contextMenu.delete'), value: 'delete', danger: true, icon: Trash2 },
     ]"
     @select="handleContextMenuSelect"
+    :disabled="!isUserEditor"
     class="max-w-[265px]"
   >
     <template #footer>
       <div class="px-2 py-1.5 text-xs text-neutral-500 space-y-0.5">
-        <div v-if="ticket.updated_at">{{ t('ticketRow.lastEdited', { datetime: formatDateTime(ticket.updated_at) }) }}</div>
+        <div v-if="ticket.updated_at">
+          {{ t('ticketRow.lastEdited', { datetime: formatDateTime(ticket.updated_at) }) }}
+        </div>
         <div>
-          {{ t('ticketRow.createdAt', { datetime: formatDateTime(ticket.created_at) }) }}<span v-if="ticketCreator">{{ t('ticketRow.createdBy', { creator: creatorDisplayName }) }}</span>
+          {{ t('ticketRow.createdAt', { datetime: formatDateTime(ticket.created_at) })
+          }}<span v-if="ticketCreator">{{
+            t('ticketRow.createdBy', { creator: creatorDisplayName })
+          }}</span>
         </div>
       </div>
     </template>
@@ -275,6 +291,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
         @contextmenu="(e) => handleRowContextMenu(e, onContextMenu)"
       >
         <TicketRowSelectableMenu
+          v-if="isUserEditor"
           :ticket-id="ticket.id"
           :is-dragging="isDragging"
           :is-overed="isOvered"
@@ -292,7 +309,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             :value="ticket.title"
             :placeholder="t('ticketRow.enterTitle')"
             :with-controls="false"
-            :disabled="!isAuthenticated"
+            :disabled="!isAuthenticated || !isUserEditor"
             @value-commit="(e) => handleTitleUpdate(e.value)"
             root-class=""
             preview-class="inline w-full h-full"
@@ -321,7 +338,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             :value="ticket.status"
             @change="handleStatusChange"
             root-class="max-w-full"
-            :disabled="!isAuthenticated"
+            :disabled="!isAuthenticated || !isUserEditor"
           />
         </TableCell>
         <TableCell class="h-full w-[105px]">
@@ -329,7 +346,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             :value="ticket.priority"
             @change="handlePriorityChange"
             root-class="min-w-full"
-            :disabled="!isAuthenticated"
+            :disabled="!isAuthenticated || !isUserEditor"
           />
         </TableCell>
         <TableCell class="h-full w-[150px]">
@@ -337,7 +354,7 @@ const handleRowContextMenu = (event: MouseEvent, onContextMenu: (event: MouseEve
             :value="ticket.type"
             @change="handleTypeChange"
             root-class="min-w-full"
-            :disabled="!isAuthenticated"
+            :disabled="!isAuthenticated || !isUserEditor"
           />
         </TableCell>
         <TableCell class="relative">

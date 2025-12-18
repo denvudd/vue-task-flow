@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const cardClass = computed(() => {
-  const baseClass = 'rounded-xl p-6 transition-all'
+  const baseClass = 'rounded-xl p-4 sm:p-6 transition-all'
 
   const variantClasses = {
     default: 'bg-white border border-neutral-200',

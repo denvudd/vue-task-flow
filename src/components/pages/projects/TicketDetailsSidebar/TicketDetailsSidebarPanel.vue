@@ -11,6 +11,7 @@ const {
   status,
   priority,
   type,
+  canEdit,
   setLocalStatus,
   setLocalPriority,
   setLocalType,
@@ -37,7 +38,7 @@ const handleTypeChange = async (newType: TicketType | null) => {
 </script>
 
 <template>
-  <div class="flex items-center gap-4">
+  <div class="flex items-center flex-wrap gap-2 sm:gap-4">
     <Field root-class="flex flex-col items-start">
       <template #label>
         <div class="flex items-center gap-1">
@@ -45,7 +46,7 @@ const handleTypeChange = async (newType: TicketType | null) => {
           {{ t('ticketDetails.panel.status') }}
         </div>
       </template>
-      <TicketStatusSelect :value="status" @change="handleStatusChange" />
+      <TicketStatusSelect :disabled="!canEdit" :value="status" @change="handleStatusChange" />
     </Field>
 
     <Field :label="t('ticketDetails.panel.priority')" root-class="flex flex-col items-start">
@@ -55,7 +56,7 @@ const handleTypeChange = async (newType: TicketType | null) => {
           {{ t('ticketDetails.panel.priority') }}
         </div>
       </template>
-      <TicketPrioritySelect :value="priority" @change="handlePriorityChange" />
+      <TicketPrioritySelect :disabled="!canEdit" :value="priority" @change="handlePriorityChange" />
     </Field>
 
     <Field :label="t('ticketDetails.panel.type')" root-class="flex flex-col items-start">
@@ -65,7 +66,7 @@ const handleTypeChange = async (newType: TicketType | null) => {
           {{ t('ticketDetails.panel.type') }}
         </div>
       </template>
-      <TicketTypeSelect :value="type" @change="handleTypeChange" />
+      <TicketTypeSelect :disabled="!canEdit" :value="type" @change="handleTypeChange" />
     </Field>
   </div>
 </template>

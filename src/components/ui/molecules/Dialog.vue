@@ -66,7 +66,7 @@ const isOpen = computed({
       <ArkDialog.Backdrop
         class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity"
       />
-      <ArkDialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <ArkDialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
         <ArkDialog.Content
           :class="[
             'relative z-50 w-full rounded-xl bg-white border border-neutral-200 shadow-lg transition-all dialog-content',
@@ -78,7 +78,7 @@ const isOpen = computed({
             <!-- Header -->
             <div
               v-if="$slots.title || $slots.header"
-              class="flex items-center justify-between px-6 py-4 border-b border-neutral-200"
+              class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-neutral-200"
             >
               <div class="flex-1">
                 <slot name="header">
@@ -100,20 +100,20 @@ const isOpen = computed({
             <!-- Description -->
             <ArkDialog.Description
               v-if="$slots.description"
-              class="px-6 pt-4 text-sm text-neutral-600"
+              class="px-4 sm:px-6 pt-4 text-sm text-neutral-600"
             >
               <slot name="description" />
             </ArkDialog.Description>
 
             <!-- Content -->
-            <div class="flex-1 overflow-auto px-6 py-4">
+            <div class="flex-1 overflow-auto px-4 sm:px-6 py-4">
               <slot />
             </div>
 
             <!-- Footer -->
             <div
               v-if="$slots.footer"
-              class="flex items-center justify-end gap-3 px-6 py-4 border-t border-neutral-200"
+              class="flex items-center justify-end gap-3 px-4 sm:px-6 py-4 border-t border-neutral-200"
             >
               <slot name="footer" />
             </div>

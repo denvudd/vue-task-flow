@@ -55,7 +55,7 @@ const handleGoBack = () => {
 
 <template>
   <div class="min-h-screen bg-neutral-50">
-    <div class="max-w-4xl mx-auto px-6 py-8">
+    <div class="max-w-4xl mx-auto px-2 sm:px-6 py-4 sm:py-8">
       <!-- Ticket content -->
       <div class="">
         <TicketDetailsSidebarLoader v-if="isLoadingTicket" />

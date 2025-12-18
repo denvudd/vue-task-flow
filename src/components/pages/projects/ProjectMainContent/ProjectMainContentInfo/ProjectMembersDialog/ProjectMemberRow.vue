@@ -86,7 +86,9 @@ const saveRole = async () => {
     })
     createToast({
       title: t('projectMembers.success.roleUpdated'),
-      description: t('projectMembers.success.roleUpdatedDescription', { role: PROJECT_ROLE_LABELS[selectedRole.value] }),
+      description: t('projectMembers.success.roleUpdatedDescription', {
+        role: PROJECT_ROLE_LABELS[selectedRole.value],
+      }),
       type: 'success',
     })
     isEditingRole.value = false
@@ -109,7 +111,9 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4 p-4 border border-neutral-200 rounded-lg">
+  <div
+    class="flex sm:items-center justify-start sm:justify-between flex-col sm:flex-row gap-2 sm:gap-4 p-2 sm:p-4 border border-neutral-200 rounded-lg"
+  >
     <div class="flex items-center gap-3 flex-1 min-w-0">
       <Avatar
         :src="member.user?.avatar_url"
@@ -121,7 +125,9 @@ const formatDate = (dateString: string) => {
             {{ member.user?.full_name || member.user?.username || 'Unknown User' }}
           </div>
           <Badge v-if="isOwner" variant="primary" size="sm">{{ t('projectMembers.owner') }}</Badge>
-          <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">{{ t('projectMembers.you') }}</Badge>
+          <Badge v-if="isCurrentUser && !isOwner" variant="info" size="sm">{{
+            t('projectMembers.you')
+          }}</Badge>
         </div>
         <div v-if="member.joined_at" class="text-xs text-neutral-600">
           {{ t('projectMembers.joined', { date: formatDate(member.joined_at) }) }}

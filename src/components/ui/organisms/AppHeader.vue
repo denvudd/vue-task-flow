@@ -67,13 +67,10 @@ const toggleLocale = () => {
           </button>
         </div>
 
-        <div v-if="profile" class="flex items-center gap-4">
-          <button
-            @click="toggleLocale"
-            class="px-3 py-1.5 text-sm font-medium text-neutral-700 hover:text-primary-600 transition-colors border border-neutral-300 rounded-md hover:border-primary-500"
-          >
+        <div v-if="profile" class="flex items-center gap-2 sm:gap-4">
+          <Button variant="outline" size="sm" @click="toggleLocale">
             {{ locale.toUpperCase() }}
-          </button>
+          </Button>
 
           <div class="text-sm text-neutral-600">
             <span class="font-medium">{{ profile.full_name || profile.username }}</span>

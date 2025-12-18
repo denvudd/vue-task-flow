@@ -12,9 +12,12 @@ import {
   type TicketPriority,
   type TicketType,
 } from '@/constants/tickets'
+import { useAuth } from './useAuth'
+import { PROJECT_ROLES } from '@/constants/projects'
 
 export function useTicketDetails() {
   const ticketDetailsStore = useTicketDetailsStore()
+  const { user } = useAuth()
 
   const { currentTicketId, currentProjectId } = storeToRefs(ticketDetailsStore)
   const { openTicket, closeTicket } = ticketDetailsStore
@@ -33,6 +36,17 @@ export function useTicketDetails() {
       avatar: member.user?.avatar_url || null,
     }))
   })
+  const userMember = computed(() =>
+    membersQuery.data.value?.data?.find((member) => member.user_id === user.value?.id),
+  )
+  const canEdit = computed(
+    () =>
+      userMember.value?.role === PROJECT_ROLES.EDITOR ||
+      user.value?.id === ticket.value?.creator_id,
+  )
+  const canComment = computed(
+    () => userMember.value?.role === PROJECT_ROLES.COMMENTER || canEdit.value,
+  )
 
   const { mutateAsync: updateTicketMutation } = useUpdateTicket()
 
@@ -139,6 +153,10 @@ export function useTicketDetails() {
     type,
 
     mentionUsers,
+
+    canEdit,
+    canComment,
+    userMember,
 
     openTicket,
     closeTicket,

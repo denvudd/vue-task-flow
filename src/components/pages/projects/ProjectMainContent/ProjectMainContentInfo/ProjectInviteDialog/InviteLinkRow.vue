@@ -37,8 +37,12 @@ const handleToggleActive = async () => {
       updates: { active: !props.link.active },
     })
     createToast({
-      title: props.link.active ? t('inviteLink.success.deactivated') : t('inviteLink.success.activated'),
-      description: props.link.active ? t('inviteLink.success.deactivatedDescription') : t('inviteLink.success.activatedDescription'),
+      title: props.link.active
+        ? t('inviteLink.success.deactivated')
+        : t('inviteLink.success.activated'),
+      description: props.link.active
+        ? t('inviteLink.success.deactivatedDescription')
+        : t('inviteLink.success.activatedDescription'),
       type: 'success',
     })
   } catch (err) {
@@ -102,11 +106,13 @@ const formatDate = (dateString: string) => {
 
 <template>
   <div
-    class="flex flex-col p-4 border border-neutral-200 rounded-lg"
+    class="flex flex-col p-2 sm:p-4 border border-neutral-200 rounded-lg"
     :class="{ 'opacity-60': !link.active }"
   >
     <div class="flex-1 space-y-2">
-      <div class="flex items-center gap-4 justify-between">
+      <div
+        class="flex sm:items-center flex-wrap sm:flex-nowrap flex-col-reverse sm:flex-row gap-2 sm:gap-4 sm:justify-between"
+      >
         <div class="flex items-center gap-2">
           <Badge variant="secondary">
             {{ PROJECT_ROLE_LABELS[link.role as keyof typeof PROJECT_ROLE_LABELS] }}
@@ -120,7 +126,9 @@ const formatDate = (dateString: string) => {
             size="icon"
             @click="handleToggleActive"
             :disabled="isUpdating"
-            :tooltip="link.active ? t('inviteLink.tooltips.deactivate') : t('inviteLink.tooltips.activate')"
+            :tooltip="
+              link.active ? t('inviteLink.tooltips.deactivate') : t('inviteLink.tooltips.activate')
+            "
           >
             <Power class="size-3" :class="{ 'text-success-600': link.active }" />
           </Button>
@@ -147,7 +155,9 @@ const formatDate = (dateString: string) => {
         </div>
       </div>
 
-      <div class="text-xs text-neutral-600">{{ t('inviteLink.created') }} {{ formatDate(link.created_at) }}</div>
+      <div class="text-xs text-neutral-600">
+        {{ t('inviteLink.created') }} {{ formatDate(link.created_at) }}
+      </div>
 
       <Clipboard :value="inviteUrl" />
     </div>

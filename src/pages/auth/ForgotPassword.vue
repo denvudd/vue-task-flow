@@ -18,7 +18,7 @@ const error = ref<string | null>(null)
 const success = ref(false)
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email(t('auth.forgotPassword.errors.invalidEmail')),
 })
 
 const { handleSubmit, errors, defineField } = useForm({
@@ -45,7 +45,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     success.value = true
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    error.value = err instanceof Error ? err.message : t('auth.forgotPassword.errors.unexpectedError')
   } finally {
     loading.value = false
   }
@@ -61,9 +61,9 @@ const navigateToLogin = () => {
     <Card class="w-full max-w-md">
       <div class="space-y-6">
         <div>
-          <h1 class="text-2xl font-bold text-primary-900 mb-2">Reset Password</h1>
+          <h1 class="text-2xl font-bold text-primary-900 mb-2">{{ t('auth.forgotPassword.title') }}</h1>
           <p class="text-neutral-600 text-sm">
-            Enter your email address and we'll send you a link to reset your password.
+            {{ t('auth.forgotPassword.subtitle') }}
           </p>
         </div>
 
@@ -73,19 +73,19 @@ const navigateToLogin = () => {
           </div>
 
           <div v-if="success" class="p-3 rounded-lg bg-success-50 border border-success-200">
-            <p class="text-sm text-success-600">Check your email for a password reset link.</p>
+            <p class="text-sm text-success-600">{{ t('auth.forgotPassword.success') }}</p>
           </div>
 
           <Field
-            label="Email"
-            :helper-text="errors.email || 'Enter your email address'"
+            :label="t('auth.forgotPassword.fields.email')"
+            :helper-text="errors.email || t('auth.forgotPassword.fields.emailHelper')"
             :error-text="errors.email"
             :invalid="!!errors.email"
           >
             <FieldInput
               v-model="email"
               type="email"
-              placeholder="your@email.com"
+              :placeholder="t('auth.forgotPassword.fields.emailPlaceholder')"
               :disabled="loading || success"
               :invalid="!!errors.email"
               @blur="emailAttrs.onBlur"
@@ -93,18 +93,18 @@ const navigateToLogin = () => {
           </Field>
 
           <Button type="submit" :disabled="loading || success" class="w-full" size="lg">
-            {{ loading ? 'Sending...' : 'Send Reset Link' }}
+            {{ loading ? t('auth.forgotPassword.loading') : t('auth.forgotPassword.submit') }}
           </Button>
         </form>
 
         <div class="text-center text-sm text-neutral-600">
-          <span>Remember your password?</span>
+          <span>{{ t('auth.forgotPassword.rememberPassword') }}</span>
           <button
             type="button"
             @click="navigateToLogin"
             class="ml-1 text-primary-600 hover:text-primary-700 font-medium"
           >
-            Back to Login
+            {{ t('auth.forgotPassword.backToLogin') }}
           </button>
         </div>
       </div>

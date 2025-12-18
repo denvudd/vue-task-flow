@@ -59,7 +59,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       }, 1500)
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    error.value = err instanceof Error ? err.message : t('auth.signUp.errors.unexpectedError')
   } finally {
     loading.value = false
   }
@@ -80,7 +80,7 @@ const handleGoogleSignIn = async () => {
       error.value = authError.message
     }
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    error.value = err instanceof Error ? err.message : t('auth.signUp.errors.unexpectedError')
     googleLoading.value = false
   }
 }
@@ -145,15 +145,15 @@ const handleGoogleSignIn = async () => {
           </div>
 
           <Field
-            label="Email"
-            :helper-text="errors.email || 'Enter your email address'"
+            :label="t('auth.signUp.fields.email')"
+            :helper-text="errors.email || t('auth.signUp.fields.emailHelper')"
             :error-text="errors.email"
             :invalid="!!errors.email"
           >
             <FieldInput
               v-model="email"
               type="email"
-              placeholder="your@email.com"
+              :placeholder="t('auth.signUp.fields.emailPlaceholder')"
               :disabled="loading || success"
               :invalid="!!errors.email"
               :valid="emailValid"
@@ -163,12 +163,12 @@ const handleGoogleSignIn = async () => {
 
           <FieldPasswordInput
             v-model="password"
-            label="Password"
-            :helper-text="errors.password || 'Password must be at least 6 characters'"
+            :label="t('auth.signUp.fields.password')"
+            :helper-text="errors.password || t('auth.signUp.fields.passwordHelper')"
             :error-text="errors.password"
             :invalid="!!errors.password"
             :valid="passwordValid"
-            placeholder="••••••••"
+            :placeholder="t('auth.signUp.fields.passwordPlaceholder')"
             auto-complete="new-password"
             :disabled="loading || success"
             show-strength
@@ -177,12 +177,12 @@ const handleGoogleSignIn = async () => {
 
           <FieldPasswordInput
             v-model="confirmPassword"
-            label="Confirm Password"
-            :helper-text="errors.confirmPassword || 'Re-enter your password'"
+            :label="t('auth.signUp.fields.confirmPassword')"
+            :helper-text="errors.confirmPassword || t('auth.signUp.fields.confirmPasswordHelper')"
             :error-text="errors.confirmPassword"
             :invalid="!!errors.confirmPassword"
             :valid="confirmPasswordValid"
-            placeholder="••••••••"
+            :placeholder="t('auth.signUp.fields.confirmPasswordPlaceholder')"
             auto-complete="new-password"
             :disabled="loading || success"
             @blur="confirmPasswordAttrs.onBlur"

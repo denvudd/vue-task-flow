@@ -132,15 +132,15 @@ const handleGoogleSignIn = async () => {
           </div>
 
           <Field
-            label="Email"
-            :helper-text="errors.email || 'Enter your email address'"
+            :label="t('auth.login.fields.email')"
+            :helper-text="errors.email || t('auth.login.fields.emailHelper')"
             :error-text="errors.email"
             :invalid="!!errors.email"
           >
             <FieldInput
               v-model="email"
               type="email"
-              placeholder="your@email.com"
+              :placeholder="t('auth.login.fields.emailPlaceholder')"
               :disabled="loading"
               :invalid="!!errors.email"
               :valid="emailValid"
@@ -150,12 +150,12 @@ const handleGoogleSignIn = async () => {
 
           <FieldPasswordInput
             v-model="password"
-            label="Password"
-            :helper-text="errors.password || 'Enter your password'"
+            :label="t('auth.login.fields.password')"
+            :helper-text="errors.password || t('auth.login.fields.passwordHelper')"
             :error-text="errors.password"
             :invalid="!!errors.password"
             :valid="passwordValid"
-            placeholder="••••••••"
+            :placeholder="t('auth.login.fields.passwordPlaceholder')"
             auto-complete="current-password"
             :disabled="loading"
             @blur="passwordAttrs.onBlur"
@@ -172,7 +172,7 @@ const handleGoogleSignIn = async () => {
             @click="router.push(ROUTES.ForgotPassword)"
             class="text-primary-600 hover:text-primary-700 font-medium"
           >
-            Forgot password?
+            {{ t('auth.login.forgotPassword') }}
           </button>
         </div>
 

@@ -15,7 +15,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="space-y-6 px-24">
+  <div class="space-y-6 px-4 sm:px-8 lg:px-24">
     <div>
       <div class="space-y-6">
         <div class="flex flex-col">
@@ -42,13 +42,13 @@ const { t } = useI18n()
     <div>
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-neutral-900">{{ t('projectMainContent.loading.tickets') }}</h2>
+          <h2 class="text-xl font-semibold text-neutral-900">
+            {{ t('projectMainContent.loading.tickets') }}
+          </h2>
           <Skeleton class="w-16 h-7" />
         </div>
 
-        <div
-          class="inline-flex items-center gap-1 border-b border-neutral-200 relative w-full"
-        >
+        <div class="inline-flex items-center gap-1 border-b border-neutral-200 relative w-full">
           <div class="px-4 py-2">
             <Skeleton class="w-10 h-4" />
           </div>

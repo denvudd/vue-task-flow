@@ -11,10 +11,6 @@ import {
 } from '@/api/comments'
 import type { Tables } from '@/types/supabase'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/composables/useAuth'
-import { useProjectContext } from '@/composables/useProjectContext'
-import { PROJECT_ROLES, PROJECT_VISIBILITIES } from '@/constants/projects'
-import type { ProjectRole } from '@/constants/projects'
 
 export type TicketCommentWithAuthor = Tables<'ticket_comments'> & {
   author: Tables<'profiles'>
@@ -303,52 +299,52 @@ export function useDeleteTicketComment() {
  * 2. They are a project member with "commenter" role, OR
  * 3. The project is public (visibility: "public")
  */
-export function useCanComment() {
-  const { user, isAuthenticated } = useAuth()
-  const { project } = useProjectContext()
+// export function useCanComment() {
+//   const { user, isAuthenticated } = useAuth()
+//   const { project } = useProjectContext()
 
-  const canComment = computed(() => {
-    if (!isAuthenticated.value || !user.value) {
-      return false
-    }
+//   const canComment = computed(() => {
+//     if (!isAuthenticated.value || !user.value) {
+//       return false
+//     }
 
-    const projectData = project.value
-    if (!projectData) {
-      return false
-    }
+//     const projectData = project.value
+//     if (!projectData) {
+//       return false
+//     }
 
-    // Check if project is public
-    if (projectData.visibility === PROJECT_VISIBILITIES.PUBLIC) {
-      return true
-    }
+//     // Check if project is public
+//     if (projectData.visibility === PROJECT_VISIBILITIES.PUBLIC) {
+//       return true
+//     }
 
-    // Check if user is owner (owners can always comment)
-    if (projectData.owner_id === user.value.id) {
-      return true
-    }
+//     // Check if user is owner (owners can always comment)
+//     if (projectData.owner_id === user.value.id) {
+//       return true
+//     }
 
-    // Check if user is a member with editor or commenter role
-    const projectMembers = projectData.members as Array<{
-      user_id: string
-      role: ProjectRole | null
-    }> | null
+//     // Check if user is a member with editor or commenter role
+//     const projectMembers = projectData.members as Array<{
+//       user_id: string
+//       role: ProjectRole | null
+//     }> | null
 
-    if (!projectMembers) {
-      return false
-    }
+//     if (!projectMembers) {
+//       return false
+//     }
 
-    const userMember = projectMembers.find((member) => member.user_id === user.value?.id)
+//     const userMember = projectMembers.find((member) => member.user_id === user.value?.id)
 
-    if (!userMember) {
-      return false
-    }
+//     if (!userMember) {
+//       return false
+//     }
 
-    const userRole = userMember.role as ProjectRole | null
+//     const userRole = userMember.role as ProjectRole | null
 
-    return userRole === PROJECT_ROLES.EDITOR || userRole === PROJECT_ROLES.COMMENTER
-  })
+//     return userRole === PROJECT_ROLES.EDITOR || userRole === PROJECT_ROLES.COMMENTER
+//   })
 
-  return {
-    canComment,
-  }
-}
+//   return {
+//     canComment,
+//   }
+// }

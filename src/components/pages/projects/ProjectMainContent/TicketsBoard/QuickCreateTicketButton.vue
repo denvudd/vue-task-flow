@@ -64,7 +64,7 @@ const handleQuickCreateTicket = async () => {
   <div class="flex">
     <div
       v-if="isAuthenticated"
-      class="px-24 mt-4"
+      class="px-4 sm:px-8 lg:px-24 mt-4"
       :class="{ 'shrink-0 z-86 pe-4': isSidebarOpen }"
       :style="{
         insetInlineStart: isSidebarOpen ? '0' : 'auto',
@@ -86,11 +86,12 @@ const handleQuickCreateTicket = async () => {
             @click="handleQuickCreateTicket"
           >
             <Plus class="w-4 h-4 mr-2" />
-            {{ isCreatingTicket ? t('quickCreateTicket.creating') : t('quickCreateTicket.newTask') }}
+            {{
+              isCreatingTicket ? t('quickCreateTicket.creating') : t('quickCreateTicket.newTask')
+            }}
           </Button>
         </div>
       </div>
     </div>
   </div>
 </template>
-

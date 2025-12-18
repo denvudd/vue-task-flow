@@ -3,8 +3,14 @@ import { Field, RichTextEditor } from '@/components/ui'
 import { useI18n } from 'vue-i18n'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 
-const { description, mentionUsers, currentTicketId, setLocalDescription, updateTicketField } =
-  useTicketDetails()
+const {
+  description,
+  mentionUsers,
+  currentTicketId,
+  canEdit,
+  setLocalDescription,
+  updateTicketField,
+} = useTicketDetails()
 const { t } = useI18n()
 
 const handleDescriptionChange = (value: string) => {
@@ -25,6 +31,7 @@ const handleDescriptionBlur = async () => {
         @blur="handleDescriptionBlur"
         :placeholder="t('ticketDetails.content.placeholder')"
         min-height="200px"
+        :disabled="!canEdit"
         :mention-users="mentionUsers"
         :ticket-id="currentTicketId ?? ''"
         :collaborative-enabled="true"

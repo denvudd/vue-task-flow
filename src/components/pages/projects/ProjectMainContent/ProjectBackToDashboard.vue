@@ -14,7 +14,7 @@ const handleBack = () => {
 </script>
 
 <template>
-  <div class="px-24 mb-4">
+  <div class="px-4 sm:px-8 lg:px-24 mb-4">
     <Button variant="ghost" size="sm" @click="handleBack">
       <ArrowLeft class="w-4 h-4 mr-2" />
       {{ t('projectMainContent.backToDashboard') }}

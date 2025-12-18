@@ -3,7 +3,7 @@ import { Editable } from '@/components/ui'
 import { useI18n } from 'vue-i18n'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 
-const { title, setLocalTitle, updateTicketField } = useTicketDetails()
+const { title, canEdit, setLocalTitle, updateTicketField } = useTicketDetails()
 const { t } = useI18n()
 
 const handleTitleCommit = async (details: { value: string }) => {
@@ -18,6 +18,7 @@ const handleTitleCommit = async (details: { value: string }) => {
     :placeholder="t('ticketDetails.title.placeholder')"
     @value-commit="handleTitleCommit"
     :with-controls="false"
+    :disabled="!canEdit"
     preview-class="flex text-3xl font-bold! w-full flex-1 px-0! leading-tight!"
     input-class="text-3xl relative block font-bold! w-full focus:ring-0! focus:ring-offset-0! px-0! bg-transparent! font-bold leading-tight!"
     root-class="w-full flex-1 animate-in fade-in duration-300 py-0! font-bold! leading-tight! min-w-0 block"

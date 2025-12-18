@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Field as ArkField } from '@ark-ui/vue/field'
 import { PasswordInput } from '@ark-ui/vue/password-input'
 import { EyeIcon, EyeOffIcon, CheckIcon, XIcon, CheckCircle2Icon } from 'lucide-vue-next'
@@ -35,59 +36,64 @@ const emit = defineEmits<{
   blur: [event: FocusEvent]
 }>()
 
+const { t } = useI18n()
+
 const strengthOptions: Options<string> = [
   { id: 0, value: 'weak', minDiversity: 0, minLength: 0 },
   { id: 1, value: 'medium', minDiversity: 2, minLength: 6 },
   { id: 2, value: 'strong', minDiversity: 4, minLength: 8 },
 ]
 
-const strengthMap = new Map([
-  ['weak', { id: 0, label: 'weak' }],
-  ['medium', { id: 1, label: 'medium' }],
-  ['strong', { id: 2, label: 'strong' }],
-])
+const strengthMap = computed(
+  () =>
+    new Map([
+      ['weak', { id: 0, label: t('passwordInput.strength.weak') }],
+      ['medium', { id: 1, label: t('passwordInput.strength.medium') }],
+      ['strong', { id: 2, label: t('passwordInput.strength.strong') }],
+    ]),
+)
 
 const shouldShowStrength = computed(() => {
   return props.showStrength
 })
 
-const passwordCriteria: PasswordCriterion[] = [
+const passwordCriteria = computed((): PasswordCriterion[] => [
   {
     id: 'length',
-    label: 'At least 8 characters',
+    label: t('passwordInput.criteria.length'),
     check: (password) => password.length >= 8,
   },
   {
     id: 'uppercase',
-    label: 'Contains uppercase letter',
+    label: t('passwordInput.criteria.uppercase'),
     check: (password) => /[A-Z]/.test(password),
   },
   {
     id: 'lowercase',
-    label: 'Contains lowercase letter',
+    label: t('passwordInput.criteria.lowercase'),
     check: (password) => /[a-z]/.test(password),
   },
   {
     id: 'number',
-    label: 'Contains number',
+    label: t('passwordInput.criteria.number'),
     check: (password) => /[0-9]/.test(password),
   },
   {
     id: 'special',
-    label: 'Contains special character',
+    label: t('passwordInput.criteria.special'),
     check: (password) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
   },
-]
+])
 
 const criteriaStatus = computed(() => {
   if (!props.modelValue) {
-    return passwordCriteria.map((criterion) => ({
+    return passwordCriteria.value.map((criterion) => ({
       ...criterion,
       fulfilled: false,
     }))
   }
 
-  return passwordCriteria.map((criterion) => ({
+  return passwordCriteria.value.map((criterion) => ({
     ...criterion,
     fulfilled: criterion.check(props.modelValue || ''),
   }))
@@ -97,16 +103,18 @@ const strength = computed(() => {
   if (!shouldShowStrength.value) return null
 
   if (!props.modelValue || props.modelValue.length === 0) {
-    return { value: 'weak', id: 0, label: 'weak' }
+    return { value: 'weak', id: 0, label: t('passwordInput.strength.weak') }
   }
 
   try {
     const result = passwordStrength(props.modelValue, strengthOptions)
-    const data = strengthMap.get(result.value)
-    return data ? { value: result.value, ...data } : { value: 'weak', id: 0, label: 'weak' }
+    const data = strengthMap.value.get(result.value)
+    return data
+      ? { value: result.value, ...data }
+      : { value: 'weak', id: 0, label: t('passwordInput.strength.weak') }
   } catch (error) {
     console.error('Error checking password strength:', error)
-    return { value: 'weak', id: 0, label: 'weak' }
+    return { value: 'weak', id: 0, label: t('passwordInput.strength.weak') }
   }
 })
 </script>
@@ -187,7 +195,9 @@ const strength = computed(() => {
       <!-- Password Strength Indicator -->
       <div v-if="shouldShowStrength && strength" class="mt-2 space-y-2">
         <ProgressLinear :value="strength.id" />
-        <div class="text-xs capitalize text-neutral-600">{{ strength.label }} password</div>
+        <div class="text-xs text-neutral-600">
+          {{ t('passwordInput.strength.label', { strength: strength.label }) }}
+        </div>
 
         <!-- Password Criteria List -->
         <div class="space-y-1.5">
@@ -224,7 +234,7 @@ const strength = computed(() => {
 
       <!-- Error Text -->
       <ArkField.ErrorText v-if="(errorText || invalid) && invalid" class="text-xs text-error-600">
-        <slot name="errorText">{{ errorText || 'This field is required' }}</slot>
+        <slot name="errorText">{{ errorText || t('passwordInput.required') }}</slot>
       </ArkField.ErrorText>
     </div>
   </ArkField.Root>

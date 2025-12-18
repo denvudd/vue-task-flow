@@ -2,11 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import {
-  useTicketComments,
-  useCanComment,
-  type TicketCommentWithAuthor,
-} from '@/composables/useTicketComments'
+import { useTicketComments, type TicketCommentWithAuthor } from '@/composables/useTicketComments'
 import { useTicketDetails } from '@/composables/useTicketDetails'
 import { Button } from '@/components/ui'
 import TicketCommentItem from './TicketCommentItem.vue'
@@ -15,8 +11,7 @@ import TicketCommentsLoader from './TicketCommentsLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { currentTicketId } = useTicketDetails()
-const { canComment } = useCanComment()
+const { currentTicketId, canComment } = useTicketDetails()
 const { t } = useI18n()
 
 const { data: comments, isLoading } = useTicketComments(currentTicketId)
@@ -138,7 +133,9 @@ const handleExpandComments = () => {
 <template>
   <div class="mt-6">
     <div class="flex items-center justify-between">
-      <h3 class="text-sm font-semibold text-neutral-600 mb-3">{{ t('ticketDetails.comments.title') }}</h3>
+      <h3 class="text-sm font-semibold text-neutral-600 mb-3">
+        {{ t('ticketDetails.comments.title') }}
+      </h3>
     </div>
 
     <!-- Comments List -->

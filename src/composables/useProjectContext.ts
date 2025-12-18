@@ -3,7 +3,8 @@ import { storeToRefs } from 'pinia'
 import { useProjectContextStore } from '@/stores/projectContext'
 import { useProject } from '@/composables/useProjects'
 import { useAuth } from '@/composables/useAuth'
-import { PROJECT_VISIBILITIES } from '@/constants/projects'
+import { PROJECT_ROLES, PROJECT_VISIBILITIES } from '@/constants/projects'
+import { useProjectMembers } from './useMembers'
 
 /**
  * Composable for managing project context
@@ -26,7 +27,10 @@ export function useProjectContext() {
   } = projectContextStore
 
   const { user } = useAuth()
+  const membersQuery = useProjectMembers(currentProjectId)
   const projectQuery = useProject(currentProjectId)
+
+  const members = computed(() => membersQuery.data.value?.data || [])
   const project = computed(() => projectQuery.data.value)
   const isLoading = computed(() => projectQuery.isLoading.value)
   const isError = computed(() => projectQuery.isError.value)
@@ -76,6 +80,20 @@ export function useProjectContext() {
     if (!project.value || !user.value) return false
     return project.value.owner_id === user.value.id
   })
+  const isUserEditor = computed(() =>
+    members.value.some(
+      (member) =>
+        (member.user_id === user.value?.id && member.role === PROJECT_ROLES.EDITOR) ||
+        isOwner.value,
+    ),
+  )
+  const isUserCommenter = computed(() =>
+    members.value.some(
+      (member) =>
+        (member.user_id === user.value?.id && member.role === PROJECT_ROLES.COMMENTER) ||
+        isUserEditor.value,
+    ),
+  )
 
   return {
     currentProjectId,
@@ -87,6 +105,8 @@ export function useProjectContext() {
     error,
 
     hasUserAccess,
+    isUserEditor,
+    isUserCommenter,
     isOwner,
 
     openSidebar,

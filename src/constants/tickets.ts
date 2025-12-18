@@ -67,7 +67,7 @@ export const TICKET_STATUS_OPTIONS: StatusOption[] = [
     value: TICKET_STATUSES.DONE,
     icon: CheckCircle2,
     color: 'text-success-700',
-    bgColor: 'bg-success-50/50',
+    bgColor: 'bg-success-100',
     cardColor: 'bg-success-50',
   },
   {

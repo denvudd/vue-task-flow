@@ -89,7 +89,7 @@ const handleBack = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-neutral-50 p-4 md:p-8">
+  <div class="min-h-screen bg-neutral-50">
     <div class="max-w-2xl mx-auto">
       <div>
         <Button variant="ghost" size="sm" @click="handleBack" class="mb-4">
@@ -166,7 +166,7 @@ const handleBack = () => {
             />
           </Field>
 
-          <div class="flex justify-between items-center gap-3 pt-4">
+          <div class="flex justify-between items-center flex-wrap gap-3">
             <Button
               type="button"
               variant="outline"

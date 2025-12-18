@@ -14,7 +14,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { isAuthenticated } = useAuth()
-const { project } = useProjectContext()
+const { project, isUserEditor } = useProjectContext()
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const { project } = useProjectContext()
     <ProjectTabsSort />
     <ProjectTabsSearch />
     <ProjectTabsCreateTicketDialog
-      v-if="isAuthenticated"
+      v-if="isAuthenticated && isUserEditor"
       :tickets="tickets"
       :project-id="project?.id"
     />

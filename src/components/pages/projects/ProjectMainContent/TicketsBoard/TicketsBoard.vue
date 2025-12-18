@@ -174,7 +174,7 @@ const handleTicketDrop = async (payload: {
 
       <div
         v-show="!isLoading && hasTickets"
-        class="flex gap-2 px-24 pb-4 overflow-x-auto overflow-y-hidden"
+        class="flex gap-2 px-4 sm:px-8 lg:px-24 pb-4 overflow-x-auto overflow-y-hidden"
         :class="{ 'pe-4': isSidebarOpen }"
         :style="{
           height: 'calc(100vh - 280px)',

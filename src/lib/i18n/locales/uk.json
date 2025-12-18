@@ -555,7 +555,16 @@
       "noAccount": "Немає облікового запису?",
       "signUp": "Зареєструватися",
       "continueWithGoogle": "Продовжити з Google",
-      "orDivider": "АБО"
+      "orDivider": "АБО",
+      "forgotPassword": "Забули пароль?",
+      "fields": {
+        "email": "Email",
+        "emailHelper": "Введіть вашу email адресу",
+        "emailPlaceholder": "your@email.com",
+        "password": "Пароль",
+        "passwordHelper": "Введіть ваш пароль",
+        "passwordPlaceholder": "••••••••"
+      }
     },
     "signUp": {
       "title": "Створити обліковий запис",
@@ -567,11 +576,89 @@
       "success": "Обліковий запис успішно створено! Перенаправлення на сторінку входу...",
       "continueWithGoogle": "Продовжити з Google",
       "orDivider": "АБО",
+      "fields": {
+        "email": "Email",
+        "emailHelper": "Введіть вашу email адресу",
+        "emailPlaceholder": "your@email.com",
+        "password": "Пароль",
+        "passwordHelper": "Пароль повинен містити принаймні 6 символів",
+        "passwordPlaceholder": "••••••••",
+        "confirmPassword": "Підтвердження паролю",
+        "confirmPasswordHelper": "Введіть пароль ще раз",
+        "confirmPasswordPlaceholder": "••••••••"
+      },
       "errors": {
         "required": "Всі поля обов'язкові",
         "passwordMismatch": "Паролі не співпадають",
-        "passwordLength": "Пароль має бути не менше 6 символів"
+        "passwordLength": "Пароль має бути не менше 6 символів",
+        "unexpectedError": "Сталася неочікувана помилка"
       }
+    },
+    "forgotPassword": {
+      "title": "Відновити пароль",
+      "subtitle": "Введіть вашу email адресу, і ми надішлемо вам посилання для відновлення паролю.",
+      "submit": "Надіслати посилання",
+      "loading": "Надсилання...",
+      "success": "Перевірте свою електронну пошту для посилання на відновлення паролю.",
+      "rememberPassword": "Згадали пароль?",
+      "backToLogin": "Назад до входу",
+      "fields": {
+        "email": "Email",
+        "emailHelper": "Введіть вашу email адресу",
+        "emailPlaceholder": "your@email.com"
+      },
+      "errors": {
+        "invalidEmail": "Будь ласка, введіть дійсну email адресу",
+        "unexpectedError": "Сталася неочікувана помилка"
+      }
+    },
+    "resetPassword": {
+      "title": "Встановити новий пароль",
+      "subtitle": "Введіть ваш новий пароль нижче.",
+      "submit": "Оновити пароль",
+      "loading": "Оновлення...",
+      "success": "Пароль успішно скинуто! Перенаправлення...",
+      "invalidLink": "Недійсне посилання для відновлення паролю",
+      "fields": {
+        "password": "Новий пароль",
+        "passwordHelper": "Пароль повинен містити принаймні 6 символів",
+        "passwordPlaceholder": "••••••••",
+        "confirmPassword": "Підтвердження нового паролю",
+        "confirmPasswordHelper": "Введіть новий пароль ще раз",
+        "confirmPasswordPlaceholder": "••••••••"
+      },
+      "errors": {
+        "passwordMinLength": "Пароль повинен містити принаймні 6 символів",
+        "passwordMismatch": "Паролі не співпадають",
+        "unexpectedError": "Сталася неочікувана помилка"
+      }
+    },
+    "callback": {
+      "processing": "Обробка...",
+      "settingUp": "Налаштування вашої нової електронної пошти...",
+      "error": "Помилка",
+      "goToLogin": "Перейти до входу",
+      "confirmationReceived": "Підтвердження отримано",
+      "confirmationDescription": "Будь ласка, перевірте вашу нову поштову скриньку, щоб завершити зміну.",
+      "emailChanged": "Email змінено",
+      "emailChangedDescription": "Ваш email успішно змінено на {email}",
+      "processingError": "Не вдалося обробити зворотний виклик автентифікації"
     }
+  },
+  "passwordInput": {
+    "strength": {
+      "weak": "Слабкий",
+      "medium": "Середній",
+      "strong": "Сильний",
+      "label": "{strength} пароль"
+    },
+    "criteria": {
+      "length": "Принаймні 8 символів",
+      "uppercase": "Містить велику літеру",
+      "lowercase": "Містить малу літеру",
+      "number": "Містить цифру",
+      "special": "Містить спеціальний символ"
+    },
+    "required": "Це поле є обов'язковим"
   }
 }

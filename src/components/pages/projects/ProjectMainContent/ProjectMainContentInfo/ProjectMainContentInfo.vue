@@ -6,6 +6,7 @@ import { useAuth } from '@/composables/useAuth'
 import uniqolor from 'uniqolor'
 import { computed } from 'vue'
 import { useProjectContext } from '@/composables/useProjectContext'
+import { useMediaQuery } from '@vueuse/core'
 
 interface Props {
   projectId: string
@@ -20,6 +21,7 @@ const props = defineProps<Props>()
 
 const { user } = useAuth()
 const { isSidebarOpen } = useProjectContext()
+const isDesktop = useMediaQuery('(min-width: 1024px)')
 
 const projectColor = computed(() =>
   uniqolor(props.projectKey || props.projectId, {
@@ -31,7 +33,7 @@ const projectColor = computed(() =>
 
 <template>
   <div
-    class="px-24"
+    class="px-4 sm:px-8 lg:px-24"
     :class="{ 'shrink-0 z-86 pe-4': isSidebarOpen }"
     :style="{
       insetInlineStart: isSidebarOpen ? '0' : 'auto',
@@ -41,12 +43,12 @@ const projectColor = computed(() =>
     <div
       class="w-full flex items-center"
       :style="{
-        insetInlineStart: isSidebarOpen ? '96px' : 'auto',
+        insetInlineStart: isSidebarOpen && isDesktop ? '96px' : 'auto',
       }"
     >
       <div class="w-full">
-        <div class="flex items-start justify-between">
-          <div class="space-y-1">
+        <div class="space-y-1">
+          <div class="flex w-full items-center justify-between flex-wrap gap-x-2 gap-y-2">
             <div class="flex items-center gap-3">
               <h1 class="text-3xl font-bold text-neutral-900">{{ name }}</h1>
               <span
@@ -62,20 +64,19 @@ const projectColor = computed(() =>
                 {{ projectKey }}
               </span>
             </div>
-            <p v-if="description" class="text-neutral-600 mb-1">
-              {{ description }}
-            </p>
+            <div v-if="isOwner && user" class="flex items-center gap-2">
+              <ProjectMembersDialog
+                :project-id="projectId"
+                :project-name="name"
+                :current-user-id="user?.id"
+                :owner-id="ownerId"
+              />
+              <ProjectInviteDialog :project-id="projectId" :project-name="name" />
+            </div>
           </div>
-
-          <div v-if="isOwner && user" class="flex items-center gap-2">
-            <ProjectMembersDialog
-              :project-id="projectId"
-              :project-name="name"
-              :current-user-id="user?.id"
-              :owner-id="ownerId"
-            />
-            <ProjectInviteDialog :project-id="projectId" :project-name="name" />
-          </div>
+          <p v-if="description" class="text-neutral-600 mb-1">
+            {{ description }}
+          </p>
         </div>
       </div>
     </div>

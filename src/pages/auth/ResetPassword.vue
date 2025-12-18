@@ -19,11 +19,11 @@ const success = ref(false)
 
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z.string().min(6, t('auth.resetPassword.errors.passwordMinLength')),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: t('auth.resetPassword.errors.passwordMismatch'),
     path: ['confirmPassword'],
   })
 
@@ -42,7 +42,7 @@ const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword', {
 onMounted(() => {
   const hash = window.location.hash
   if (!hash || !hash.includes('type=recovery')) {
-    error.value = 'Invalid password reset link'
+    error.value = t('auth.resetPassword.invalidLink')
   }
 })
 
@@ -68,7 +68,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     }, 1500)
   } catch (err) {
     console.error('Caught exception:', err)
-    error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
+    error.value = err instanceof Error ? err.message : t('auth.resetPassword.errors.unexpectedError')
     loading.value = false
   }
 })
@@ -79,8 +79,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     <Card class="w-full max-w-md">
       <div class="space-y-6">
         <div>
-          <h1 class="text-2xl font-bold text-primary-900 mb-2">Set New Password</h1>
-          <p class="text-neutral-600 text-sm">Enter your new password below.</p>
+          <h1 class="text-2xl font-bold text-primary-900 mb-2">{{ t('auth.resetPassword.title') }}</h1>
+          <p class="text-neutral-600 text-sm">{{ t('auth.resetPassword.subtitle') }}</p>
         </div>
 
         <form @submit.prevent="onSubmit" class="space-y-4">
@@ -89,16 +89,16 @@ const onSubmit = handleSubmit(async (formValues) => {
           </div>
 
           <div v-if="success" class="p-3 rounded-lg bg-success-50 border border-success-200">
-            <p class="text-sm text-success-600">Password reset successfully! Redirecting...</p>
+            <p class="text-sm text-success-600">{{ t('auth.resetPassword.success') }}</p>
           </div>
 
           <FieldPasswordInput
             v-model="password"
-            label="New Password"
-            :helper-text="errors.password || 'Password must be at least 6 characters'"
+            :label="t('auth.resetPassword.fields.password')"
+            :helper-text="errors.password || t('auth.resetPassword.fields.passwordHelper')"
             :error-text="errors.password"
             :invalid="!!errors.password"
-            placeholder="••••••••"
+            :placeholder="t('auth.resetPassword.fields.passwordPlaceholder')"
             auto-complete="new-password"
             :disabled="loading || success"
             show-strength
@@ -107,18 +107,18 @@ const onSubmit = handleSubmit(async (formValues) => {
 
           <FieldPasswordInput
             v-model="confirmPassword"
-            label="Confirm New Password"
-            :helper-text="errors.confirmPassword || 'Re-enter your new password'"
+            :label="t('auth.resetPassword.fields.confirmPassword')"
+            :helper-text="errors.confirmPassword || t('auth.resetPassword.fields.confirmPasswordHelper')"
             :error-text="errors.confirmPassword"
             :invalid="!!errors.confirmPassword"
-            placeholder="••••••••"
+            :placeholder="t('auth.resetPassword.fields.confirmPasswordPlaceholder')"
             auto-complete="new-password"
             :disabled="loading || success"
             @blur="confirmPasswordAttrs.onBlur"
           />
 
           <Button type="submit" :disabled="loading || success" class="w-full" size="lg">
-            {{ loading ? 'Updating...' : 'Update Password' }}
+            {{ loading ? t('auth.resetPassword.loading') : t('auth.resetPassword.submit') }}
           </Button>
         </form>
       </div>

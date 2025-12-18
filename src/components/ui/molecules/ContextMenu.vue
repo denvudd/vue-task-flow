@@ -18,6 +18,7 @@ interface Props {
     | { type: 'group'; label: string; items: ContextMenuItem[] }
   )[]
   class?: string
+  disabled?: boolean
 }
 
 const props = defineProps<Props>()
@@ -58,11 +59,17 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 const handleItemClick = (value: string) => {
+  if (props.disabled) return
   emit('select', value)
   close()
 }
 
 const handleItemMouseEnter = (event: MouseEvent, itemIndex: number, item: ContextMenuItem) => {
+  if (props.disabled) {
+    hoveredSubmenuIndex.value = null
+    return
+  }
+
   if (!item.submenu || item.submenu.length === 0) {
     hoveredSubmenuIndex.value = null
     return
@@ -157,7 +164,7 @@ onBeforeUnmount(() => {
     <slot name="trigger" :onContextMenu="openAt" />
 
     <Teleport to="body">
-      <div v-show="isOpen" class="fixed inset-0 z-50" @click.stop="close">
+      <div v-show="isOpen && !props.disabled" class="fixed inset-0 z-50" @click.stop="close">
         <Transition
           enter-active-class="transition-opacity"
           enter-from-class="opacity-0"
@@ -168,7 +175,12 @@ onBeforeUnmount(() => {
         >
           <div
             v-if="isOpen"
-            :class="cn('context-menu-content absolute min-w-[180px] rounded-lg bg-white border border-neutral-200 shadow-lg py-1 text-sm', props.class)"
+            :class="
+              cn(
+                'context-menu-content absolute min-w-[180px] rounded-lg bg-white border border-neutral-200 shadow-lg py-1 text-sm',
+                props.class,
+              )
+            "
             :style="{
               left: `${position.x}px`,
               top: `${position.y}px`,
@@ -258,10 +270,7 @@ onBeforeUnmount(() => {
               </button>
             </template>
 
-            <div
-              v-if="$slots.footer"
-              class="border-t border-neutral-200 mt-1 pt-0.5 px-2"
-            >
+            <div v-if="$slots.footer" class="border-t border-neutral-200 mt-1 pt-0.5 px-2">
               <slot name="footer" />
             </div>
           </div>

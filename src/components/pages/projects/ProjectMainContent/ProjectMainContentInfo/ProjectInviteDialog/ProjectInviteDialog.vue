@@ -117,11 +117,15 @@ const open = () => {
     <Dialog v-model:open="isOpen" size="xl">
       <template #title>{{ t('projectInvite.title', { projectName }) }}</template>
 
-      <div class="space-y-6">
+      <div class="space-y-4 sm:space-y-6">
         <Field v-if="isOwner">
-          <div class="flex items-start justify-between w-full gap-3">
+          <div
+            class="flex items-start flex-wrap sm:flex-nowrap flex-col sm:flex-row justify-between w-full gap-3"
+          >
             <div class="span-y-1">
-              <p class="text-sm font-medium text-neutral-700">{{ t('projectInvite.visibility.label') }}</p>
+              <p class="text-sm font-medium text-neutral-700">
+                {{ t('projectInvite.visibility.label') }}
+              </p>
               <p class="text-xs text-neutral-600">
                 {{
                   isProjectPrivate
@@ -132,16 +136,26 @@ const open = () => {
             </div>
             <div class="flex items-center gap-2">
               <span class="text-xs font-medium text-neutral-700">{{
-                isProjectPrivate ? t('projectInvite.visibility.private') : t('projectInvite.visibility.public')
+                isProjectPrivate
+                  ? t('projectInvite.visibility.private')
+                  : t('projectInvite.visibility.public')
               }}</span>
               <Toggle
                 :pressed="isProjectPrivate"
                 :disabled="isUpdatingVisibility"
                 :class="buttonVariants({ variant: 'outline', size: 'icon' })"
-                :tooltip="isProjectPrivate ? t('projectInvite.visibility.makePublic') : t('projectInvite.visibility.makePrivate')"
+                :tooltip="
+                  isProjectPrivate
+                    ? t('projectInvite.visibility.makePublic')
+                    : t('projectInvite.visibility.makePrivate')
+                "
                 @pressed-change="handleVisibilityChange"
               >
-                <span class="sr-only">{{ isProjectPrivate ? t('projectInvite.visibility.makePublic') : t('projectInvite.visibility.makePrivate') }}</span>
+                <span class="sr-only">{{
+                  isProjectPrivate
+                    ? t('projectInvite.visibility.makePublic')
+                    : t('projectInvite.visibility.makePrivate')
+                }}</span>
                 <Eye v-if="!isProjectPrivate" class="size-4 text-neutral-700" />
                 <LockKeyhole v-else class="size-4 text-neutral-700" />
               </Toggle>
@@ -161,7 +175,7 @@ const open = () => {
         <!-- Create new link form -->
         <div
           v-if="showCreateForm && isProjectPrivate"
-          class="p-4 bg-neutral-50 rounded-lg border border-neutral-200"
+          class="p-2 sm:p-4 bg-neutral-50 rounded-lg border border-neutral-200"
         >
           <Field :label="t('projectInvite.createForm.label')" class="mb-4">
             <div class="space-y-2">
@@ -191,7 +205,11 @@ const open = () => {
               {{ t('projectInvite.createForm.cancel') }}
             </Button>
             <Button @click="handleCreateLink" size="sm" :disabled="isCreating">
-              {{ isCreating ? t('projectInvite.createForm.creating') : t('projectInvite.createForm.create') }}
+              {{
+                isCreating
+                  ? t('projectInvite.createForm.creating')
+                  : t('projectInvite.createForm.create')
+              }}
             </Button>
           </div>
         </div>

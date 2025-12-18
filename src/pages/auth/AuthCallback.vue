@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import { ROUTES } from '@/lib/routing'
@@ -9,6 +10,7 @@ import { supabase } from '@/lib/supabase'
 const router = useRouter()
 const authStore = useAuthStore()
 const { createToast } = useToast()
+const { t } = useI18n()
 
 const loading = ref(true)
 const error = ref('')
@@ -28,8 +30,8 @@ async function handleCallback() {
     const msg = decodeURIComponent(messageParam)
     if (msg.includes('Confirmation link accepted')) {
       createToast({
-        title: 'Confirmation received',
-        description: 'Please check your new email inbox to complete the change.',
+        title: t('auth.callback.confirmationReceived'),
+        description: t('auth.callback.confirmationDescription'),
         type: 'info',
       })
     }
@@ -57,8 +59,8 @@ async function handleCallback() {
 
       if (type === 'email_change') {
         createToast({
-          title: 'Email changed',
-          description: `Your email has been successfully changed to ${data.user?.email}`,
+          title: t('auth.callback.emailChanged'),
+          description: t('auth.callback.emailChangedDescription', { email: data.user?.email }),
           type: 'success',
         })
       }
@@ -81,10 +83,10 @@ onMounted(async () => {
     await handleCallback()
   } catch (err: any) {
     console.error('[Callback] Error:', err)
-    error.value = err.message || 'Failed to process callback'
+    error.value = err.message || t('auth.callback.processingError')
     createToast({
-      title: 'Error',
-      description: 'Failed to process authentication callback',
+      title: t('auth.callback.error'),
+      description: t('auth.callback.processingError'),
       type: 'error',
     })
   } finally {
@@ -106,12 +108,12 @@ onUnmounted(() => {
         <div
           class="inline-block w-8 h-8 border-2 border-info-600 border-t-transparent rounded-full animate-spin mx-auto"
         ></div>
-        <h1 class="text-2xl font-bold text-primary-900 m-0">Processing...</h1>
-        <p class="text-sm text-primary-600 m-0">Setting up your new email...</p>
+        <h1 class="text-2xl font-bold text-primary-900 m-0">{{ t('auth.callback.processing') }}</h1>
+        <p class="text-sm text-primary-600 m-0">{{ t('auth.callback.settingUp') }}</p>
       </div>
 
       <div v-else-if="error" class="flex flex-col gap-4 text-center">
-        <h1 class="text-2xl font-bold text-error-600 m-0">Error</h1>
+        <h1 class="text-2xl font-bold text-error-600 m-0">{{ t('auth.callback.error') }}</h1>
         <div class="p-3 rounded-lg text-sm bg-error-50 border border-error-200 text-error-600">
           <p class="m-0">{{ error }}</p>
         </div>
@@ -119,7 +121,7 @@ onUnmounted(() => {
           @click="router.push(ROUTES.Login)"
           class="text-info-600 text-sm font-medium cursor-pointer bg-transparent border-0 underline p-0 hover:text-info-700"
         >
-          Go to Login
+          {{ t('auth.callback.goToLogin') }}
         </button>
       </div>
     </div>
