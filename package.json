@@ -44,6 +44,7 @@
     "check-password-strength": "^3.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gsap": "^3.14.2",
     "lucide-vue-next": "^0.548.0",
     "pinia": "^3.0.3",
     "tailwind-merge": "^3.4.0",

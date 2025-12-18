@@ -7,43 +7,78 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: ROUTES.Home,
+      name: 'Home',
+      component: () => import('@/pages/home/Home.vue'),
+    },
+    {
+      path: ROUTES.Dashboard,
+      name: 'Dashboard',
       component: AppLayout,
+      meta: { requiresAuth: true },
       children: [
         {
-          path: ROUTES.Dashboard,
-          name: 'Dashboard',
-          meta: { requiresAuth: true },
+          path: '',
           component: () => import('@/pages/app/dashboard/Dashboard.vue'),
         },
+      ],
+    },
+    {
+      path: ROUTES.Profile,
+      name: 'Profile',
+      component: AppLayout,
+      meta: { requiresAuth: true },
+      children: [
         {
-          path: ROUTES.Profile,
-          name: 'Profile',
-          meta: { requiresAuth: true },
+          path: '',
           component: () => import('@/pages/app/profile/Profile.vue'),
         },
+      ],
+    },
+    {
+      path: ROUTES.CreateProject,
+      name: 'CreateProject',
+      component: AppLayout,
+      meta: { requiresAuth: true },
+      children: [
         {
-          path: ROUTES.CreateProject,
-          name: 'CreateProject',
-          meta: { requiresAuth: true },
+          path: '',
           component: () => import('@/pages/app/projects/create/ProjectsCreate.vue'),
         },
+      ],
+    },
+    {
+      path: '/projects/:id/edit',
+      name: 'EditProject',
+      component: AppLayout,
+      meta: { requiresAuth: true },
+      children: [
         {
-          path: '/projects/:id/edit',
-          name: 'EditProject',
-          meta: { requiresAuth: true },
+          path: '',
           component: () => import('@/pages/app/projects/edit/ProjectsEdit.vue'),
         },
+      ],
+    },
+    {
+      path: '/projects/:id',
+      name: 'Project',
+      component: AppLayout,
+      meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
+      children: [
         {
-          path: '/projects/:id',
-          name: 'Project',
-          meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
+          path: '',
           component: () => import('@/pages/app/projects/view/ProjectView.vue'),
         },
+      ],
+    },
+    {
+      path: '/projects/:projectId/tickets/:ticketId',
+      name: 'Ticket',
+      component: AppLayout,
+      meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
+      children: [
         {
-          path: '/projects/:projectId/tickets/:ticketId',
-          name: 'Ticket',
-          meta: { requiresAuth: false, fullWidth: true, withoutHeader: true },
+          path: '',
           component: () => import('@/pages/app/projects/view/TicketView.vue'),
         },
       ],
