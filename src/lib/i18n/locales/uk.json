@@ -92,7 +92,6 @@
       "currentEmailHelper": "Ваша поточна адреса електронної пошти",
       "newEmail": "Новий Email",
       "newEmailHelper": "Введіть нову адресу електронної пошти",
-      "newEmailPlaceholder": "new.email@example.com",
       "cancel": "Скасувати",
       "submit": "Змінити Email",
       "sending": "Надсилання...",
@@ -562,7 +561,6 @@
       "fields": {
         "email": "Email",
         "emailHelper": "Введіть вашу email адресу",
-        "emailPlaceholder": "your@email.com",
         "password": "Пароль",
         "passwordHelper": "Введіть ваш пароль",
         "passwordPlaceholder": "••••••••"
@@ -581,7 +579,6 @@
       "fields": {
         "email": "Email",
         "emailHelper": "Введіть вашу email адресу",
-        "emailPlaceholder": "your@email.com",
         "password": "Пароль",
         "passwordHelper": "Пароль повинен містити принаймні 6 символів",
         "passwordPlaceholder": "••••••••",
@@ -606,8 +603,7 @@
       "backToLogin": "Назад до входу",
       "fields": {
         "email": "Email",
-        "emailHelper": "Введіть вашу email адресу",
-        "emailPlaceholder": "your@email.com"
+        "emailHelper": "Введіть вашу email адресу"
       },
       "errors": {
         "invalidEmail": "Будь ласка, введіть дійсну email адресу",

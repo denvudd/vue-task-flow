@@ -85,7 +85,8 @@ const onChangeEmail = handleChangeEmailSubmit(async (formValues) => {
 
     closeDialog()
   } catch (err) {
-    emailChangeError.value = err instanceof Error ? err.message : t('profilePage.email.errors.unexpected')
+    emailChangeError.value =
+      err instanceof Error ? err.message : t('profilePage.email.errors.unexpected')
   } finally {
     isChangingEmail.value = false
   }
@@ -94,7 +95,9 @@ const onChangeEmail = handleChangeEmailSubmit(async (formValues) => {
 
 <template>
   <div>
-    <p class="text-sm font-medium text-neutral-700 mb-1 block">{{ t('profilePage.email.label') }}</p>
+    <p class="text-sm font-medium text-neutral-700 mb-1 block">
+      {{ t('profilePage.email.label') }}
+    </p>
     <p
       class="w-full relative px-3 py-2 border text-sm border-neutral-300 rounded-lg bg-neutral-100 text-neutral-500 cursor-not-allowed"
     >
@@ -123,7 +126,10 @@ const onChangeEmail = handleChangeEmailSubmit(async (formValues) => {
         <p class="text-sm text-error-600">{{ emailChangeError }}</p>
       </div>
 
-      <Field :label="t('profilePage.email.currentEmail')" :helper-text="t('profilePage.email.currentEmailHelper')">
+      <Field
+        :label="t('profilePage.email.currentEmail')"
+        :helper-text="t('profilePage.email.currentEmailHelper')"
+      >
         <FieldInput :model-value="user?.email || ''" type="email" disabled class="bg-neutral-100" />
       </Field>
 
@@ -136,7 +142,7 @@ const onChangeEmail = handleChangeEmailSubmit(async (formValues) => {
         <FieldInput
           v-model="newEmail"
           type="email"
-          :placeholder="t('profilePage.email.newEmailPlaceholder')"
+          placeholder="new.email@example.com"
           :disabled="isChangingEmail"
           :invalid="!!emailErrors?.newEmail"
           @blur="newEmailAttrs.onBlur"

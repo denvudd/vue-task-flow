@@ -92,7 +92,6 @@
       "currentEmailHelper": "Your current email address",
       "newEmail": "New Email",
       "newEmailHelper": "Enter your new email address",
-      "newEmailPlaceholder": "new.email@example.com",
       "cancel": "Cancel",
       "submit": "Change Email",
       "sending": "Sending...",
@@ -562,7 +561,6 @@
       "fields": {
         "email": "Email",
         "emailHelper": "Enter your email address",
-        "emailPlaceholder": "your@email.com",
         "password": "Password",
         "passwordHelper": "Enter your password",
         "passwordPlaceholder": "••••••••"
@@ -581,7 +579,6 @@
       "fields": {
         "email": "Email",
         "emailHelper": "Enter your email address",
-        "emailPlaceholder": "your@email.com",
         "password": "Password",
         "passwordHelper": "Password must be at least 6 characters",
         "passwordPlaceholder": "••••••••",
@@ -606,8 +603,7 @@
       "backToLogin": "Back to Login",
       "fields": {
         "email": "Email",
-        "emailHelper": "Enter your email address",
-        "emailPlaceholder": "your@email.com"
+        "emailHelper": "Enter your email address"
       },
       "errors": {
         "invalidEmail": "Please enter a valid email address",

@@ -45,7 +45,8 @@ const onSubmit = handleSubmit(async (formValues) => {
 
     success.value = true
   } catch (err) {
-    error.value = err instanceof Error ? err.message : t('auth.forgotPassword.errors.unexpectedError')
+    error.value =
+      err instanceof Error ? err.message : t('auth.forgotPassword.errors.unexpectedError')
   } finally {
     loading.value = false
   }
@@ -61,7 +62,9 @@ const navigateToLogin = () => {
     <Card class="w-full max-w-md">
       <div class="space-y-6">
         <div>
-          <h1 class="text-2xl font-bold text-primary-900 mb-2">{{ t('auth.forgotPassword.title') }}</h1>
+          <h1 class="text-2xl font-bold text-primary-900 mb-2">
+            {{ t('auth.forgotPassword.title') }}
+          </h1>
           <p class="text-neutral-600 text-sm">
             {{ t('auth.forgotPassword.subtitle') }}
           </p>
@@ -85,7 +88,7 @@ const navigateToLogin = () => {
             <FieldInput
               v-model="email"
               type="email"
-              :placeholder="t('auth.forgotPassword.fields.emailPlaceholder')"
+              placeholder="your@email.com"
               :disabled="loading || success"
               :invalid="!!errors.email"
               @blur="emailAttrs.onBlur"

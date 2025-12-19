@@ -153,7 +153,7 @@ const handleGoogleSignIn = async () => {
             <FieldInput
               v-model="email"
               type="email"
-              :placeholder="t('auth.signUp.fields.emailPlaceholder')"
+              placeholder="your@email.com"
               :disabled="loading || success"
               :invalid="!!errors.email"
               :valid="emailValid"
