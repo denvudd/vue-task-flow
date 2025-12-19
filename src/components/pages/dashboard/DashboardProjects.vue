@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAuth } from '@/composables/useAuth'
-import { useUserProjects } from '@/composables/useProjects'
+import { useUserProjects, useDeleteProject } from '@/composables/useProjects'
 import { useI18n } from 'vue-i18n'
-import { Card } from '@/components/ui'
-import { SquareKanban, Ban, Plus, Pencil } from 'lucide-vue-next'
+import { Card, Dialog } from '@/components/ui'
+import { SquareKanban, Ban, Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { Button } from '@/components/ui'
 import { useRouter, RouterLink } from 'vue-router'
 import { ROUTES } from '@/lib/routing'
+import { useToast } from '@/composables/useToast'
 
 const { user } = useAuth()
 const router = useRouter()
 const { t } = useI18n()
+const { createToast } = useToast()
 
 const {
   data: projects,
@@ -20,6 +22,8 @@ const {
   error: projectsError,
   refetch: refetchProjects,
 } = useUserProjects(computed(() => user.value?.id))
+
+const deleteProjectMutation = useDeleteProject()
 
 const ownedProjects = computed(() =>
   (projects.value || []).filter((project) => project.owner_id === user.value?.id),
@@ -36,6 +40,10 @@ const errorMessage = computed(() => {
     : t('projects.errorLoading')
 })
 
+// Delete dialog state
+const showDeleteDialog = ref(false)
+const projectToDelete = ref<string | null>(null)
+
 const handleRefreshProjects = () => {
   refetchProjects()
 }
@@ -44,6 +52,38 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
   event.preventDefault()
   event.stopPropagation()
   router.push(ROUTES.EditProject(projectId))
+}
+
+const handleDeleteProject = (projectId: string, event: MouseEvent) => {
+  event.preventDefault()
+  event.stopPropagation()
+  projectToDelete.value = projectId
+  showDeleteDialog.value = true
+}
+
+const confirmDeleteProject = async () => {
+  if (!projectToDelete.value) return
+
+  try {
+    await deleteProjectMutation.mutateAsync(projectToDelete.value)
+    createToast({
+      title: t('projects.deleteSuccess'),
+      type: 'success',
+    })
+    showDeleteDialog.value = false
+    projectToDelete.value = null
+  } catch (error) {
+    createToast({
+      title: t('projects.deleteError'),
+      description: error instanceof Error ? error.message : t('projects.deleteError'),
+      type: 'error',
+    })
+  }
+}
+
+const cancelDeleteProject = () => {
+  showDeleteDialog.value = false
+  projectToDelete.value = null
 }
 </script>
 
@@ -71,7 +111,9 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
           <span class="text-error-800 font-medium">{{ t('projects.errorLoading') }}</span>
         </div>
         <p class="text-error-600 text-sm mt-1 text-center mx-auto">{{ errorMessage }}</p>
-        <Button variant="outline" @click="handleRefreshProjects" class="mt-4">{{ t('projects.refresh') }}</Button>
+        <Button variant="outline" @click="handleRefreshProjects" class="mt-4">{{
+          t('projects.refresh')
+        }}</Button>
       </div>
 
       <div v-else-if="!projects || projects.length === 0" class="text-center py-8">
@@ -98,7 +140,7 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <h4 class="font-semibold text-neutral-900 text-lg">{{ project.name }}</h4>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center">
                     <Button
                       size="icon"
                       variant="ghost"
@@ -108,6 +150,16 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
                       :tooltip="t('projects.edit')"
                     >
                       <Pencil class="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      class="h-7 w-7 p-0 text-error-600 hover:text-error-700 hover:bg-error-50 mr-1"
+                      @click="handleDeleteProject(project.id, $event)"
+                      @mousedown.stop
+                      :tooltip="t('projects.delete')"
+                    >
+                      <Trash2 class="w-3.5 h-3.5" />
                     </Button>
                     <span
                       class="text-xs text-neutral-500 bg-primary-50 px-2 py-1 rounded font-medium"
@@ -189,4 +241,25 @@ const handleEditProject = (projectId: string, event: MouseEvent) => {
       </div>
     </div>
   </Card>
+
+  <!-- Delete Confirmation Dialog -->
+  <Dialog v-model:open="showDeleteDialog" size="md">
+    <template #title>{{ t('projects.deleteConfirm') }}</template>
+    <template #description>
+      {{ t('projects.deleteConfirmDescription') }}
+    </template>
+
+    <template #footer>
+      <Button variant="outline" @click="cancelDeleteProject">
+        {{ t('createProject.cancel') }}
+      </Button>
+      <Button
+        variant="danger"
+        @click="confirmDeleteProject"
+        :disabled="deleteProjectMutation.isPending.value"
+      >
+        {{ deleteProjectMutation.isPending.value ? t('projects.deleting') : t('projects.delete') }}
+      </Button>
+    </template>
+  </Dialog>
 </template>

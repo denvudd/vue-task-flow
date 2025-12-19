@@ -27,15 +27,28 @@ const { createToast } = useToast()
 const { t } = useI18n()
 
 interface OAuthProvider {
-  provider: string
   id: string
-  created_at: string
+  user_id: string
+  email?: string
+  identity_data?:
+    | {
+        [key: string]: any
+      }
+    | undefined
+  identity_id: string
+  provider: string
+  created_at?: string | undefined
+  last_sign_in_at?: string | undefined
+  updated_at?: string | undefined
 }
 
 const providers = computed<OAuthProvider[]>(() => {
   if (!user.value?.identities) {
     return []
   }
+  console.log(
+    user.value.identities.filter((identity) => identity.provider !== 'email') as OAuthProvider[],
+  )
   return user.value.identities.filter(
     (identity) => identity.provider !== 'email',
   ) as OAuthProvider[]
@@ -126,7 +139,9 @@ const handleUnlink = async () => {
 
     createToast({
       title: t('profilePage.oauth.success.title'),
-      description: t('profilePage.oauth.success.description', { provider: getProviderName(providerToUnlink.value.provider) }),
+      description: t('profilePage.oauth.success.description', {
+        provider: getProviderName(providerToUnlink.value.provider),
+      }),
       type: 'success',
     })
 
@@ -145,7 +160,9 @@ const handleUnlink = async () => {
 
 <template>
   <div>
-    <p class="text-sm font-medium text-neutral-700 mb-3 block">{{ t('profilePage.oauth.label') }}</p>
+    <p class="text-sm font-medium text-neutral-700 mb-3 block">
+      {{ t('profilePage.oauth.label') }}
+    </p>
     <div v-if="providers.length === 0" class="text-sm text-neutral-500">
       {{ t('profilePage.oauth.noProviders') }}
     </div>
@@ -164,46 +181,15 @@ const handleUnlink = async () => {
           <div>
             <p class="text-sm font-medium text-neutral-900">
               {{ getProviderName(provider.provider) }}
+              {{ provider.email ? `(${provider.email})` : '' }}
             </p>
             <p class="text-xs text-neutral-500">{{ t('profilePage.oauth.connectedVia') }}</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
           <Badge variant="success" size="sm">{{ t('profilePage.oauth.connected') }}</Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            :disabled="isUnlinking"
-            @click="openUnlinkDialog(provider)"
-            class="text-error-600 hover:text-error-700 hover:bg-error-50"
-          >
-            <Trash2 class="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </div>
-
-    <Dialog v-model:open="unlinkDialogOpen" size="md">
-      <template #title>{{ t('profilePage.oauth.disconnectDialog.title') }}</template>
-      <template #description>
-        <span v-html="t('profilePage.oauth.disconnectDialog.description', { provider: providerToUnlink ? getProviderName(providerToUnlink.provider) : '' })"></span>
-      </template>
-
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            :disabled="isUnlinking"
-            @click="closeUnlinkDialog"
-          >
-            {{ t('profilePage.oauth.disconnectDialog.cancel') }}
-          </Button>
-          <Button type="button" variant="danger" :disabled="isUnlinking" @click="handleUnlink">
-            {{ isUnlinking ? t('profilePage.oauth.disconnectDialog.disconnecting') : t('profilePage.oauth.disconnectDialog.disconnect') }}
-          </Button>
-        </div>
-      </template>
-    </Dialog>
   </div>
 </template>
