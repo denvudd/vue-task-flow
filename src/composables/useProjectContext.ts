@@ -80,13 +80,14 @@ export function useProjectContext() {
     if (!project.value || !user.value) return false
     return project.value.owner_id === user.value.id
   })
-  const isUserEditor = computed(() =>
-    members.value.some(
-      (member) =>
-        (member.user_id === user.value?.id && member.role === PROJECT_ROLES.EDITOR) ||
-        isOwner.value,
-    ),
-  )
+  const isUserEditor = computed(() => {
+    if (isOwner.value) return true
+
+    return members.value.some(
+      (member) => member.user_id === user.value?.id && member.role === PROJECT_ROLES.EDITOR,
+    )
+  })
+
   const isUserCommenter = computed(() =>
     members.value.some(
       (member) =>
