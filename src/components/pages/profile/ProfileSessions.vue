@@ -8,6 +8,7 @@ import { Monitor, Smartphone, Tablet, Globe, LogOut, Clock, Calendar } from 'luc
 import type { Component } from 'vue'
 
 const { session, signOut } = useAuth()
+console.log('🚀 ~ session:', session.value)
 const { createToast } = useToast()
 const { t } = useI18n()
 
@@ -15,7 +16,7 @@ const signOutDialogOpen = ref(false)
 const isSigningOut = ref(false)
 
 interface SessionInfo {
-  expiresAt: Date
+  expires_at: number
   userAgent: string
   deviceType: 'desktop' | 'mobile' | 'tablet' | 'unknown'
   isCurrent: boolean
@@ -41,8 +42,10 @@ const sessionInfo = computed<SessionInfo | null>(() => {
     deviceType = 'desktop'
   }
 
+  console.log(session.value.expires_at)
+
   return {
-    expiresAt: new Date(session.value.expires_at || Date.now()),
+    expires_at: session.value.expires_at || Date.now(),
     userAgent,
     deviceType,
     isCurrent: true,
@@ -59,22 +62,26 @@ const getDeviceIcon = (deviceType: string): Component => {
   return iconMap[deviceType] || Globe
 }
 
-const formatDate = (date: Date): string => {
+const formatDate = (timestampSeconds: number): string => {
+  const d = new Date(timestampSeconds * 1000)
+
   return new Intl.DateTimeFormat('uk-UA', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(date)
+  }).format(d)
 }
 
 const isExpiringSoon = computed(() => {
   if (!sessionInfo.value) return false
-  const expiresAt = sessionInfo.value.expiresAt
-  const now = new Date()
-  const diff = expiresAt.getTime() - now.getTime()
+
+  const expiresAtMs = sessionInfo.value.expires_at * 1000
+  const now = Date.now()
+  const diff = expiresAtMs - now
   const hoursUntilExpiry = diff / (1000 * 60 * 60)
+
   return hoursUntilExpiry < 24 && hoursUntilExpiry > 0
 })
 
@@ -131,7 +138,7 @@ const handleSignOut = async () => {
               />
             </div>
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1">
                 <p class="text-sm font-medium text-neutral-900">
                   {{
                     sessionInfo.deviceType === 'desktop'
@@ -175,7 +182,7 @@ const handleSignOut = async () => {
             <div>
               <p class="text-xs text-neutral-500 mb-0.5">{{ t('profilePage.sessions.expires') }}</p>
               <p class="text-sm text-neutral-900">
-                {{ formatDate(sessionInfo.expiresAt) }}
+                {{ formatDate(sessionInfo.expires_at) }}
               </p>
             </div>
           </div>
